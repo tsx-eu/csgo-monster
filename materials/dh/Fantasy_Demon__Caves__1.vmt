@@ -1,0 +1,9 @@
+"VertexLitGeneric"
+{
+	"$basetexture" "dh/Fantasy_Demon_Cave_Atlas"
+	"$bumpmap" "dh/Fantasy_Demon_Cave_Atlas_Normal"
+	$model 1
+	$halflambert 1
+	$surfaceprop "rock"
+	$ssbump		1
+}

@@ -1,0 +1,16 @@
+"LightmappedGeneric"
+{
+	"$basetexture" "dh/radar/red"
+	
+	"Proxies" 
+	{ 
+		"AnimatedTexture" 
+		{ 
+		"animatedTextureVar" "$basetexture" 
+		"animatedTextureFrameNumVar" "$frame" 
+		"animatedTextureFrameRate" "60" 
+		}
+	}
+	
+	"$frame"	"1"
+}

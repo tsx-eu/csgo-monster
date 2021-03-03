@@ -1,0 +1,5 @@
+"LightmappedGeneric"
+{
+	"$basetexture" "dh/world/wood/wood_floor_01_board"
+	"$translucent" 1
+}

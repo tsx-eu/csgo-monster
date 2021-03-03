@@ -1,0 +1,23 @@
+"VertexLitGeneric"
+{
+	$basetexture 			dh/DefaultMaterial_emissive
+	$bumpmap 				dh/DefaultMaterial_normal
+	$envmapmask 			dh/DefaultMaterial_metallic
+	$phongexponenttexture 	dh/DefaultMaterial_AO
+	$selfillummask 			dh/DefaultMaterial_roughness
+	
+	$model 					1
+	$halflambert 			1
+	$surfaceprop 			"rock"
+	$ssbump					1
+	$selfillum 				1
+	
+	$phong 					1
+	$phongboost				1
+	
+	$rimlight               1
+	$rimlightexponent       2
+	$rimlightboost          .2	
+	$diffuseexp 			5
+
+}

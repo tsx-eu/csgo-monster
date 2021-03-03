@@ -1,0 +1,5 @@
+"LightmappedGeneric"
+{
+	"$basetexture" "dh/world/floor/stone_floor_02_01"
+	"$translucent" 1
+}
