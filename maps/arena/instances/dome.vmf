@@ -2,7 +2,7 @@ versioninfo
 {
 	"editorversion" "400"
 	"editorbuild" "8456"
-	"mapversion" "38"
+	"mapversion" "39"
 	"formatversion" "100"
 	"prefab" "0"
 }
@@ -20,7 +20,7 @@ viewsettings
 world
 {
 	"id" "1"
-	"mapversion" "38"
+	"mapversion" "39"
 	"classname" "worldspawn"
 	"detailmaterial" "detail/detailsprites"
 	"detailvbsp" "detail.vbsp"
@@ -2222,7 +2222,7 @@ entity
 	"id" "406"
 	"classname" "func_instance"
 	"angles" "-0 -90 0"
-	"file" "instances/camera.vmf"
+	"file" "arena/instances/camera.vmf"
 	"fixup_style" "0"
 	"origin" "-396 912 -839.305"
 	editor
@@ -2238,7 +2238,7 @@ entity
 	"id" "433"
 	"classname" "func_instance"
 	"angles" "-0 0 0"
-	"file" "instances/camera.vmf"
+	"file" "arena/instances/camera.vmf"
 	"fixup_style" "0"
 	"origin" "-942 366 -839.305"
 	editor

@@ -2,7 +2,7 @@ versioninfo
 {
 	"editorversion" "400"
 	"editorbuild" "8456"
-	"mapversion" "248"
+	"mapversion" "259"
 	"formatversion" "100"
 	"prefab" "0"
 }
@@ -14,13 +14,13 @@ viewsettings
 	"bSnapToGrid" "1"
 	"bShowGrid" "1"
 	"bShowLogicalGrid" "0"
-	"nGridSpacing" "64"
+	"nGridSpacing" "256"
 	"bShow3DGrid" "0"
 }
 world
 {
 	"id" "1"
-	"mapversion" "248"
+	"mapversion" "259"
 	"classname" "worldspawn"
 	"detailmaterial" "detail/detailsprites"
 	"detailvbsp" "detail.vbsp"
@@ -12212,7 +12212,7 @@ entity
 	"id" "5410"
 	"classname" "func_instance"
 	"angles" "-0 0 0"
-	"file" "instances/gate.vmf"
+	"file" "arena/instances/gate.vmf"
 	"fixup_style" "0"
 	"origin" "1088 0 -64"
 	editor
@@ -12244,7 +12244,7 @@ entity
 	"id" "4521"
 	"classname" "func_instance"
 	"angles" "-0 0 0"
-	"file" "instances/spawner.vmf"
+	"file" "arena/instances/spawner.vmf"
 	"fixup_style" "0"
 	"origin" "0 960 0"
 	editor
@@ -12260,7 +12260,7 @@ entity
 	"id" "4773"
 	"classname" "func_instance"
 	"angles" "-0 0 0"
-	"file" "instances/spawn_door_rotated.vmf"
+	"file" "arena/instances/spawn_door_rotated.vmf"
 	"fixup_style" "0"
 	"origin" "-704 704 96"
 	editor
@@ -12276,7 +12276,7 @@ entity
 	"id" "4815"
 	"classname" "func_instance"
 	"angles" "-0 -90 0"
-	"file" "instances/spawn_door_rotated.vmf"
+	"file" "arena/instances/spawn_door_rotated.vmf"
 	"fixup_style" "0"
 	"origin" "704 704 96"
 	editor
@@ -12292,7 +12292,7 @@ entity
 	"id" "4887"
 	"classname" "func_instance"
 	"angles" "0 180 0"
-	"file" "instances/spawner.vmf"
+	"file" "arena/instances/spawner.vmf"
 	"fixup_style" "0"
 	"origin" "0 -960 0"
 	editor
@@ -12308,7 +12308,7 @@ entity
 	"id" "4902"
 	"classname" "func_instance"
 	"angles" "-0 90 0"
-	"file" "instances/spawn_door_rotated.vmf"
+	"file" "arena/instances/spawn_door_rotated.vmf"
 	"fixup_style" "0"
 	"origin" "-704 -704 96"
 	editor
@@ -12324,7 +12324,7 @@ entity
 	"id" "4950"
 	"classname" "func_instance"
 	"angles" "-0 180 0"
-	"file" "instances/spawn_door_rotated.vmf"
+	"file" "arena/instances/spawn_door_rotated.vmf"
 	"fixup_style" "0"
 	"origin" "704 -704 96"
 	editor
@@ -12377,7 +12377,7 @@ entity
 	"id" "3423"
 	"classname" "func_instance"
 	"angles" "-0 0 0"
-	"file" "instances/pitch.vmf"
+	"file" "arena/instances/pitch.vmf"
 	"fixup_style" "2"
 	"origin" "1024 -1024 -32"
 	editor
