@@ -86,14 +86,15 @@ bool DH::SDK_OnLoad(char *error, size_t maxlength, bool late) {
 		return false;
 
 	void *addr;
-	g_pGameConf->GetMemSig("IsFollowingSomeone", &addr);
-
-        sharesys->RegisterLibrary(myself, "dh");
-        plsys->AddPluginsListener(this);
-
-        g_hIsFollowingSomeone = new subhook::Hook(addr, (void *)IsFollowingSomeone);
+	if ( !g_pGameConf->GetMemSig("IsFollowingSomeone", &addr) || !addr ) {
+		snprintf(error, maxlength, "Failed to lookup signature: IsFollowingSomeone");
+	}
+	g_hIsFollowingSomeone = new subhook::Hook(addr, (void *)IsFollowingSomeone);
 	g_hIsFollowingSomeone->Install();
-
+	
+	
+	sharesys->RegisterLibrary(myself, "dh");
+	plsys->AddPluginsListener(this);
 
 	return true;
 }
