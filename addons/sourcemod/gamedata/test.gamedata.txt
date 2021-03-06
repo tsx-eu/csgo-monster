@@ -1,0 +1,14 @@
+"Games"
+{
+        "csgo"
+        {
+                "Signatures"
+                {
+                        "IsFollowingSomeone"
+                        {
+                                "library"       "server"
+                                "linux"         "\x55\x89\xE5\x53\x8B\x1D\x2A\x2A\x2A\x2A\x8B\x45\x08\x8B\x90\x68\x0A\x00\x00"
+                        }
+                }
+        }
+}
