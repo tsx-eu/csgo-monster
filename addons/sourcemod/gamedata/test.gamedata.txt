@@ -2,13 +2,36 @@
 {
         "csgo"
         {
+                "Addresses"
+                {
+                        "IsFollowingSomeone" // StopFollowing
+                        {
+                                "linux"
+				{
+					"signature"         "IsFollowingSomeone"
+				}
+                        }
+                        "UpdateFollowing" // hostage_stops_following
+                        {
+                                "linux"
+				{
+					"signature"         "UpdateFollowing"
+				}
+                        }
+                }
+
                 "Signatures"
                 {
-                        "IsFollowingSomeone"
+                        "IsFollowingSomeone" // StopFollowing
                         {
                                 "library"       "server"
                                 "linux"         "\x55\x89\xE5\x53\x8B\x1D\x2A\x2A\x2A\x2A\x8B\x45\x08\x8B\x90\x68\x0A\x00\x00"
                         }
+			"UpdateFollowing" // hostage_stops_following
+			{
+				"library"       "server"
+				"linux"         "\x55\x89\xE5\x83\xEC\x78\x89\x5D\xF4\x8B\x5D\x08\x89\x75\xF8\x89\x7D\xFC\x89\x1C\x24\xE8\x2A\x2A\x2A\x2A\x84\xC0"
+			}
                 }
         }
 }
