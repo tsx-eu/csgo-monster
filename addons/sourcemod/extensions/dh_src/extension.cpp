@@ -16,6 +16,7 @@
 
 DH g_sglExtInterface;		/**< Global singleton for extension's main interface */
 SMEXT_LINK(&g_sglExtInterface);
+CGlobalVars *gpGlobals;
 
 /*
 size_t UTIL_DecodeHexString(unsigned char *buffer, size_t maxlength, const char *hexstr) {
@@ -91,9 +92,10 @@ bool DH::SDK_OnLoad(char *error, size_t maxlength, bool late) {
 	}
 	g_hIsFollowingSomeone = new subhook::Hook(addr, (void *)IsFollowingSomeone);
 	g_hIsFollowingSomeone->Install();
-	
-	
+
 	sharesys->RegisterLibrary(myself, "dh");
+	sharesys->AddNatives(myself, g_PhysNatives);
+
 	plsys->AddPluginsListener(this);
 
 	return true;
@@ -112,4 +114,12 @@ void DH::OnPluginLoaded(IPlugin *plugin) {
 
 void DH::OnPluginUnloaded(IPlugin *plugin) {
 	// TBD
+}
+bool DH::SDK_OnMetamodLoad(ISmmAPI *ismm, char *error, size_t maxlen, bool late)
+{
+	gpGlobals = g_SMAPI->GetCGlobals();
+
+	g_SMAPI->AddListener(g_PLAPI, this);
+
+	return true;
 }

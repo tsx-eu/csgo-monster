@@ -7,6 +7,7 @@
  */
 
 #include "smsdk_ext.h"
+#include "physnatives.h"
 #include "subhook/subhook.h"
 
 
@@ -16,7 +17,8 @@
  */
 class DH :
 	public SDKExtension,
-	public IPluginsListener
+	public IPluginsListener,
+	public IMetamodListener
 {
 public:
 	/**
@@ -66,7 +68,7 @@ public:
 	 * @param late			Whether or not Metamod considers this a late load.
 	 * @return				True to succeed, false to fail.
 	 */
-	//virtual bool SDK_OnMetamodLoad(ISmmAPI *ismm, char *error, size_t maxlength, bool late);
+	virtual bool SDK_OnMetamodLoad(ISmmAPI *ismm, char *error, size_t maxlength, bool late);
 
 	/**
 	 * @brief Called when Metamod is detaching, after the extension version is called.
@@ -92,5 +94,31 @@ public:
 private:
 	subhook::Hook* g_hIsFollowingSomeone;
 };
+
+extern CGlobalVars *gpGlobals;
+
+#if SOURCE_ENGINE >= SE_LEFT4DEAD
+inline int IndexOfEdict(const edict_t *pEdict)
+{
+	return (int)(pEdict - gpGlobals->pEdicts);
+}
+inline edict_t *PEntityOfEntIndex(int iEntIndex)
+{
+	if (iEntIndex >= 0 && iEntIndex < gpGlobals->maxEntities)
+	{
+		return (edict_t *)(gpGlobals->pEdicts + iEntIndex);
+	}
+	return NULL;
+}
+#else
+inline int IndexOfEdict(const edict_t *pEdict)
+{
+	return engine->IndexOfEdict(pEdict);
+}
+inline edict_t *PEntityOfEntIndex(int iEntIndex)
+{
+	return engine->PEntityOfEntIndex(iEntIndex);
+}
+#endif //SOURCE_ENGINE >= SE_LEFT4DEAD
 
 #endif // _INCLUDE_SOURCEMOD_EXTENSION_PROPER_H_
