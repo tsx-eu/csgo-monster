@@ -1,5 +1,9 @@
-
 *.log
 *.vmx
 *.meta
 *.prt
+*.smx
+*.bsp
+*.o
+**/.ambuild2/**
+**/dh.ext.2.csgo.so/**
