@@ -122,7 +122,7 @@ public void OnThink(int entity) {
 				float flDist = NormalizeVector(push, push);
 				float flForce = sv_pushaway_hostage_force.FloatValue / flDist * lerp;
 				
-				if( flForce > sv_pushaway_max_hostage_force.FloatValue ) flForce = GetConVarFloat(FindConVar("sv_pushaway_max_hostage_force"));
+				if( flForce > sv_pushaway_max_hostage_force.FloatValue ) flForce = sv_pushaway_max_hostage_force.FloatValue;
 				if( flForce < 0.0 ) continue; // ???
 				
 				ScaleVector(push, flForce);
