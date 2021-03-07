@@ -18,12 +18,17 @@ public Plugin myinfo = {
 };
 
 float m_inhibitDoorTimer[2048];
+ConVar sv_pushaway_hostage_force;
+ConVar sv_pushaway_max_hostage_force;
 
 public void OnPluginStart() {
 	RegConsoleCmd("hostage", block);
 	RegServerCmd("patch", patch);
 	
 	ServerCommand("patch");
+	
+	sv_pushaway_hostage_force = FindConVar("sv_pushaway_hostage_force");
+	sv_pushaway_max_hostage_force = FindConVar("sv_pushaway_max_hostage_force");
 	
 	char classname[128];
 	for(int i=1; i<=2048; i++) {
@@ -94,6 +99,7 @@ stock float Math_InvLerp(float a, float b, float v) {
 public void OnThink(int entity) {
 	static char classname[128];
 	
+	float src[3], dst[3], push[3];
 	int ents[8];
 	int ret = GetPushawayEnts(entity, ents, sizeof(ents), 0.0, PARTITION_SOLID_EDICTS);
 	
@@ -106,24 +112,18 @@ public void OnThink(int entity) {
 				float mass = Phys_GetMass(target);
 				float lerp = Math_Clamp(Math_InvLerp(30.0, 10.0, mass), 0.0, 1.0);
 				
-				if( lerp <= 0.0 )
-					continue;	// trop lourd
+				if( lerp <= 0.0 ) continue;	// trop lourd
 				
-				float src[3], dst[3], push[3];
 				Entity_GetAbsOrigin(entity, src);
 				Entity_GetAbsOrigin(target, dst);
 				
 				SubtractVectors(dst, src, push);
 				
 				float flDist = NormalizeVector(push, push);
-				float flForce = GetConVarFloat(FindConVar("sv_pushaway_hostage_force")) / flDist * lerp;
+				float flForce = sv_pushaway_hostage_force.FloatValue / flDist * lerp;
 				
-				if( flForce > GetConVarFloat(FindConVar("sv_pushaway_max_hostage_force")) ) flForce = GetConVarFloat(FindConVar("sv_pushaway_max_hostage_force"));
-				
-				if( flForce < 0.0 )
-					continue; // ???
-				
-				//PrintToServer("[%d] %s at %f %f %f (%f)", target, classname, push[0], push[1], push[2], flForce);
+				if( flForce > sv_pushaway_max_hostage_force.FloatValue ) flForce = GetConVarFloat(FindConVar("sv_pushaway_max_hostage_force"));
+				if( flForce < 0.0 ) continue; // ???
 				
 				ScaleVector(push, flForce);
 				TeleportEntity(target, NULL_VECTOR, NULL_VECTOR, push);
