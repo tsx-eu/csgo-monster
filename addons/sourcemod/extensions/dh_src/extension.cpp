@@ -17,6 +17,9 @@
 DH g_sglExtInterface;		/**< Global singleton for extension's main interface */
 SMEXT_LINK(&g_sglExtInterface);
 CGlobalVars *gpGlobals;
+IPhysics *iphysics = NULL;
+IForward *g_pUpdateFollowingForwardPre = NULL;
+IForward *g_pUpdateFollowingForwardPost = NULL;
 
 /*
 size_t UTIL_DecodeHexString(unsigned char *buffer, size_t maxlength, const char *hexstr) {
@@ -51,33 +54,45 @@ size_t UTIL_DecodeHexString(unsigned char *buffer, size_t maxlength, const char 
 }
 void *GetAddressFromKeyValues(void *pBaseAddr, IGameConfig *pGameConfig, const char *key)
 {
-    const char *value = pGameConfig->GetKeyValue(key);
-    if (!value)
-        return nullptr;
+	const char *value = pGameConfig->GetKeyValue(key);
+	if (!value)
+		return nullptr;
 
-    // Got a symbol here.
-    if (value[0] == '@')
-        return memutils->ResolveSymbol(pBaseAddr, &value[1]);
+	if (value[0] == '@')
+		return memutils->ResolveSymbol(pBaseAddr, &value[1]);
 
-    // Convert hex signature to byte pattern
-    unsigned char signature[200];
-    size_t real_bytes = UTIL_DecodeHexString(signature, sizeof(signature), value);
-    if (real_bytes < 1)
-        return nullptr;
+	unsigned char signature[200];
+	size_t real_bytes = UTIL_DecodeHexString(signature, sizeof(signature), value);
+	if (real_bytes < 1)
+		return nullptr;
 
 #ifdef _LINUX
-    // The pointer returned by dlopen is not inside the loaded librarys memory region.
-    struct link_map *dlmap = (struct link_map *)pBaseAddr;
-    pBaseAddr = (void *)dlmap->l_addr;
+	struct link_map *dlmap = (struct link_map *)pBaseAddr;
+	pBaseAddr = (void *)dlmap->l_addr;
 #endif
 
-    // Find that pattern in the pointed module.
-    return memutils->FindPattern(pBaseAddr, (char *)signature, real_bytes);
+	return memutils->FindPattern(pBaseAddr, (char *)signature, real_bytes);
 }
 */
 
-int IsFollowingSomeone(void* self) {
+int IsFollowingSomeone(CBaseEntity* pEntity) {
 	return 0;
+}
+void Wiggle(CBaseEntity* pEntity) {
+}
+
+typedef void (*UpdateFollowing_func)(CBaseEntity* pEntity, float deltaT);
+void UpdateFollowing(CBaseEntity* pEntity, float deltaT) {
+	cell_t result = Pl_Continue;
+	g_pUpdateFollowingForwardPre->PushCell(gamehelpers->EntityToBCompatRef(pEntity));
+	g_pUpdateFollowingForwardPre->Execute(&result);
+
+	if( result == Pl_Continue ) {
+		((UpdateFollowing_func)g_sglExtInterface.g_hUpdateFollowing->GetTrampoline())(pEntity, deltaT);
+	}
+
+	g_pUpdateFollowingForwardPost->PushCell(gamehelpers->EntityToBCompatRef(pEntity));
+	g_pUpdateFollowingForwardPost->Execute();
 }
 
 bool DH::SDK_OnLoad(char *error, size_t maxlength, bool late) {
@@ -86,12 +101,34 @@ bool DH::SDK_OnLoad(char *error, size_t maxlength, bool late) {
 	if (!gameconfs->LoadGameConfigFile("test.gamedata", &g_pGameConf, error, maxlength))
 		return false;
 
-	void *addr;
-	if ( !g_pGameConf->GetMemSig("IsFollowingSomeone", &addr) || !addr ) {
+	// ----------------------------------------------------------------------------------------------------------
+	void *addr_IsFollowingSomeone;
+	if ( !g_pGameConf->GetMemSig("IsFollowingSomeone", &addr_IsFollowingSomeone) || !addr_IsFollowingSomeone ) {
 		snprintf(error, maxlength, "Failed to lookup signature: IsFollowingSomeone");
+		return false;
 	}
-	g_hIsFollowingSomeone = new subhook::Hook(addr, (void *)IsFollowingSomeone);
+	g_hIsFollowingSomeone = new subhook::Hook(addr_IsFollowingSomeone, (void *)IsFollowingSomeone);
 	g_hIsFollowingSomeone->Install();
+	// ----------------------------------------------------------------------------------------------------------
+	void *addr_Wiggle;
+	if ( !g_pGameConf->GetMemSig("Wiggle", &addr_Wiggle) || !addr_Wiggle ) {
+		snprintf(error, maxlength, "Failed to lookup signature: Wiggle");
+		return false;
+	}
+	g_hWiggle = new subhook::Hook(addr_Wiggle, (void *)Wiggle);
+	g_hWiggle->Install();
+	// ----------------------------------------------------------------------------------------------------------
+	void *addr_UpdateFollowing;
+	if ( !g_pGameConf->GetMemSig("UpdateFollowing", &addr_UpdateFollowing) || !addr_UpdateFollowing ) {
+		snprintf(error, maxlength, "Failed to lookup signature: UpdateFollowing");
+		return false;
+	}
+	g_hUpdateFollowing = new subhook::Hook(addr_UpdateFollowing, (void *)UpdateFollowing);
+	g_hUpdateFollowing->Install();
+	// ----------------------------------------------------------------------------------------------------------
+	g_pUpdateFollowingForwardPre = forwards->CreateForward("DH_OnUpdateFollowingPre", ET_Hook, 1, NULL, Param_Cell);
+	g_pUpdateFollowingForwardPost = forwards->CreateForward("DH_OnUpdateFollowingPost", ET_Hook, 1, NULL, Param_Cell);
+	// ----------------------------------------------------------------------------------------------------------
 
 	sharesys->RegisterLibrary(myself, "dh");
 	sharesys->AddNatives(myself, g_PhysNatives);
@@ -106,6 +143,15 @@ void DH::SDK_OnUnload() {
 
 	g_hIsFollowingSomeone->Remove();
 	delete g_hIsFollowingSomeone;
+
+        g_hWiggle->Remove();
+        delete g_hWiggle;
+
+	g_hUpdateFollowing->Remove();
+	delete g_hUpdateFollowing;
+
+	forwards->ReleaseForward(g_pUpdateFollowingForwardPre);
+	forwards->ReleaseForward(g_pUpdateFollowingForwardPost);
 }
 
 void DH::OnPluginLoaded(IPlugin *plugin) {
@@ -115,9 +161,9 @@ void DH::OnPluginLoaded(IPlugin *plugin) {
 void DH::OnPluginUnloaded(IPlugin *plugin) {
 	// TBD
 }
-bool DH::SDK_OnMetamodLoad(ISmmAPI *ismm, char *error, size_t maxlen, bool late)
-{
+bool DH::SDK_OnMetamodLoad(ISmmAPI *ismm, char *error, size_t maxlen, bool late) {
 	gpGlobals = g_SMAPI->GetCGlobals();
+	GET_V_IFACE_CURRENT(GetPhysicsFactory, iphysics, IPhysics, VPHYSICS_INTERFACE_VERSION);
 
 	g_SMAPI->AddListener(g_PLAPI, this);
 

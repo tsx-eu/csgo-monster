@@ -13,8 +13,7 @@ static cell_t SetMass(IPluginContext *pContext, const cell_t *params)
 {
 	IPhysicsObject *m_pPhysicsObject = GetPhysicsObject(params[1]);
 
-	if (!m_pPhysicsObject)
-	{
+	if (!m_pPhysicsObject) {
 		return pContext->ThrowNativeError("IPhysicsObject for entity %d null.", params[1]);
 	}
 
@@ -27,15 +26,50 @@ static cell_t GetMass(IPluginContext *pContext, const cell_t *params)
 {
 	IPhysicsObject *m_pPhysicsObject = GetPhysicsObject(params[1]);
 
-	if (!m_pPhysicsObject)
-	{
+	if (!m_pPhysicsObject) {
 		return pContext->ThrowNativeError("IPhysicsObject for entity %d null.", params[1]);
 	}
 
 	return sp_ftoc(m_pPhysicsObject->GetMass());
 }
 ////////////////////////////////////////////////////////
+/*
+static cell_t GetOBBMins(IPluginContext *pContext, const cell_t *params)
+{
+	edict_t *pEdict = PEntityOfEntIndex(gamehelpers->ReferenceToIndex(params[1]));
+	if (!pEdict || pEdict->IsFree()) {
+		return pContext->ThrowNativeError("Entity %d is invalid", params[1]);
+	}
 
+        Vector min = pEdict->GetCollideable()->OBBMins();
+
+        cell_t *addr;
+        pContext->LocalToPhysAddr(params[2], &addr);
+        addr[0] = sp_ftoc(min.x);
+        addr[1] = sp_ftoc(min.y);
+        addr[2] = sp_ftoc(min.z);
+
+        return 1;
+}
+static cell_t GetOBBMaxs(IPluginContext *pContext, const cell_t *params)
+{
+        edict_t *pEdict = PEntityOfEntIndex(gamehelpers->ReferenceToIndex(params[1]));
+        if (!pEdict || pEdict->IsFree()) {
+                return pContext->ThrowNativeError("Entity %d is invalid", params[1]);
+        }
+
+        Vector max = pEdict->GetCollideable()->OBBMaxs();
+
+        cell_t *addr;
+        pContext->LocalToPhysAddr(params[2], &addr);
+        addr[0] = sp_ftoc(max.x);
+        addr[1] = sp_ftoc(max.y);
+        addr[2] = sp_ftoc(max.z);
+
+        return 1;
+}
+*/
+////////////////////////////////////////////////////////
 IPhysicsObject *GetPhysicsObject(int iEntityIndex)
 {
 	CBaseEntity *pEntity = PEntityOfEntIndex(iEntityIndex)->GetUnknown()->GetBaseEntity();

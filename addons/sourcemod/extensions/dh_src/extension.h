@@ -91,11 +91,15 @@ public:
 	 */
 	//virtual bool SDK_OnMetamodPauseChange(bool paused, char *error, size_t maxlength);
 #endif
-private:
 	subhook::Hook* g_hIsFollowingSomeone;
+	subhook::Hook* g_hWiggle;
+	subhook::Hook* g_hUpdateFollowing;
+private:
+
 };
 
 extern CGlobalVars *gpGlobals;
+extern IPhysics *iphysics;
 
 #if SOURCE_ENGINE >= SE_LEFT4DEAD
 inline int IndexOfEdict(const edict_t *pEdict)
