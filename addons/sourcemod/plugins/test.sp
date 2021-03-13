@@ -22,6 +22,9 @@ public Plugin myinfo = {
 float m_inhibitDoorTimer[2048];
 ConVar sv_pushaway_hostage_force;
 ConVar sv_pushaway_max_hostage_force;
+ConVar sv_pushaway_force;
+ConVar sv_pushaway_max_force;
+
 int m_accel = -1;
 int g_cBeam;
 
@@ -33,6 +36,10 @@ public void OnPluginStart() {
 	
 	sv_pushaway_hostage_force = FindConVar("sv_pushaway_hostage_force");
 	sv_pushaway_max_hostage_force = FindConVar("sv_pushaway_max_hostage_force");
+	
+	sv_pushaway_force = FindConVar("sv_pushaway_force");
+	sv_pushaway_max_force = FindConVar("sv_pushaway_max_force");
+	
 	m_accel = FindSendPropInfo("CHostage", "m_leader") + 24;
 	
 	char classname[128];
@@ -48,18 +55,17 @@ public void OnMapStart() {
 }
 bool GetPushawayEnts_enumerator(int entity, any ref) {
 	ArrayList data = view_as<ArrayList>(ref);
-	if( Phys_IsPhysicsObject(entity) )
-		data.Push(entity);
+	data.Push(entity);
 	
 	return data.Length < data.BlockSize;
 }
 int GetPushawayEnts(int entity, int[] ents, int nMaxEnts, float flPlayerExpand, int PartitionMask) {
-	float src[3], min[3], max[3];
+	static float src[3], min[3], max[3];
 	
 	Entity_GetAbsOrigin(entity, src);
 	Entity_GetMinSize(entity, min);
 	Entity_GetMaxSize(entity, max);
-	
+		
 	if( flPlayerExpand > 0.0 ) {
 		for(int i=0; i<3; i++) {
 			min[i] -= flPlayerExpand;
@@ -110,30 +116,81 @@ public void DH_OnUpdateFollowingPost(int entity, float delta) {
 }
 void AvoidPhysicsProps(int entity) {
 	static float src[3], dst[3], push[3], norm[3], min[3], max[3], vel[3];
-	
-	Entity_GetAbsOrigin(entity, src);
+	bool debugEnabled = false;
 	GetEntDataVector(entity, m_accel, vel);
 	
+	Entity_GetAbsOrigin(entity, src);
+	Phys_GetWorldSpaceCenter(entity, norm);
+	
 	int ents[8];
-	int ret = GetPushawayEnts(entity, ents, sizeof(ents), 0.0, PARTITION_SOLID_EDICTS);
+	int ret = GetPushawayEnts(entity, ents, sizeof(ents), 5.0, PARTITION_SOLID_EDICTS);
 	for(int i=0; i<ret; i++) {
 		int target = ents[i];
-		if( target != entity && !IsValidClient(target) /*&& Entity_GetCollisionGroup(target) & COLLISION_GROUP_PUSHAWAY*/ ) {
-			float mass = Phys_GetMass(target);
-			float lerp = Math_Clamp(Math_InvLerp(10.0, 30.0, mass), 0.0, 1.0);
-			if( lerp <= 0.0 ) continue;
+		if( target != entity ) {
 			
-			Entity_GetAbsOrigin(target, dst);
-			SubtractVectors(dst, src, push);
+			float mass = Phys_IsPhysicsObject(target) ? Phys_GetMass(target) : 30.0;			
+			{
+				float lerp = 0.0 + Math_Clamp(Math_InvLerp(10.0, 30.0, mass), 0.0, 1.0);
+				if( lerp > 0.0 ) {
+					Phys_GetWorldSpaceCenter(target, dst);
+					SubtractVectors(norm, dst, push);
+					
+					float flDist = NormalizeVector(push, push);
+					if( flDist < 1.0 ) flDist = 1.0;
+					
+					float flForce = sv_pushaway_hostage_force.FloatValue / flDist * lerp;
+					if( flForce > sv_pushaway_max_hostage_force.FloatValue ) flForce = sv_pushaway_max_hostage_force.FloatValue;
+									
+					ScaleVector(push, flForce);
+					AddVectors(vel, push, vel);
+					
+					if( debugEnabled ) {
+						NormalizeVector(push, push);
+						ScaleVector(push, 120.0);
+						AddVectors(norm, push, dst);
+						
+						TE_SetupBeamPoints(norm, dst, g_cBeam, g_cBeam, 0, 0, 2.0, 2.0, 2.0, 0, 0.0, { 0, 255, 0, 250 }, 0);
+						TE_SendToAll();
+						
+						TE_SetupBeamPoints(dst, norm, g_cBeam, g_cBeam, 0, 0, 2.0, 2.0, 2.0, 0, 0.0, { 0, 255, 0, 250 }, 0);
+						TE_SendToAll();
+					}
+				}
+			}
 			
-			float flDist = NormalizeVector(push, push);
-			float flForce = sv_pushaway_hostage_force.FloatValue / flDist * lerp;
-			
-			if( flForce > sv_pushaway_max_hostage_force.FloatValue ) flForce = sv_pushaway_max_hostage_force.FloatValue;
-			if( flForce < 0.0 ) continue; // ???
-			
-			ScaleVector(push, flForce);
-			TeleportEntity(target, NULL_VECTOR, NULL_VECTOR, push);
+			if( target > 0 && IsValidEntity(target) && !IsValidClient(target) && (HasEntProp(target, Prop_Data, "m_bAwake")||HasEntProp(target, Prop_Data, "m_bCanBePickedUp")) ) {
+				float lerp = 1.0 - Math_Clamp(Math_InvLerp(10.0, 30.0, mass), 0.0, 1.0);
+				if( lerp > 0.0 ) {
+					Entity_GetAbsOrigin(target, dst);
+					SubtractVectors(dst, src, push);
+					
+					float flDist = NormalizeVector(push, push);
+					if( flDist < 1.0 ) flDist = 1.0;
+					
+					float flForce = sv_pushaway_force.FloatValue / flDist * lerp * 0.25;
+					if( flForce > sv_pushaway_max_force.FloatValue ) flForce = sv_pushaway_max_force.FloatValue;
+					
+					ScaleVector(push, flForce);
+					
+					if( GetVectorLength(push) > 0.0 ) {
+						Entity_GetAbsVelocity(target, dst);
+						AddVectors(dst, push, push);
+						TeleportEntity(target, NULL_VECTOR, NULL_VECTOR, push);
+					}
+					
+					if( debugEnabled ) {					
+						NormalizeVector(push, push);
+						ScaleVector(push, 120.0);
+						AddVectors(src, push, dst);
+		
+						TE_SetupBeamPoints(src, dst, g_cBeam, g_cBeam, 0, 0, 2.0, 2.0, 2.0, 0, 0.0, { 255, 0, 0, 250 }, 0);
+						TE_SendToAll();
+						
+						TE_SetupBeamPoints(dst, src, g_cBeam, g_cBeam, 0, 0, 2.0, 2.0, 2.0, 0, 0.0, { 255, 0, 0, 250 }, 0);
+						TE_SendToAll();
+					}
+				}
+			}
 		}
 	}
 	
@@ -144,8 +201,10 @@ void AvoidPhysicsProps(int entity) {
 		NormalizeVector(vel, push);
 		AddVectors(src, push, dst);
 		
-		TE_SetupBeamPoints(src, dst, g_cBeam, g_cBeam, 0, 0, 1.0, 2.0, 2.0, 0, 0.0, { 0, 0, 255, 250 }, 0);
-		TE_SendToAll();
+		if( debugEnabled ) {		
+			TE_SetupBeamPoints(src, dst, g_cBeam, g_cBeam, 0, 0, 1.0, 2.0, 2.0, 0, 0.0, { 0, 0, 255, 250 }, 0);
+			TE_SendToAll();
+		}
 
 		Handle ray1 = TR_TraceHullFilterEx(src, dst, min, max, MASK_PLAYERSOLID, FilterToOne, entity);
 		if( !TR_StartSolid(ray1) && TR_GetFraction(ray1) < 1.0 ) {
@@ -159,8 +218,10 @@ void AvoidPhysicsProps(int entity) {
 				push[1] = dst[1];
 				push[2] = dst[2] + STEP_SIZE;
 				
-				TE_SetupBeamPoints(push, dst, g_cBeam, g_cBeam, 0, 0, 1.0, 2.0, 2.0, 0, 0.0, { 0, 255, 0, 250 }, 0);
-				TE_SendToAll();
+				if( debugEnabled ) {
+					TE_SetupBeamPoints(push, dst, g_cBeam, g_cBeam, 0, 0, 1.0, 2.0, 2.0, 0, 0.0, { 0, 255, 0, 250 }, 0);
+					TE_SendToAll();
+				}
 				
 				Handle ray2 = TR_TraceHullFilterEx(push, dst, min, max, MASK_PLAYERSOLID, FilterToOne, entity);
 				if( !TR_StartSolid(ray2) && TR_GetFraction(ray2) > 0.0 ) {
@@ -172,6 +233,8 @@ void AvoidPhysicsProps(int entity) {
 		}
 		CloseHandle(ray1);
 	}
+	
+	SetEntDataVector(entity, m_accel, vel);
 }
 public void OnThink(int entity) {	
 }
@@ -220,12 +283,12 @@ bool PatchRefIfValue(Address addr, int fromValue, int toValue, int byte = 4) {
 
 public Action patch(int client) {
 	GameData hGameConfg = LoadGameConfigFile("test.gamedata");
-	Address addr = hGameConfg.GetAddress("UpdateFollowing");
-	delete hGameConfg;
-	
+	Address addr;
+
+	addr = hGameConfg.GetAddress("UpdateFollowing");
 	for(int offset=0; offset<1536; offset++) {
 		
-		if( offset >= 0x1C && offset <= 0x21 ) { // Search for a jump to https://github.com/perilouswithadollarsign/cstrike15_src/blob/master/game/server/cstrike15/hostage/cs_simple_hostage.cpp#L915-L924
+		if( offset >= 0x1C && offset < 0x22 ) { // Search for a jump to https://github.com/perilouswithadollarsign/cstrike15_src/blob/master/game/server/cstrike15/hostage/cs_simple_hostage.cpp#L915-L924
 			Address ref = addr + view_as<Address>(offset);
 			StoreToAddress(ref, 0x90, NumberType_Int8);
 		}
@@ -257,6 +320,17 @@ public Action patch(int client) {
 			break;
 		}
 	}
+
+	
+	addr = hGameConfg.GetAddress("CHostage");
+	for(int offset=0; offset<0x3BB; offset++) {
+		if( offset >= 0x2F0 && offset < 0x2F9 ) { // Search for a jump to https://github.com/perilouswithadollarsign/cstrike15_src/blob/master/game/server/cstrike15/hostage/cs_simple_hostage.cpp#L162-L171
+			Address ref = addr + view_as<Address>(offset);
+			StoreToAddress(ref, 0x90, NumberType_Int8);
+		}
+	}
+
+	delete hGameConfg;
 }
 public Action block(int client, int args) {
 	
@@ -295,6 +369,9 @@ public Action block(int client, int args) {
 		}
 		*/
 		SetEntPropEnt(hostage, Prop_Send, "m_leader", client);
+		
+		PrecacheModel("models/npc/tsx/zombie/zombie.mdl");
+		SetEntityModel(hostage, "models/npc/tsx/zombie/zombie.mdl")
 	}
 	
 	return Plugin_Handled;
