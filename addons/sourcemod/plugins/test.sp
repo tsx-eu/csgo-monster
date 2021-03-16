@@ -9,7 +9,17 @@
 #include <cstrike>
 
 #pragma newdecls required
-#define STEP_SIZE	16.0
+
+int g_iClassCount = 0;
+int g_iClass[MAX_CLASSES][view_as<int>(NPCData_max_Int)], g_iInstance[MAX_CLASSES][view_as<int>(NPCData_max_Int)];
+float g_flClass[MAX_CLASSES][view_as<int>(NPCData_max_Float)], g_flInstance[MAX_CLASSES][view_as<int>(NPCData_max_Float)];
+char g_szClass[MAX_CLASSES][view_as<int>(NPCData_max_String)][PLATFORM_MAX_PATH], g_szInstance[MAX_CLASSES][view_as<int>(NPCData_max_String)][PLATFORM_MAX_PATH];
+
+float m_inhibitDoorTimer[2048];
+ConVar sv_pushaway_hostage_force, sv_pushaway_max_hostage_force, sv_pushaway_force, sv_pushaway_max_force;
+
+int m_accel = -1;
+int g_cBeam;
 
 public Plugin myinfo = {
 	name = "Les test de kosso",
@@ -19,16 +29,8 @@ public Plugin myinfo = {
 	url = "zaretti.be"
 };
 
-float m_inhibitDoorTimer[2048];
-ConVar sv_pushaway_hostage_force;
-ConVar sv_pushaway_max_hostage_force;
-ConVar sv_pushaway_force;
-ConVar sv_pushaway_max_force;
-
-int m_accel = -1;
-int g_cBeam;
-
 public void OnPluginStart() {
+	
 	RegConsoleCmd("hostage", block);
 	RegServerCmd("patch", patch);
 	
@@ -50,6 +52,73 @@ public void OnPluginStart() {
 		}
 	}
 }
+// ---------------------------------------------------------------------------------------------------------
+
+public APLRes AskPluginLoad2(Handle hPlugin, bool isAfterMapLoaded, char[] error, int err_max) {
+	CreateNative("DH_Create", 				Native_DH_Create);
+	
+	CreateNative("DH_SetClassInt", 			Native_DH_SetClassInt);
+	CreateNative("DH_GetClassInt", 			Native_DH_GetClassInt);
+	CreateNative("DH_SetClassFloat",		Native_DH_SetClassFloat);
+	CreateNative("DH_GetClassFloat", 		Native_DH_GetClassFloat);
+	CreateNative("DH_SetClassString", 		Native_DH_SetClassString);
+	CreateNative("DH_GetClassString", 		Native_DH_GetClassString);
+	
+	CreateNative("DH_SetInstanceInt", 		Native_DH_SetInstanceInt);
+	CreateNative("DH_GetInstanceInt", 		Native_DH_GetInstanceInt);
+	CreateNative("DH_SetInstanceFloat",		Native_DH_SetInstanceFloat);
+	CreateNative("DH_GetInstanceFloat", 	Native_DH_GetInstanceFloat);
+	CreateNative("DH_SetInstanceString", 	Native_DH_SetInstanceString);
+	CreateNative("DH_GetInstanceString", 	Native_DH_GetInstanceString);
+}
+public any Native_DH_Create(Handle plugin, int numParams) {
+	GetNativeString(1, g_szClass[g_iClassCount][NPC_szFullName], sizeof(g_szClass[][]));
+	GetNativeString(2, g_szClass[g_iClassCount][NPC_szName], sizeof(g_szClass[][]));
+	GetNativeString(3, g_szClass[g_iClassCount][NPC_szModel], sizeof(g_szClass[][]));
+	
+	return g_iClassCount++;
+}
+// ---------------------------------------------------------------------------------------------------------
+// GetSet Class:
+public any Native_DH_SetClassInt(Handle plugin, int numParams) {
+	g_iClass[GetNativeCell(1)][GetNativeCell(2)] = GetNativeCell(3);
+}
+public any Native_DH_GetClassInt(Handle plugin, int numParams) {
+	return g_iClass[GetNativeCell(1)][GetNativeCell(2)];
+}
+public any Native_DH_SetClassFloat(Handle plugin, int numParams) {
+	g_flClass[GetNativeCell(1)][GetNativeCell(2)] = GetNativeCell(3);
+}
+public any Native_DH_GetClassFloat(Handle plugin, int numParams) {
+	return g_flClass[GetNativeCell(1)][GetNativeCell(2)];
+}
+public any Native_DH_SetClassString(Handle plugin, int numParams) {
+	GetNativeString(3, g_szClass[GetNativeCell(1)][GetNativeCell(2)], sizeof(g_szClass[][]));
+}
+public any Native_DH_GetClassString(Handle plugin, int numParams) {
+	SetNativeString(3, g_szClass[GetNativeCell(1)][GetNativeCell(2)], GetNativeCell(4));
+}
+// GetSet Instance:
+public any Native_DH_SetInstanceInt(Handle plugin, int numParams) {
+	g_iInstance[GetNativeCell(1)][GetNativeCell(2)] = GetNativeCell(3);
+}
+public any Native_DH_GetInstanceInt(Handle plugin, int numParams) {
+	return g_iInstance[GetNativeCell(1)][GetNativeCell(2)];
+}
+public any Native_DH_SetInstanceFloat(Handle plugin, int numParams) {
+	g_flInstance[GetNativeCell(1)][GetNativeCell(2)] = GetNativeCell(3);
+}
+public any Native_DH_GetInstanceFloat(Handle plugin, int numParams) {
+	return g_flInstance[GetNativeCell(1)][GetNativeCell(2)];
+}
+public any Native_DH_SetInstanceString(Handle plugin, int numParams) {
+	GetNativeString(3, g_szInstance[GetNativeCell(1)][GetNativeCell(2)], sizeof(g_szInstance[][]));
+}
+public any Native_DH_GetInstanceString(Handle plugin, int numParams) {
+	SetNativeString(3, g_szInstance[GetNativeCell(1)][GetNativeCell(2)], GetNativeCell(4));
+}
+// ---------------------------------------------------------------------------------------------------------
+
 public void OnMapStart() {
 	g_cBeam = PrecacheModel("materials/sprites/laserbeam.vmt");
 }
@@ -334,6 +403,9 @@ public Action patch(int client) {
 }
 public Action block(int client, int args) {
 	
+	PrecacheModel("models/npc/tsx/zombie/zombie.mdl");
+	PrecacheModel("models/npc/tsx/skeleton/skeleton.mdl");
+	
 	int hostage = 0;
 	while( (hostage = FindEntityByClassname(hostage, "hostage_entity")) && hostage > 0 ) {
 		/*
@@ -370,8 +442,16 @@ public Action block(int client, int args) {
 		*/
 		SetEntPropEnt(hostage, Prop_Send, "m_leader", client);
 		
-		PrecacheModel("models/npc/tsx/zombie/zombie.mdl");
-		SetEntityModel(hostage, "models/npc/tsx/zombie/zombie.mdl")
+		
+		if( GetRandomInt(0, 1) )
+			SetEntityModel(hostage, "models/npc/tsx/zombie/zombie.mdl");
+		else
+			SetEntityModel(hostage, "models/npc/tsx/skeleton/skeleton.mdl");
+		
+		float pos[3];
+		Entity_GetAbsOrigin(hostage, pos);
+		pos[2] += 16.0;
+		TeleportEntity(hostage, pos, NULL_VECTOR, NULL_VECTOR);
 	}
 	
 	return Plugin_Handled;
