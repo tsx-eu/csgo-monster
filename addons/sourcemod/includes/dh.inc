@@ -19,21 +19,22 @@ forward Action DH_OnUpdateFollowingPre(int hostage, float delta);
 forward void DH_OnUpdateFollowingPost(int hostage, float delta);
 
 
-native int 		DH_Create(char fullname[PLATFORM_MAX_PATH], char name[PLATFORM_MAX_PATH], char model[PLATFORM_MAX_PATH]);
+native NPCClass 		DH_Create(char fullname[PLATFORM_MAX_PATH], char name[PLATFORM_MAX_PATH], char model[PLATFORM_MAX_PATH]);
+native NPCInstance 		DH_Spawn(int id, float position[3], float angles[3]);
 
-native void 	DH_SetClassInt(int id, NPCData_Int data, int value);
-native int 		DH_GetClassInt(int id, NPCData_Int data);
-native void 	DH_SetClassFloat(int id, NPCData_Float data, float value);
-native float 	DH_GetClassFloat(int id, NPCData_Float data);
-native void		DH_SetClassString(int id, NPCData_String data, const char[] value);
-native void 	DH_GetClassString(int id, NPCData_String data, char[] value, length);
+native void 	DH_SetClassInt(NPCClass id, NPCData_Int data, int value);
+native int 		DH_GetClassInt(NPCClass id, NPCData_Int data);
+native void 	DH_SetClassFloat(NPCClass id, NPCData_Float data, float value);
+native float 	DH_GetClassFloat(NPCClass id, NPCData_Float data);
+native void		DH_SetClassString(NPCClass id, NPCData_String data, const char[] value);
+native void 	DH_GetClassString(NPCClass id, NPCData_String data, char[] value, length);
 
-native void 	DH_SetInstanceInt(int id, NPCData_Int data, int value);
-native int 		DH_GetInstanceInt(int id, NPCData_Int data);
-native void 	DH_SetInstanceFloat(int id, NPCData_Float data, float value);
-native float 	DH_GetInstanceFloat(int id, NPCData_Float data);
-native void 	DH_SetInstanceString(int id, NPCData_String data, const char[] value);
-native void 	DH_GetInstanceString(int id, NPCData_String data, char[] value, length);
+native void 	DH_SetInstanceInt(NPCInstance id, NPCData_Int data, int value);
+native int 		DH_GetInstanceInt(NPCInstance id, NPCData_Int data);
+native void 	DH_SetInstanceFloat(NPCInstance id, NPCData_Float data, float value);
+native float 	DH_GetInstanceFloat(NPCInstance id, NPCData_Float data);
+native void 	DH_SetInstanceString(NPCInstance id, NPCData_String data, const char[] value);
+native void 	DH_GetInstanceString(NPCInstance id, NPCData_String data, char[] value, length);
 
 enum NPCData_Int {
 	NPC_iHealth,
@@ -56,29 +57,29 @@ enum NPCData_String {
 
 methodmap NPCClass {
     public NPCClass(const char[] fullname, const char[] name, const char[] model) {
-    	return view_as<NPCClass>(DH_Create(fullname, name, model));
+    	return DH_Create(fullname, name, model);
     }
     
     property int Health {
     	public get() {
-    		return DH_GetClassInt(view_as<int>(this), NPC_iHealth);	
+    		return DH_GetClassInt(this, NPC_iHealth);	
     	}
     	public set(const int value) {
-    		DH_SetClassInt(view_as<int>(this), NPC_iHealth, value);
+    		DH_SetClassInt(this, NPC_iHealth, value);
     	}
     }
 }
 methodmap NPCInstance {
-    public NPCInstance(int entity) {
-    	return view_as<NPCInstance>(entity));
+    public NPCInstance(NPCClass id, float pos[3], float ang[3]) {
+    	return DH_Spawn(id, pos, ang);
     }
     
     property int Health {
     	public get() {
-    		return DH_GetInstanceInt(view_as<int>(this), NPC_iHealth);	
+    		return DH_GetInstanceInt(this, NPC_iHealth);	
     	}
     	public set(const int value) {
-    		DH_SetInstanceInt(view_as<int>(this), NPC_iHealth, value);
+    		DH_SetInstanceInt(this, NPC_iHealth, value);
     	}
     }
 }
