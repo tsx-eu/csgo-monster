@@ -61,12 +61,8 @@ methodmap NPCClass {
     }
     
     property int Health {
-    	public get() {
-    		return DH_GetClassInt(this, NPC_iHealth);	
-    	}
-    	public set(const int value) {
-    		DH_SetClassInt(this, NPC_iHealth, value);
-    	}
+    	public get() { return 			DH_GetClassInt(this, NPC_iHealth); }
+    	public set(const int value) { 	DH_SetClassInt(this, NPC_iHealth, value); }
     }
 }
 methodmap NPCInstance {
@@ -75,12 +71,8 @@ methodmap NPCInstance {
     }
     
     property int Health {
-    	public get() {
-    		return DH_GetInstanceInt(this, NPC_iHealth);	
-    	}
-    	public set(const int value) {
-    		DH_SetInstanceInt(this, NPC_iHealth, value);
-    	}
+    	public get() { 	return 			DH_GetInstanceInt(this, NPC_iHealth); }
+    	public set(const int value) { 	DH_SetInstanceInt(this, NPC_iHealth, value); }
     }
 }
 
