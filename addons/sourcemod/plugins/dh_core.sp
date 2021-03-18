@@ -51,11 +51,42 @@ public void OnPluginStart() {
 			OnEntityCreated(i, classname);
 		}
 	}
+	
+	HookUserMessage(GetUserMessageId("TextMsg"), EventUserMessage, true);
+	HookUserMessage(GetUserMessageId("KeyHintText"), EventUserMessage, true);
+}
+public Action EventUserMessage(UserMsg msg_id, Handle bf, int[] players, int playersNum, bool reliable, bool init) {
+	char buffer[128];
+	GetUserMessageName(msg_id, buffer, sizeof(buffer));
+	
+	PrintToServer("--> %s", buffer);
+	
+		
+	if( StrEqual(buffer, "TextMsg") ) {
+		int size = PbReadInt(bf, "msg_dst");		
+		for(int i=0; i<size; i++) {
+			PbReadString(bf, "params", buffer, sizeof(buffer), i);
+			PrintToServer("--> %s", buffer);
+		}
+		
+		
+		PbReadString(bf, "params", buffer, sizeof(buffer), 0);
+		
+		if( StrEqual(buffer, "#Player_Cash_Award_Damage_Hostage") ) {
+			return Plugin_Handled;
+		}
+		if( StrEqual(buffer, "#Player_Cash_Award_Kill_Hostage") ) {
+			return Plugin_Handled;
+		}
+	}
+	
+	return Plugin_Continue;
 }
 // ---------------------------------------------------------------------------------------------------------
 
 public APLRes AskPluginLoad2(Handle hPlugin, bool isAfterMapLoaded, char[] error, int err_max) {
 	CreateNative("DH_Create", 				Native_DH_Create);
+	CreateNative("DH_Spawn", 				Native_DH_Spawn);
 	
 	CreateNative("DH_SetClassInt", 			Native_DH_SetClassInt);
 	CreateNative("DH_GetClassInt", 			Native_DH_GetClassInt);
@@ -71,12 +102,31 @@ public APLRes AskPluginLoad2(Handle hPlugin, bool isAfterMapLoaded, char[] error
 	CreateNative("DH_SetInstanceString", 	Native_DH_SetInstanceString);
 	CreateNative("DH_GetInstanceString", 	Native_DH_GetInstanceString);
 }
-public any Native_DH_Create(Handle plugin, int numParams) {
+public int Native_DH_Create(Handle plugin, int numParams) {
 	GetNativeString(1, g_szClass[g_iClassCount][NPC_szFullName], sizeof(g_szClass[][]));
 	GetNativeString(2, g_szClass[g_iClassCount][NPC_szName], sizeof(g_szClass[][]));
 	GetNativeString(3, g_szClass[g_iClassCount][NPC_szModel], sizeof(g_szClass[][]));
 	
 	return g_iClassCount++;
+}
+public int Native_DH_Spawn(Handle plugin, int numParams) {
+	static char tmp[32];
+	Format(tmp, sizeof(tmp), "!self,Kill,,%f,-1", 30.0);
+	
+	float pos[3], ang[3];
+	int id = GetNativeCell(1);
+	NPCClass class = view_as<NPCClass>(id);
+	
+	GetNativeArray(2, pos, sizeof(pos));
+	GetNativeArray(3, ang, sizeof(ang));
+	
+	int entity = CreateEntityByName("hostage_entity");
+	DispatchKeyValue(entity, "model", g_szClass[id][NPC_szModel]);
+	DispatchKeyValue(entity, "OnUser1", tmp);
+	DispatchSpawn(entity);
+	ActivateEntity(entity);
+	TeleportEntity(entity, pos, ang, NULL_VECTOR);
+	
 }
 // ---------------------------------------------------------------------------------------------------------
 // GetSet Class:
@@ -441,6 +491,8 @@ public Action block(int client, int args) {
 		}
 		*/
 		SetEntPropEnt(hostage, Prop_Send, "m_leader", client);
+		Entity_SetClassName(hostage, "toto");
+		DispatchKeyValue(hostage, "classname", "toto");
 		
 		
 		if( GetRandomInt(0, 1) )
@@ -453,6 +505,11 @@ public Action block(int client, int args) {
 		pos[2] += 16.0;
 		TeleportEntity(hostage, pos, NULL_VECTOR, NULL_VECTOR);
 	}
+	
+	ServerCommand("cash_player_killed_hostage 0");
+	ServerCommand("cash_player_damage_hostage 0");
+	ServerCommand("mp_playerid 1"); // maybe 2? 
+	CS_SwitchTeam(client, CS_TEAM_CT);
 	
 	return Plugin_Handled;
 }
