@@ -151,5 +151,6 @@ public Action OnTouch(int entity, int target) {
 		}
 	}
 }
-public void OnThink(int entity) {	
+public void OnThink(int entity) {
+	SetEntPropEnt(entity, Prop_Send, "m_leader", g_iInstance[entity][NPC_iLeader]);
 }

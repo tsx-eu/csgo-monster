@@ -13,6 +13,9 @@ native void Phys_SetMass(int entity,  float mass);
 native float Phys_GetMass(int entity);
 native void Phys_GetWorldSpaceCenter(int entity, float pos[3]);
 
+native bool Nav_Load();
+native int Nav_GetArea(float pos[3]);
+
 forward Action DH_OnIsFollowingSomeoneForwardPre(int hostage);
 forward Action DH_OnWigglePre(int hostage);
 
@@ -78,6 +81,7 @@ typeset NPCData_EventCallback {
 #define NPC_RANGE_MELEE		52.0
 
 native NPCClass 	DH_Create(const char[] fullname, const char[] name, const char[] model);
+native NPCClass 	DH_GetClass(const char[] name);
 native NPCInstance 	DH_Spawn(NPCClass id, float position[3], float angles[3]);
 
 native void 		DH_SetClassInt(NPCClass id, NPCData_Int data, int value);
@@ -129,7 +133,7 @@ methodmap NPCClass {
 	}
 }
 methodmap NPCInstance {
-	public NPCInstance(NPCClass id, float pos[3], float ang[3]) {
+	public NPCInstance(NPCClass id, float pos[3], float ang[3]=NULL_VECTOR) {
 		return DH_Spawn(id, pos, ang);
 	}
 	public float Animate(NPCData_Animation data) {
