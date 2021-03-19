@@ -20,6 +20,7 @@ forward Action DH_OnUpdateFollowingPre(int hostage, float delta);
 forward void DH_OnUpdateFollowingPost(int hostage, float delta);
 
 enum NPCData_Int {
+	NPC_iClass,
 	NPC_iHealth,
 	NPC_iLeader,
 	NPC_iAttackCount,
@@ -70,7 +71,7 @@ enum NPC_AttackType {
 
 typeset NPCData_EventCallback {
 	function void(NPCInstance entity);					// NPC_EVENT_SPAWN
-	function void(NPCInstance entity); 					// NPC_EVENT_ATTACK
+	function void(NPCInstance entity, int attack_id);	// NPC_EVENT_ATTACK
 	function void(NPCInstance entity);					// NPC_EVENT_DEAD
 }
 
@@ -93,17 +94,18 @@ native float 		DH_GetInstanceFloat(NPCInstance id, NPCData_Float data);
 native void 		DH_SetInstanceString(NPCInstance id, NPCData_String data, const char[] value);
 native void 		DH_GetInstanceString(NPCInstance id, NPCData_String data, char[] value, length);
 
-native void 		DH_RegisterAttack(NPCClass id, NPC_AttackType type, int damage, float range, int probability=1);
+native void 		DH_RegisterAttack(NPCClass id, NPC_AttackType type, float range, int probability=1);
 native void 		DH_RegisterAnimation(NPCClass id, NPCData_Animation data, int sequence, int frames, int fps);
 native void 		DH_RegisterHook(NPCClass id, NPCData_Event event, NPCData_EventCallback callback);
+
 native float 		DH_Animate(NPCInstance id, NPCData_Animation data);
 
 methodmap NPCClass {
 	public NPCClass(const char[] fullname, const char[] name, const char[] model) {
 		return DH_Create(fullname, name, model);
 	}
-	public void AddAttack(NPC_AttackType type, int damage, float range, int probability=1) {
-		DH_RegisterAttack(this, type, damage, range, probability);
+	public void AddAttack(NPC_AttackType type, float range, int probability=1) {
+		DH_RegisterAttack(this, type, range, probability);
 	}
 	public void AddAnimation(NPCData_Animation data, int sequence, int frames, int fps) {
 		DH_RegisterAnimation(this, data, sequence, frames, fps);

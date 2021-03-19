@@ -18,11 +18,21 @@ void Native_REGISTER() {
 	CreateNative("DH_GetInstanceString", 	Native_DH_GetInstanceString);
 	
 	CreateNative("DH_RegisterAnimation", 	Native_DH_RegisterAnimation);
+	CreateNative("DH_RegisterAttack", 		Native_DH_RegisterAttack);
+	CreateNative("DH_RegisterHook", 		Native_DH_RegisterHook);
+	
+	CreateNative("DH_Animate", 				Native_DH_Animate);
 }
 public int Native_DH_Create(Handle plugin, int numParams) {
-	GetNativeString(1, g_szClass[g_iClassCount][NPC_szFullName], sizeof(g_szClass[][]));
-	GetNativeString(2, g_szClass[g_iClassCount][NPC_szName], sizeof(g_szClass[][]));
-	GetNativeString(3, g_szClass[g_iClassCount][NPC_szModel], sizeof(g_szClass[][]));
+	int id = g_iClassCount;
+	
+	GetNativeString(1, g_szClass[id][NPC_szFullName], sizeof(g_szClass[][]));
+	GetNativeString(2, g_szClass[id][NPC_szName], sizeof(g_szClass[][]));
+	GetNativeString(3, g_szClass[id][NPC_szModel], sizeof(g_szClass[][]));
+	
+	view_as<PrivateForward>(g_hClass[id][NPC_EVENT_SPAWN]) = CreateForward(ET_Hook, Param_Cell);					// void(NPCInstance entity)
+	view_as<PrivateForward>(g_hClass[id][NPC_EVENT_ATTACK]) = CreateForward(ET_Hook, Param_Cell, Param_Cell);		// void(NPCInstance entity, int attack_id)
+	view_as<PrivateForward>(g_hClass[id][NPC_EVENT_DEAD]) = CreateForward(ET_Hook, Param_Cell);						// void(NPCInstance entity)
 	
 	return g_iClassCount++;
 }
@@ -44,6 +54,10 @@ public int Native_DH_Spawn(Handle plugin, int numParams) {
 	ActivateEntity(entity);
 	TeleportEntity(entity, pos, ang, NULL_VECTOR);
 	
+	g_iInstance[entity][NPC_iClass] = id;
+	// TODO
+	
+	return entity;
 }
 // ---------------------------------------------------------------------------------------------------------
 // GetSet Class:
@@ -100,8 +114,24 @@ public any Native_DH_RegisterAttack(Handle plugin, int numParams) {
 	int cpt = g_iClass[id][NPC_iAttackCount];
 	
 	g_atClass[id][cpt].type = GetNativeCell(2);
-	g_atClass[id][cpt].damage = GetNativeCell(3);
-	g_atClass[id][cpt].range = GetNativeCell(4);
+	g_atClass[id][cpt].range = GetNativeCell(3);
+	g_atClass[id][cpt].probability = GetNativeCell(4);
 	
 	g_iClass[id][NPC_iAttackCount] = cpt + 1;
 }
+public any Native_DH_RegisterHook(Handle plugin, int numParams) {
+	g_hClass[GetNativeCell(1)][GetNativeCell(2)].AddFunction(plugin, GetNativeFunction(3));
+}
+public any Native_DH_Animate(Handle plugin, int numParams) {
+	int entity = GetNativeCell(1);
+	int anim = GetNativeCell(2);
+	int id = g_iInstance[entity][NPC_iClass];
+	
+	int rnd = Math_GetRandomInt(1, g_anClass[id][anim][0].seq);
+	float duration = g_anClass[id][anim][rnd].frames / g_anClass[id][anim][rnd].fps;
+	
+	// TODO: Run the animation
+	
+	return duration;
+}
+
