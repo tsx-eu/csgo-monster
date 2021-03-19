@@ -7,7 +7,23 @@ projectName = 'dh'
 sourceFiles = [
   'extension.cpp',
   'physnatives.cpp',
+
   'subhook/subhook.c',
+
+  'Nav/Navigation.cpp',
+  'Nav/NavGrid.cpp',
+  'Nav/NavMeshArea.cpp',
+  'Nav/NavMeshConnection.cpp',
+  'Nav/NavMeshCornerLightIntensity.cpp',
+  'Nav/NavMesh.cpp',
+  'Nav/NavMeshEncounterPath.cpp',
+  'Nav/NavMeshEncounterSpot.cpp',
+  'Nav/NavMeshHidingSpot.cpp',
+  'Nav/NavMeshLadderConnection.cpp',
+  'Nav/NavMeshLadder.cpp',
+  'Nav/NavMeshLoader.cpp',
+  'Nav/NavMeshPlace.cpp',
+  'Nav/NavMeshVisibleArea.cpp'
 ]
 
 defines = [
