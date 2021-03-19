@@ -6,7 +6,9 @@ projectName = 'dh'
 # smsdk_ext.cpp will be automatically added later
 sourceFiles = [
   'extension.cpp',
+
   'physnatives.cpp',
+  'navnatives.cpp',
 
   'subhook/subhook.c',
 

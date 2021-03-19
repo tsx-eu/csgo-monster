@@ -160,6 +160,7 @@ bool DH::SDK_OnLoad(char *error, size_t maxlength, bool late) {
 
 	sharesys->RegisterLibrary(myself, "dh");
 	sharesys->AddNatives(myself, g_PhysNatives);
+	sharesys->AddNatives(myself, g_NavNatives);
 
 	plsys->AddPluginsListener(this);
 

@@ -8,6 +8,7 @@
 
 #include "smsdk_ext.h"
 #include "physnatives.h"
+#include "navnatives.h"
 #include "subhook/subhook.h"
 
 
