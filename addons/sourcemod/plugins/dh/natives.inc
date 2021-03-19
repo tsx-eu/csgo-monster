@@ -2,6 +2,7 @@
 void Native_REGISTER() {
 	CreateNative("DH_Create", 				Native_DH_Create);
 	CreateNative("DH_Spawn", 				Native_DH_Spawn);
+	CreateNative("DH_GetClass", 			Native_DH_GetClass);
 	
 	CreateNative("DH_SetClassInt", 			Native_DH_SetClassInt);
 	CreateNative("DH_GetClassInt", 			Native_DH_GetClassInt);
@@ -34,6 +35,8 @@ public int Native_DH_Create(Handle plugin, int numParams) {
 	view_as<PrivateForward>(g_hClass[id][NPC_EVENT_ATTACK]) = CreateForward(ET_Hook, Param_Cell, Param_Cell);		// void(NPCInstance entity, int attack_id)
 	view_as<PrivateForward>(g_hClass[id][NPC_EVENT_DEAD]) = CreateForward(ET_Hook, Param_Cell);						// void(NPCInstance entity)
 	
+	g_hNamedIdentified.SetValue(g_szClass[id][NPC_szName], id);
+	
 	return g_iClassCount++;
 }
 public int Native_DH_Spawn(Handle plugin, int numParams) {
@@ -42,7 +45,6 @@ public int Native_DH_Spawn(Handle plugin, int numParams) {
 	
 	float pos[3], ang[3];
 	int id = GetNativeCell(1);
-	NPCClass class = view_as<NPCClass>(id);
 	
 	GetNativeArray(2, pos, sizeof(pos));
 	GetNativeArray(3, ang, sizeof(ang));
@@ -58,6 +60,16 @@ public int Native_DH_Spawn(Handle plugin, int numParams) {
 	// TODO
 	
 	return entity;
+}
+public int Native_DH_GetClass(Handle plugin, int numParams) {
+	static char tmp[PLATFORM_MAX_PATH];
+	GetNativeString(1, tmp, sizeof(tmp));
+	
+	int id;
+	if( g_hNamedIdentified.GetValue(tmp, id) )
+		return id;
+	
+	return -1;	
 }
 // ---------------------------------------------------------------------------------------------------------
 // GetSet Class:
