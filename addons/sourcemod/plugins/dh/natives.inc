@@ -50,13 +50,20 @@ public int Native_DH_Spawn(Handle plugin, int numParams) {
 	GetNativeArray(3, ang, sizeof(ang));
 	
 	int entity = CreateEntityByName("hostage_entity");
-	DispatchKeyValue(entity, "model", g_szClass[id][NPC_szModel]);
 	DispatchKeyValue(entity, "OnUser1", tmp);
 	DispatchSpawn(entity);
+	
+	SetEntityModel(entity, g_szClass[id][NPC_szModel]);
 	ActivateEntity(entity);
 	TeleportEntity(entity, pos, ang, NULL_VECTOR);
 	
 	g_iInstance[entity][NPC_iClass] = id;
+	SetEntProp(entity, Prop_Data, "m_lifeState", 2);
+	
+	Call_StartForward(view_as<Handle>(g_hClass[id][NPC_EVENT_SPAWN]));
+	Call_PushCell(entity);
+	Call_Finish();
+	
 	// TODO
 	
 	return entity;
@@ -117,7 +124,7 @@ public any Native_DH_RegisterAnimation(Handle plugin, int numParams) {
 	
 	g_anClass[id][data][cpt].seq = GetNativeCell(3);
 	g_anClass[id][data][cpt].frames = GetNativeCell(4);
-	g_anClass[id][data][cpt].fps = GetNativeCell(5);
+	g_anClass[id][data][cpt].fps = GetNativeCell(5);	
 	
 	g_anClass[id][data][0].seq = cpt;
 }
@@ -140,9 +147,16 @@ public any Native_DH_Animate(Handle plugin, int numParams) {
 	int id = g_iInstance[entity][NPC_iClass];
 	
 	int rnd = Math_GetRandomInt(1, g_anClass[id][anim][0].seq);
-	float duration = g_anClass[id][anim][rnd].frames / g_anClass[id][anim][rnd].fps;
 	
-	// TODO: Run the animation
+	int seq = g_anClass[id][anim][rnd].seq;
+	float duration = g_anClass[id][anim][rnd].frames / g_anClass[id][anim][rnd].fps;
+	float time = 1.0;
+	
+	g_iInstance[entity][NPC_iCurrentAnim] = seq;
+	view_as<float>(g_flInstance[entity][NPC_flNextAnim]) = (GetGameTime() + duration);
+	view_as<float>(g_flInstance[entity][NPC_flAnimScale]) = time;
+	
+	PrintToChatAll("choseq seq: %d", seq);
 	
 	return duration;
 }

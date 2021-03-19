@@ -76,12 +76,9 @@ public Action block(int client, int args) {
 		
 		NPCInstance bot = NPCInstance(DH_GetClass("zombie"), pos);
 		bot.Target = client;
-		
-		TeleportEntity(hostage, pos, NULL_VECTOR, NULL_VECTOR);
+		break;
 	}
 	
-	
-	
-	CS_SwitchTeam(client, CS_TEAM_CT);
+	//CS_SwitchTeam(client, CS_TEAM_CT);
 	return Plugin_Handled;
 }

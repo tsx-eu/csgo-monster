@@ -135,6 +135,28 @@ void AvoidPhysicsProps(int entity) {
 	SetEntDataVector(entity, m_accel, vel);
 }
 
+void Animate(int entity) {
+	
+	if( view_as<float>(g_flInstance[entity][NPC_flNextAnim]) < GetGameTime() ) {
+		SetEntProp(entity, Prop_Data, "m_bSequenceFinished", 1);
+		SetEntProp(entity, Prop_Data, "m_bSequenceLoops", 1);
+		SetEntProp(entity, Prop_Data, "m_bClientSideAnimation", 0);
+		
+		
+		float time = DH_Animate(view_as<NPCInstance>(entity), NPC_ANIM_RUN);
+		
+		SetEntProp(entity, Prop_Send, "m_flPrevAnimTime", GetEntProp(entity, Prop_Data, "m_flAnimTime"));
+		SetEntProp(entity, Prop_Send, "m_flAnimTime", GetRandomFloat());
+
+		
+	}
+	
+
+	//SetEntProp(entity, Prop_Data, "m_nIdealSequence", g_iInstance[entity][NPC_iCurrentAnim]);
+	SetEntProp(entity, Prop_Data, "m_nSequence", g_iInstance[entity][NPC_iCurrentAnim]);
+	SetEntProp(entity, Prop_Send, "m_nSequence", g_iInstance[entity][NPC_iCurrentAnim]);
+	//SetEntPropFloat(entity, Prop_Data, "m_flPlaybackRate", g_flInstance[entity][NPC_flAnimScale]);
+}
 public Action OnTouch(int entity, int target) {
 	static char classname[128];
 	
@@ -153,4 +175,6 @@ public Action OnTouch(int entity, int target) {
 }
 public void OnThink(int entity) {
 	SetEntPropEnt(entity, Prop_Send, "m_leader", g_iInstance[entity][NPC_iLeader]);
+	
+	Animate(entity);
 }

@@ -28,11 +28,16 @@ enum NPCData_Int {
 	NPC_iLeader,
 	NPC_iAttackCount,
 	
+	NPC_iCurrentAnim,
+	
 	NPCData_max_Int
 }
 enum NPCData_Float {
 	NPC_flSpeed,
 	NPC_flGravity,
+	
+	NPC_flNextAnim,
+	NPC_flAnimScale,
 	
 	NPCData_max_Float
 };
@@ -99,7 +104,7 @@ native void 		DH_SetInstanceString(NPCInstance id, NPCData_String data, const ch
 native void 		DH_GetInstanceString(NPCInstance id, NPCData_String data, char[] value, length);
 
 native void 		DH_RegisterAttack(NPCClass id, NPC_AttackType type, float range, int probability=1);
-native void 		DH_RegisterAnimation(NPCClass id, NPCData_Animation data, int sequence, int frames, int fps);
+native void 		DH_RegisterAnimation(NPCClass id, NPCData_Animation data, int sequence, int frames, float fps);
 native void 		DH_RegisterHook(NPCClass id, NPCData_Event event, NPCData_EventCallback callback);
 
 native float 		DH_Animate(NPCInstance id, NPCData_Animation data);
@@ -111,7 +116,7 @@ methodmap NPCClass {
 	public void AddAttack(NPC_AttackType type, float range, int probability=1) {
 		DH_RegisterAttack(this, type, range, probability);
 	}
-	public void AddAnimation(NPCData_Animation data, int sequence, int frames, int fps) {
+	public void AddAnimation(NPCData_Animation data, int sequence, int frames, float fps) {
 		DH_RegisterAnimation(this, data, sequence, frames, fps);
 	}
 	public void AddEvent(NPCData_Event event, NPCData_EventCallback callback) {
