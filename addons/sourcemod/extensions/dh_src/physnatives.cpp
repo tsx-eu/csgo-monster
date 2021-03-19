@@ -1,4 +1,5 @@
 #include "extension.h"
+
 #include "vphysics_interface.h"
 #include "vphysics/constraints.h"
 
@@ -13,7 +14,7 @@ static cell_t SetMass(IPluginContext *pContext, const cell_t *params)
 {
 	IPhysicsObject *m_pPhysicsObject = GetPhysicsObject(params[1]);
 
-	if (!m_pPhysicsObject) {
+	if(!m_pPhysicsObject) {
 		return pContext->ThrowNativeError("IPhysicsObject for entity %d null.", params[1]);
 	}
 
@@ -26,49 +27,42 @@ static cell_t GetMass(IPluginContext *pContext, const cell_t *params)
 {
 	IPhysicsObject *m_pPhysicsObject = GetPhysicsObject(params[1]);
 
-	if (!m_pPhysicsObject) {
+	if(!m_pPhysicsObject) {
 		return pContext->ThrowNativeError("IPhysicsObject for entity %d null.", params[1]);
 	}
 
 	return sp_ftoc(m_pPhysicsObject->GetMass());
 }
 ////////////////////////////////////////////////////////
-/*
-static cell_t GetOBBMins(IPluginContext *pContext, const cell_t *params)
+static cell_t GetWorldSpaceCenter(IPluginContext *pContext, const cell_t *params)
 {
 	edict_t *pEdict = PEntityOfEntIndex(gamehelpers->ReferenceToIndex(params[1]));
 	if (!pEdict || pEdict->IsFree()) {
 		return pContext->ThrowNativeError("Entity %d is invalid", params[1]);
 	}
 
-        Vector min = pEdict->GetCollideable()->OBBMins();
 
-        cell_t *addr;
-        pContext->LocalToPhysAddr(params[2], &addr);
-        addr[0] = sp_ftoc(min.x);
-        addr[1] = sp_ftoc(min.y);
-        addr[2] = sp_ftoc(min.z);
+	ICollideable* pCollidable = pEdict->GetCollideable();
 
-        return 1;
+	Vector res;
+	Vector pos = pCollidable->GetCollisionOrigin();
+	Vector center = (pCollidable->OBBMins() + pCollidable->OBBMaxs()) * 0.5f;
+
+	if( ( pCollidable->GetCollisionAngles() == vec3_angle ) || ( center == vec3_origin ) ) {
+		res = pos + center;
+	}
+	else {
+		VectorTransform(center, pCollidable->CollisionToWorldTransform(), res);
+	}
+
+	cell_t *addr;
+	pContext->LocalToPhysAddr(params[2], &addr);
+	addr[0] = sp_ftoc(res.x);
+	addr[1] = sp_ftoc(res.y);
+	addr[2] = sp_ftoc(res.z);
+
+	return 1;
 }
-static cell_t GetOBBMaxs(IPluginContext *pContext, const cell_t *params)
-{
-        edict_t *pEdict = PEntityOfEntIndex(gamehelpers->ReferenceToIndex(params[1]));
-        if (!pEdict || pEdict->IsFree()) {
-                return pContext->ThrowNativeError("Entity %d is invalid", params[1]);
-        }
-
-        Vector max = pEdict->GetCollideable()->OBBMaxs();
-
-        cell_t *addr;
-        pContext->LocalToPhysAddr(params[2], &addr);
-        addr[0] = sp_ftoc(max.x);
-        addr[1] = sp_ftoc(max.y);
-        addr[2] = sp_ftoc(max.z);
-
-        return 1;
-}
-*/
 ////////////////////////////////////////////////////////
 IPhysicsObject *GetPhysicsObject(int iEntityIndex)
 {
@@ -85,15 +79,13 @@ IPhysicsObject *GetPhysicsObject(CBaseEntity *pEntity)
 {
 	datamap_t *data = gamehelpers->GetDataMap(pEntity);
 
-	if (!data) 
-	{
+	if (!data) {
 		return NULL;
 	}
 
 	typedescription_t *type = gamehelpers->FindInDataMap(data, "m_pPhysicsObject");
 
-	if (!type)
-	{
+	if (!type) {
 		return NULL;
 	}
 
@@ -108,4 +100,5 @@ BEGIN_NATIVES(Phys)
 	ADD_NATIVE(Phys, IsPhysicsObject)
 	ADD_NATIVE(Phys, SetMass)
 	ADD_NATIVE(Phys, GetMass)
+	ADD_NATIVE(Phys, GetWorldSpaceCenter)
 END_NATIVES()

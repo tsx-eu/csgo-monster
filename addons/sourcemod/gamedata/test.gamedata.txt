@@ -4,14 +4,21 @@
 	{
 		"Addresses"
 		{
-			"IsFollowingSomeone" // StopFollowing
+			"CHostage"
+			{
+				"linux"
+				{
+					"signature"	"CHostage"
+				}
+			}
+			"IsFollowingSomeone"
 			{
 				"linux"
 				{
 					"signature"         "IsFollowingSomeone"
 				}
 			}
-			"UpdateFollowing" // hostage_stops_following
+			"UpdateFollowing"
 			{
 				"linux"
 				{
@@ -29,6 +36,11 @@
 
 		"Signatures"
 		{
+			"CHostage" // The maximum number of hostages (%i) has been exceeded.
+			{
+				"library"	"server"
+				"linux"		"\x55\x89\xE5\x57\x56\xBE\x2A\x2A\x2A\x2A\x53\x83\xEC\x2C\x8B\x5D\x08\x89\x1C\x24"
+			}
 			"IsFollowingSomeone" // StopFollowing
 			{
 				"library"       "server"

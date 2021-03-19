@@ -18,6 +18,10 @@ DH g_sglExtInterface;		/**< Global singleton for extension's main interface */
 SMEXT_LINK(&g_sglExtInterface);
 CGlobalVars *gpGlobals;
 IPhysics *iphysics = NULL;
+
+IForward *g_pIsFollowingSomeoneForwardPre = NULL;
+IForward *g_pWiggleForwardPre = NULL;
+
 IForward *g_pUpdateFollowingForwardPre = NULL;
 IForward *g_pUpdateFollowingForwardPost = NULL;
 
@@ -75,10 +79,30 @@ void *GetAddressFromKeyValues(void *pBaseAddr, IGameConfig *pGameConfig, const c
 }
 */
 
-int IsFollowingSomeone(CBaseEntity* pEntity) {
-	return 0;
+
+
+typedef bool (*IsFollowingSomeone_func)(CBaseEntity* pEntity);
+bool IsFollowingSomeone(CBaseEntity* pEntity) {
+	cell_t result = Pl_Continue;
+	g_pIsFollowingSomeoneForwardPre->PushCell(gamehelpers->EntityToBCompatRef(pEntity));
+	g_pIsFollowingSomeoneForwardPre->Execute(&result);
+
+	if( result == Pl_Continue ) {
+		return ((IsFollowingSomeone_func)g_sglExtInterface.g_hIsFollowingSomeone->GetTrampoline())(pEntity);
+	}
+
+	return false;
 }
+
+typedef void (*Wiggle_func)(CBaseEntity* pEntity);
 void Wiggle(CBaseEntity* pEntity) {
+	cell_t result = Pl_Continue;
+	g_pWiggleForwardPre->PushCell(gamehelpers->EntityToBCompatRef(pEntity));
+	g_pWiggleForwardPre->Execute(&result);
+
+	if( result == Pl_Continue ) {
+		((Wiggle_func)g_sglExtInterface.g_hWiggle->GetTrampoline())(pEntity);
+	}
 }
 
 typedef void (*UpdateFollowing_func)(CBaseEntity* pEntity, float deltaT);
@@ -109,6 +133,8 @@ bool DH::SDK_OnLoad(char *error, size_t maxlength, bool late) {
 	}
 	g_hIsFollowingSomeone = new subhook::Hook(addr_IsFollowingSomeone, (void *)IsFollowingSomeone);
 	g_hIsFollowingSomeone->Install();
+	//
+	g_pIsFollowingSomeoneForwardPre = forwards->CreateForward("DH_OnIsFollowingSomeonePre", ET_Hook, 1, NULL, Param_Cell);
 	// ----------------------------------------------------------------------------------------------------------
 	void *addr_Wiggle;
 	if ( !g_pGameConf->GetMemSig("Wiggle", &addr_Wiggle) || !addr_Wiggle ) {
@@ -117,6 +143,8 @@ bool DH::SDK_OnLoad(char *error, size_t maxlength, bool late) {
 	}
 	g_hWiggle = new subhook::Hook(addr_Wiggle, (void *)Wiggle);
 	g_hWiggle->Install();
+	//
+	g_pWiggleForwardPre = forwards->CreateForward("DH_OnWigglePre", ET_Hook, 1, NULL, Param_Cell);
 	// ----------------------------------------------------------------------------------------------------------
 	void *addr_UpdateFollowing;
 	if ( !g_pGameConf->GetMemSig("UpdateFollowing", &addr_UpdateFollowing) || !addr_UpdateFollowing ) {
@@ -125,7 +153,7 @@ bool DH::SDK_OnLoad(char *error, size_t maxlength, bool late) {
 	}
 	g_hUpdateFollowing = new subhook::Hook(addr_UpdateFollowing, (void *)UpdateFollowing);
 	g_hUpdateFollowing->Install();
-	// ----------------------------------------------------------------------------------------------------------
+	//
 	g_pUpdateFollowingForwardPre = forwards->CreateForward("DH_OnUpdateFollowingPre", ET_Hook, 1, NULL, Param_Cell);
 	g_pUpdateFollowingForwardPost = forwards->CreateForward("DH_OnUpdateFollowingPost", ET_Hook, 1, NULL, Param_Cell);
 	// ----------------------------------------------------------------------------------------------------------
@@ -141,17 +169,18 @@ bool DH::SDK_OnLoad(char *error, size_t maxlength, bool late) {
 void DH::SDK_OnUnload() {
 	plsys->RemovePluginsListener(this);
 
+	forwards->ReleaseForward(g_pIsFollowingSomeoneForwardPre);
 	g_hIsFollowingSomeone->Remove();
 	delete g_hIsFollowingSomeone;
 
+	forwards->ReleaseForward(g_pWiggleForwardPre);
         g_hWiggle->Remove();
         delete g_hWiggle;
 
-	g_hUpdateFollowing->Remove();
-	delete g_hUpdateFollowing;
-
 	forwards->ReleaseForward(g_pUpdateFollowingForwardPre);
 	forwards->ReleaseForward(g_pUpdateFollowingForwardPost);
+	g_hUpdateFollowing->Remove();
+	delete g_hUpdateFollowing;
 }
 
 void DH::OnPluginLoaded(IPlugin *plugin) {
