@@ -140,7 +140,7 @@ void AvoidPhysicsProps(int entity) {
 	SetEntDataVector(entity, m_accel, vel);
 }
 
-void Animate(int entity, int animator) {
+stock void Animate(int entity, int animator) {
 	if( view_as<float>(g_flInstance[entity][NPC_flNextAnim]) < GetGameTime() ) {
 		NPCInstance instance = view_as<NPCInstance>(entity);
 		
@@ -149,18 +149,17 @@ void Animate(int entity, int animator) {
 		vel[2] = 0.0;
 		speed = GetVectorLength(vel);
 		
-		speed = 999.9;
-		
 		if( speed > 100.0 )
-			DH_Animate(instance, NPC_ANIM_RUN);
+			DH_Animate(instance, NPC_ANIM_RUN, -1.0, 0.25);
 		else if( speed > 1.0 )
-			DH_Animate(instance, NPC_ANIM_WALK);
+			DH_Animate(instance, NPC_ANIM_WALK, -1.0, 0.25);
 		else
-			DH_Animate(instance, NPC_ANIM_IDLE);
+			DH_Animate(instance, NPC_ANIM_IDLE, -1.0, 0.25);
 	}
 	
-	SetEntProp(animator, Prop_Data, "m_nSequence", g_iInstance[entity][NPC_iCurrentAnim]);
-	SetEntProp(animator, Prop_Data, "m_nIdealSequence", g_iInstance[entity][NPC_iCurrentAnim]);
+	//SetEntPropFloat(animator, Prop_Data, "m_flPlaybackRate", g_flInstance[entity][NPC_flAnimScale]);
+	//SetEntProp(animator, Prop_Data, "m_nSequence", g_iInstance[entity][NPC_iCurrentAnim]);
+	//SetEntProp(animator, Prop_Data, "m_nIdealSequence", g_iInstance[entity][NPC_iCurrentAnim]);
 }
 public Action OnTouch(int entity, int target) {
 	static char classname[128];
@@ -187,10 +186,6 @@ public void OnThink(int entity) {
 		SetEntProp(g_iInstance[entity][NPC_iAnimator], Prop_Send, "m_bClientSideAnimation", 0);
 		
 		SDKCall(hSDKCallStudioFrameAdvance, EntRefToEntIndex(g_iInstance[entity][NPC_iAnimator])); 
-		IAnimator anim = IAnimator(EntRefToEntIndex(g_iInstance[entity][NPC_iAnimator]));
-		if( anim.FindGestureLayerInt(9) == -1 ) {
-			anim.AddGestureInt(9);
-		}
 		
 		SetEntPropEnt(entity, Prop_Send, "m_leader", g_iInstance[entity][NPC_iLeader]);
 		Animate(entity, EntRefToEntIndex(g_iInstance[entity][NPC_iAnimator]));

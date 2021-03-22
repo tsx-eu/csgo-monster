@@ -119,7 +119,8 @@ native void 		DH_RegisterAttack(NPCClass id, NPC_AttackType type, float range, i
 native void 		DH_RegisterAnimation(NPCClass id, NPCData_Animation data, int sequence, int frames, float fps);
 native void 		DH_RegisterHook(NPCClass id, NPCData_Event event, NPCData_EventCallback callback);
 
-native float 		DH_Animate(NPCInstance id, NPCData_Animation data);
+native float 		DH_Animate(NPCInstance id, NPCData_Animation data, float scale = -1.0, float trim = -1.0);
+native float 		DH_Gesture(NPCInstance id, NPCData_Animation data, float scale = -1.0, bool remove_similar = false);
 
 methodmap NPCClass {
 	public NPCClass(const char[] fullname, const char[] name, const char[] model) {

@@ -12,9 +12,7 @@
 
 Handle hSDKCallStudioFrameAdvance; 
 Handle hSDKCallAddLayeredSequence;
-Handle hSDKCallLookupSequence;
 int AnimatingOverlay_Count;
-int Animating_StudioHdr;
 
 #include "dh/variables.inc"
 
@@ -54,7 +52,7 @@ public void OnPluginStart() {
 
 // ---------------------------------------------------------------------------------------------------------
 public APLRes AskPluginLoad2(Handle hPlugin, bool isAfterMapLoaded, char[] error, int err_max) {
-	Native_REGISTER();
+	return Native_REGISTER();
 }
 // ---------------------------------------------------------------------------------------------------------
 public void OnMapStart() {

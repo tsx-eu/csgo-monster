@@ -1,5 +1,5 @@
 
-void Native_REGISTER() {
+APLRes Native_REGISTER() {
 	CreateNative("DH_Create", 				Native_DH_Create);
 	CreateNative("DH_Spawn", 				Native_DH_Spawn);
 	CreateNative("DH_GetClass", 			Native_DH_GetClass);
@@ -23,6 +23,10 @@ void Native_REGISTER() {
 	CreateNative("DH_RegisterHook", 		Native_DH_RegisterHook);
 	
 	CreateNative("DH_Animate", 				Native_DH_Animate);
+	CreateNative("DH_Gesture", 				Native_DH_Gesture);
+	
+	RegPluginLibrary("DH-CORE"); 
+	return APLRes_Success;
 }
 public int Native_DH_Create(Handle plugin, int numParams) {
 	int id = g_iClassCount;
@@ -164,23 +168,70 @@ public any Native_DH_RegisterHook(Handle plugin, int numParams) {
 public any Native_DH_Animate(Handle plugin, int numParams) {
 	int entity = GetNativeCell(1);
 	int anim = GetNativeCell(2);
-//	float scale = GetNativeCell(3);
-//	float duration = GetNativeCell(4);
-	
+	float desired_duration = GetNativeCell(3);
+	float trim = GetNativeCell(4);
 	
 	int id = g_iInstance[entity][NPC_iClass];
-	
 	int rnd = Math_GetRandomInt(1, g_anClass[id][anim][0].seq);
 	
 	int seq = g_anClass[id][anim][rnd].seq;
 	float duration = g_anClass[id][anim][rnd].frames / g_anClass[id][anim][rnd].fps;
-	float time = 1.0;
+	float scale = 1.0;
+	
+	if( desired_duration >= 0.0 ) {
+		scale = duration / desired_duration;
+		duration = desired_duration;
+	}
+	
+	if( trim >= 0.0 )
+		duration = trim;
 	
 	g_iInstance[entity][NPC_iCurrentAnim] = seq;
 	view_as<float>(g_flInstance[entity][NPC_flNextAnim]) = (GetGameTime() + duration);
-	view_as<float>(g_flInstance[entity][NPC_flAnimScale]) = time;
+	view_as<float>(g_flInstance[entity][NPC_flAnimScale]) = scale;
+	
+	int animator = EntRefToEntIndex(g_iInstance[entity][NPC_iAnimator]);
+	if( animator > 0 ) {
+		SetEntPropFloat(animator, Prop_Data, "m_flAnimTime", GetGameTime());
+		SetEntPropFloat(animator, Prop_Data, "m_flPlaybackRate", scale);
 		
-	SetEntPropFloat(EntRefToEntIndex(g_iInstance[entity][NPC_iAnimator]), Prop_Data, "m_flAnimTime", GetGameTime());
+		SetEntProp(animator, Prop_Data, "m_nSequence", seq);
+		SetEntProp(animator, Prop_Data, "m_nIdealSequence", seq);
+	}
+	
+	return duration;
+}
+public any Native_DH_Gesture(Handle plugin, int numParams) {
+	int entity = GetNativeCell(1);
+	int anim = GetNativeCell(2);
+	float desired_duration = GetNativeCell(3);
+	bool remove = GetNativeCell(4);
+	
+	int id = g_iInstance[entity][NPC_iClass];
+	int rnd = Math_GetRandomInt(1, g_anClass[id][anim][0].seq);
+	
+	int seq = g_anClass[id][anim][rnd].seq;
+	float duration = g_anClass[id][anim][rnd].frames / g_anClass[id][anim][rnd].fps;
+	float scale = 1.0;
+	
+	if( desired_duration >= 0.0 ) {
+		scale = duration / desired_duration;
+		duration = desired_duration;
+	}
+	
+	int animator = EntRefToEntIndex(g_iInstance[entity][NPC_iAnimator]);
+	if( animator > 0 ) {
+		IAnimator refAnim = IAnimator(animator);
+
+		if( remove ) {
+			for(int i=1; i<g_anClass[id][anim][0].seq; i++)
+				refAnim.RemoveGesture(g_anClass[id][anim][i].seq);
+		}
+		
+		int layer = refAnim.AddGesture(seq, true);
+		if( desired_duration >= 0.0 )
+			refAnim.CBaseAnimatingOverlay().SetLayerPlaybackRate(layer, scale);
+	}
 	
 	return duration;
 }

@@ -21,33 +21,6 @@ void INIT_Animator() {
 	
 	// ----------------------------------------------------------------------------------------------------------------------------------------------
 	delete hConfig;
-	hConfig = LoadGameConfigFile("plugin.zombieplague"); 
-	
-	StartPrepSDKCall(SDKCall_Raw);
-	PrepSDKCall_SetFromConf(hConfig, SDKConf_Signature, "CBaseAnimating::LookupSequence");
-	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
-	PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
-	if ((hSDKCallLookupSequence = EndPrepSDKCall()) == null)
-		SetFailState("Failed to load SDK call \"CBaseAnimating::LookupSequence\". Update signature in \"plugin.zombieplague\""); 
-	
-	// ----------------------------------------------------------------------------------------------------------------------------------------------
-	Animating_StudioHdr = GameConfGetOffset(hConfig, "CBaseAnimating::StudioHdr") + FindSendPropInfo("CBaseAnimating", "m_hLightingOrigin");
-	
-	delete hConfig;
-}
-
-Address ToolsGetStudioHdrClass(int entity) {
-	return view_as<Address>(GetEntData(entity, Animating_StudioHdr));
-}
-
-int ZP_LookupSequence(int entity, char[] sAnim) {
-	// Gets 'CStudioHdr' class
-	Address pStudioHdrClass = ToolsGetStudioHdrClass(entity);
-	if (pStudioHdrClass == Address_Null) {
-		return -1;
-	}
-	
-	return SDKCall(hSDKCallLookupSequence, pStudioHdrClass, sAnim);
 }
 
 #define ANIM_LAYER_ACTIVE        0x0001 
@@ -74,11 +47,9 @@ enum { //CAnimationLayer
 	m_flKillDelay = 44,
 	m_flLayerAnimtime = 48,
 	m_flLayerFadeOuttime = 52,
-	/*
-		??? = 56,
+	/*	??? = 56,
 		??? = 60,
-		??? = 64,
-	*/
+		??? = 64, */
 	m_nActivity = 68,
 	m_nPriority = 72,
 	m_nOrder = 76,
@@ -88,6 +59,7 @@ enum { //CAnimationLayer
 	CAnimationLayer_Size = 92
 };
 
+// https://github.com/ValveSoftware/source-sdk-2013/blob/master/sp/src/game/server/BaseAnimatingOverlay.cpp
 methodmap CAnimationOverlay  { 
 	public CAnimationOverlay(int address) {
 		return view_as<CAnimationOverlay>(address);
@@ -108,6 +80,7 @@ methodmap CAnimationOverlay  {
 	public void Set(int iOffset, int iLayer, any iValue) { 
 		StoreToAddress(this.Address + view_as<Address>(iOffset + CAnimationLayer_Size * iLayer), iValue, NumberType_Int32); 
 	}
+	
 	public bool IsActive(int iLayer)    { return ((this.Get(m_fFlags, iLayer) & ANIM_LAYER_ACTIVE)   != 0); } 
 	public bool IsAutokill(int iLayer)  { return ((this.Get(m_fFlags, iLayer) & ANIM_LAYER_AUTOKILL) != 0); } 
 	public bool IsKillMe(int iLayer)    { return ((this.Get(m_fFlags, iLayer) & ANIM_LAYER_KILLME)   != 0); } 
@@ -119,28 +92,35 @@ methodmap CAnimationOverlay  {
 	public void Dead(int iLayer)        { int iFlags = this.Get(m_fFlags, iLayer); this.Set(m_fFlags, iLayer, (iFlags &= ~ANIM_LAYER_DYING)); }
 	public void Loop(int iLayer)        { int iFlags = this.Get(m_fFlags, iLayer); this.Set(m_fFlags, iLayer, (iFlags &= ~ANIM_LAYER_AUTOKILL)); }
 	
-	// @link https://github.com/VSES/SourceEngine2007/blob/43a5c90a5ada1e69ca044595383be67f40b33c61/src_main/game/server/BaseAnimatingOverlay.sp#L1073
 	public void RemoveLayer(int iLayer, float flKillRate, float flKillDelay) {
 		this.Set(m_flKillRate, iLayer, flKillRate > 0.0 ? this.Get(m_flWeight, iLayer) / flKillRate : 100.0);
 		this.Set(m_flKillDelay, iLayer, flKillDelay);
 		this.KillMe(iLayer);
 	}
-	// @link https://github.com/droozynuu/swarm-sdk-template/blob/79af61e7756be2921eebf917e35a42577c9ca9ec/src/game/server/BaseAnimatingOverlay.sp#L1025
+	
 	public void SetLayerAutokill(int iLayer, bool bAutokill) {
-		if (bAutokill) {
+		if (bAutokill)
 			this.AutoKill(iLayer);
-		}
-		else {
+		else
 			this.Loop(iLayer);
-		}
 	}
 	
-	// @link https://github.com/VSES/SourceEngine2007/blob/43a5c90a5ada1e69ca044595383be67f40b33c61/src_main/game/server/BaseAnimatingOverlay.sp#L815
+	public void SetLayerPlaybackRate(int iLayer, float rate) {
+		this.Set(m_flPlaybackRate, iLayer, rate);
+	}
+	public void SetLayerWeight(int iLayer, float weight) {
+		this.Set(m_flWeight, iLayer, weight);
+	}
+	public void SetLayerBlend(int iLayer, float blend_in, float blend_out) {
+		this.Set(m_flBlendIn, iLayer, blend_in);
+		this.Set(m_flBlendOut, iLayer, blend_out);
+	}
+	
 	public bool IsAlive(int iLayer)         { int iFlags = this.Get(m_fFlags, iLayer); return (((iFlags & ANIM_LAYER_ACTIVE) != 0) || ((iFlags & ANIM_LAYER_KILLME) == 0)); }
 	
-	// @link https://github.com/VSES/SourceEngine2007/blob/43a5c90a5ada1e69ca044595383be67f40b33c61/src_main/game/server/BaseAnimatingOverlay.sp#L1060
 	public int GetLayerSequence(int iLayer) { return (this.Get(m_nSequence, iLayer)); }
 };
+
 
 methodmap IAnimator {
 	
@@ -160,29 +140,7 @@ methodmap IAnimator {
 		return GetEntData(view_as<int>(this), iOffset);
 	}
 	
-	// @info https://github.com/VSES/SourceEngine2007/blob/43a5c90a5ada1e69ca044595383be67f40b33c61/src_main/game/server/BaseAnimatingOverlay.sp#L811
-	public int FindGestureLayer(char[] sAnim) {
-		int iSequence = ZP_LookupSequence(view_as<int>(this), sAnim); 
-		if (iSequence < 0)
-			return -1; 
-
-		CAnimationOverlay pOverlay = this.CBaseAnimatingOverlay(); 
-		if (pOverlay.isNull)
-			return -1; 
-		
-		int iCount = this.AnimOverlayCount();
-		for (int i = 0; i < iCount; i++) {
-			if (!pOverlay.IsAlive(i))
-				continue; 
-
-			if (pOverlay.GetLayerSequence(i) == iSequence)
-				return i; 
-		} 
-		
-		return -1; 
-	}
-	public int FindGestureLayerInt(int iSequence) {
-
+	public int FindGestureLayer(int iSequence) {
 		CAnimationOverlay pOverlay = this.CBaseAnimatingOverlay(); 
 		if (pOverlay.isNull)
 			return -1; 
@@ -199,45 +157,26 @@ methodmap IAnimator {
 		return -1; 
 	}
 
-	// @link https://github.com/VSES/SourceEngine2007/blob/43a5c90a5ada1e69ca044595383be67f40b33c61/src_main/game/server/BaseAnimatingOverlay.sp#L527
-	public int AddGesture(char[] sAnim, bool bAutoKill = true) { 
-		int iSequence = ZP_LookupSequence(view_as<int>(this), sAnim); 
-		if (iSequence < 0)
-			return -1; 
-
+	public int AddGesture(int iSequence, bool bAutoKill = true) { 
 		CAnimationOverlay pOverlay = this.CBaseAnimatingOverlay(); 
 		if (pOverlay.isNull)
 			return -1; 
 		
 		int iLayer = SDKCall(hSDKCallAddLayeredSequence, view_as<int>(this), iSequence, 0); 
-		if (iLayer >= 0 && iLayer < this.AnimOverlayCount() && pOverlay.IsActive(iLayer))
+		if (iLayer >= 0 && iLayer < this.AnimOverlayCount() && pOverlay.IsActive(iLayer)) {
 			pOverlay.SetLayerAutokill(iLayer, bAutoKill);
+		}
 		
-		return iLayer;
-	}
-	public int AddGestureInt(int iSequence, bool bAutoKill = true) { 
-		CAnimationOverlay pOverlay = this.CBaseAnimatingOverlay(); 
-		if (pOverlay.isNull)
-			return -1; 
-		
-		int iLayer = SDKCall(hSDKCallAddLayeredSequence, view_as<int>(this), iSequence, 0); 
-		if (iLayer >= 0 && iLayer < this.AnimOverlayCount() && pOverlay.IsActive(iLayer))
-			pOverlay.SetLayerAutokill(iLayer, bAutoKill);
 		
 		return iLayer;
 	}
 
-	// @link https://github.com/VSES/SourceEngine2007/blob/43a5c90a5ada1e69ca044595383be67f40b33c61/src_main/game/server/BaseAnimatingOverlay.sp#L836
-	public bool IsPlayingGesture(char[] sAnim) { 
-		return this.FindGestureLayer(sAnim) != -1 ? true : false; 
-	}
-	public bool IsPlayingGestureInt(int iSequence) { 
-		return this.FindGestureLayerInt(iSequence) != -1 ? true : false; 
+	public bool IsPlayingGesture(int iSequence) { 
+		return this.FindGestureLayer(iSequence) != -1 ? true : false; 
 	} 
 
-	// @link https://github.com/VSES/SourceEngine2007/blob/43a5c90a5ada1e69ca044595383be67f40b33c61/src_main/game/server/BaseAnimatingOverlay.sp#L866
-	public void RemoveGesture(char[] sAnim) { 
-		int iLayer = this.FindGestureLayer(sAnim); 
+	public void RemoveGesture(int iSequence) { 
+		int iLayer = this.FindGestureLayer(iSequence); 
 		if (iLayer == -1)
 			return; 
 
