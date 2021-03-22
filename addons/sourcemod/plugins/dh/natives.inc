@@ -39,6 +39,13 @@ public int Native_DH_Create(Handle plugin, int numParams) {
 	
 	return g_iClassCount++;
 }
+
+#define EF_BONEMERGE                (1 << 0)
+#define EF_NOSHADOW                 (1 << 4)
+#define EF_NODRAW         			(1 << 5)
+#define EF_NORECEIVESHADOW          (1 << 6)
+#define EF_PARENT_ANIMATES          (1 << 9)
+
 public int Native_DH_Spawn(Handle plugin, int numParams) {
 	static char tmp[32];
 	Format(tmp, sizeof(tmp), "!self,Kill,,%f,-1", 30.0);
@@ -57,14 +64,27 @@ public int Native_DH_Spawn(Handle plugin, int numParams) {
 	ActivateEntity(entity);
 	TeleportEntity(entity, pos, ang, NULL_VECTOR);
 	
+	SetEntProp(entity, Prop_Send, "m_nHostageState", 3);
 	g_iInstance[entity][NPC_iClass] = id;
-	SetEntProp(entity, Prop_Data, "m_lifeState", 2);
+	
+	
+	int child = CreateEntityByName("monster_generic");
+	DispatchKeyValue(child, "model", g_szClass[id][NPC_szModel]);
+	DispatchSpawn(child);
+	ActivateEntity(child);
+	SetEntProp(child, Prop_Send, "m_fEffects", EF_BONEMERGE|EF_NOSHADOW|EF_NORECEIVESHADOW|EF_PARENT_ANIMATES);	
+	SetEntProp(child, Prop_Send, "m_nBody", GetRandomInt(g_iClass[id][NPC_iMinBody], g_iClass[id][NPC_iMaxBody]));
+	SetEntProp(child, Prop_Send, "m_nSkin", GetRandomInt(g_iClass[id][NPC_iMinSkin], g_iClass[id][NPC_iMaxSkin]));
+	
+	TeleportEntity(child, pos, ang, NULL_VECTOR);
+	SetVariantString("!activator");
+	AcceptEntityInput(child, "SetParent", entity);	
+
+	g_iInstance[entity][NPC_iAnimator] = EntIndexToEntRef(child);	
 	
 	Call_StartForward(view_as<Handle>(g_hClass[id][NPC_EVENT_SPAWN]));
 	Call_PushCell(entity);
 	Call_Finish();
-	
-	// TODO
 	
 	return entity;
 }
@@ -144,6 +164,10 @@ public any Native_DH_RegisterHook(Handle plugin, int numParams) {
 public any Native_DH_Animate(Handle plugin, int numParams) {
 	int entity = GetNativeCell(1);
 	int anim = GetNativeCell(2);
+//	float scale = GetNativeCell(3);
+//	float duration = GetNativeCell(4);
+	
+	
 	int id = g_iInstance[entity][NPC_iClass];
 	
 	int rnd = Math_GetRandomInt(1, g_anClass[id][anim][0].seq);
@@ -155,9 +179,8 @@ public any Native_DH_Animate(Handle plugin, int numParams) {
 	g_iInstance[entity][NPC_iCurrentAnim] = seq;
 	view_as<float>(g_flInstance[entity][NPC_flNextAnim]) = (GetGameTime() + duration);
 	view_as<float>(g_flInstance[entity][NPC_flAnimScale]) = time;
-	
-	PrintToChatAll("choseq seq: %d", seq);
+		
+	SetEntPropFloat(EntRefToEntIndex(g_iInstance[entity][NPC_iAnimator]), Prop_Data, "m_flAnimTime", GetGameTime());
 	
 	return duration;
 }
-

@@ -22,11 +22,23 @@ forward Action DH_OnWigglePre(int hostage);
 forward Action DH_OnUpdateFollowingPre(int hostage, float delta);
 forward void DH_OnUpdateFollowingPost(int hostage, float delta);
 
+forward Action DH_OnCalcMainActivityPre(int hostage, int& anim);
+forward void DH_OnCalcMainActivityPost(int hostage, int anim);
+
 enum NPCData_Int {
 	NPC_iClass,
 	NPC_iHealth,
 	NPC_iLeader,
 	NPC_iAttackCount,
+	NPC_iAnimator,
+	
+	NPC_iBody,
+	NPC_iMinBody,
+	NPC_iMaxBody,
+	
+	NPC_iSkin,
+	NPC_iMinSkin,
+	NPC_iMaxSkin,
 	
 	NPC_iCurrentAnim,
 	
@@ -127,6 +139,22 @@ methodmap NPCClass {
 		public get() { 	return 			DH_GetClassInt(this, NPC_iHealth); }
 		public set(const int value) { 	DH_SetClassInt(this, NPC_iHealth, value); }
 	}
+	property int MinBody {
+		public get() { 	return 			DH_GetClassInt(this, NPC_iMinBody); }
+		public set(const int value) { 	DH_SetClassInt(this, NPC_iMinBody, value); }
+	}
+	property int MaxBody {
+		public get() { 	return 			DH_GetClassInt(this, NPC_iMaxBody); }
+		public set(const int value) { 	DH_SetClassInt(this, NPC_iMaxBody, value); }
+	}
+	property int MinSkin {
+		public get() { 	return 			DH_GetClassInt(this, NPC_iMinSkin); }
+		public set(const int value) { 	DH_SetClassInt(this, NPC_iMinSkin, value); }
+	}
+	property int MaxSkin {
+		public get() { 	return 			DH_GetClassInt(this, NPC_iMaxSkin); }
+		public set(const int value) { 	DH_SetClassInt(this, NPC_iMaxSkin, value); }
+	}
 	// -- float
 	property float Speed {
 		public get() { 	return 			DH_GetClassFloat(this, NPC_flSpeed); }
@@ -152,6 +180,14 @@ methodmap NPCInstance {
 	property int Target {
 		public get() { 	return 			DH_GetInstanceInt(this, NPC_iLeader); }
 		public set(const int value) { 	DH_SetInstanceInt(this, NPC_iLeader, value); }
+	}
+	property int Body {
+		public get() { 	return 			DH_GetInstanceInt(this, NPC_iBody); }
+		public set(const int value) { 	DH_SetInstanceInt(this, NPC_iBody, value); }
+	}
+	property int Skin {
+		public get() { 	return 			DH_GetInstanceInt(this, NPC_iSkin); }
+		public set(const int value) { 	DH_SetInstanceInt(this, NPC_iSkin, value); }
 	}
 	// -- float
 	property float Speed {
