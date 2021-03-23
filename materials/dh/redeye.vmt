@@ -1,4 +1,4 @@
-"LightmappedGeneric"
+"ParallaxTest"
 {
-	"$basetexture" "dh/redeye"
+	"$basetexture" 	"dh/redeye"	
 }
