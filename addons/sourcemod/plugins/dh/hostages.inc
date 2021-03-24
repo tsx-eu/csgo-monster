@@ -9,8 +9,9 @@ public Action DH_OnCalcMainActivityPre(int hostage, int& anim) {
 	return Plugin_Continue;
 }
 public void DH_OnCalcMainActivityPost(int hostage, int anim) {
-	//PrintToChatAll("%d", anim);
 }
+
+
 public Action DH_OnUpdateFollowingPre(int hostage, float delta) {
 	return Plugin_Continue;
 }
@@ -140,26 +141,35 @@ void AvoidPhysicsProps(int entity) {
 	SetEntDataVector(entity, m_accel, vel);
 }
 
-stock void Animate(int entity, int animator) {
+stock void Animate(int entity, int animator) {	
+	float vel[3], speed;
+	Entity_GetAbsVelocity(entity, vel);
+	vel[2] = 0.0;
+	speed = GetVectorLength(vel);
+	view_as<float>(g_flInstance[entity][NPC_flSpeed]) = (view_as<float>(g_flInstance[entity][NPC_flSpeed]) * (9.0/10.0)) + (speed * (1.0/10.0));
+	
+	NPCInstance instance = view_as<NPCInstance>(entity);
+	
 	if( view_as<float>(g_flInstance[entity][NPC_flNextAnim]) < GetGameTime() ) {
-		NPCInstance instance = view_as<NPCInstance>(entity);
 		
-		float vel[3], speed;
-		Entity_GetAbsVelocity(entity, vel);
-		vel[2] = 0.0;
-		speed = GetVectorLength(vel);
-		
-		if( speed > 100.0 )
-			DH_Animate(instance, NPC_ANIM_RUN, -1.0, 0.25);
-		else if( speed > 1.0 )
-			DH_Animate(instance, NPC_ANIM_WALK, -1.0, 0.25);
-		else
-			DH_Animate(instance, NPC_ANIM_IDLE, -1.0, 0.25);
+		if( instance.Class.HasAnimation(NPC_ANIM_SPEED) ) {
+			instance.Animate(NPC_ANIM_SPEED);
+			SetEntProp(animator, Prop_Data, "m_bSequenceLoops", 1);
+		}
+		else {
+			if( speed > 100.0 )
+				instance.Animate(NPC_ANIM_RUN);
+			else if( speed > 1.0 )
+				instance.Animate(NPC_ANIM_WALK);
+			else
+				instance.Animate(NPC_ANIM_IDLE);
+			
+			view_as<float>(g_flInstance[entity][NPC_flNextAnim]) = GetGameTime() + 0.25;
+		}
 	}
 	
-	//SetEntPropFloat(animator, Prop_Data, "m_flPlaybackRate", g_flInstance[entity][NPC_flAnimScale]);
-	//SetEntProp(animator, Prop_Data, "m_nSequence", g_iInstance[entity][NPC_iCurrentAnim]);
-	//SetEntProp(animator, Prop_Data, "m_nIdealSequence", g_iInstance[entity][NPC_iCurrentAnim]);
+	float param = speed / view_as<float>(g_flClass[g_iInstance[entity][NPC_iClass]][NPC_flSpeed]);	
+	instance.Pose(NPC_POSE_SPEED, param);
 }
 public Action OnTouch(int entity, int target) {
 	static char classname[128];

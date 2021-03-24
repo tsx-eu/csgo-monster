@@ -66,14 +66,22 @@ enum NPCData_Animation {
 	NPC_ANIM_WALK,
 	NPC_ANIM_RUN,
 	
+	NPC_ANIM_SPEED,
+	
 	NPC_ANIM_ATTACK,
 	NPC_ANIM_ATTACK2,
 	NPC_ANIM_RELOAD,
 	
 	NPC_ANIM_DYING,
 	NPC_ANIM_DEAD,
+	
 	NPCData_max_Animation
 };
+enum NPCData_Pose {
+	NPC_POSE_SPEED,
+	
+	NPCData_max_Pose
+}
 enum NPCData_Event {
 	NPC_EVENT_SPAWN,
 	NPC_EVENT_ATTACK,
@@ -117,10 +125,13 @@ native void 		DH_GetInstanceString(NPCInstance id, NPCData_String data, char[] v
 
 native void 		DH_RegisterAttack(NPCClass id, NPC_AttackType type, float range, int probability=1);
 native void 		DH_RegisterAnimation(NPCClass id, NPCData_Animation data, int sequence, int frames, float fps);
+native bool 		DH_HasAnimation(NPCClass id, NPCData_Animation data);
+native void 		DH_RegisterPose(NPCClass id, NPCData_Pose data, int value);
 native void 		DH_RegisterHook(NPCClass id, NPCData_Event event, NPCData_EventCallback callback);
 
-native float 		DH_Animate(NPCInstance id, NPCData_Animation data, float scale = -1.0, float trim = -1.0);
+native float 		DH_Animate(NPCInstance id, NPCData_Animation data, float scale = -1.0);
 native float 		DH_Gesture(NPCInstance id, NPCData_Animation data, float scale = -1.0, bool remove_similar = false);
+native void 		DH_Pose(NPCInstance id, NPCData_Pose data, float pose);
 
 methodmap NPCClass {
 	public NPCClass(const char[] fullname, const char[] name, const char[] model) {
@@ -132,9 +143,13 @@ methodmap NPCClass {
 	public void AddAnimation(NPCData_Animation data, int sequence, int frames, float fps) {
 		DH_RegisterAnimation(this, data, sequence, frames, fps);
 	}
+	public bool HasAnimation(NPCData_Animation data) {
+		return DH_HasAnimation(this, data);
+	}
 	public void AddEvent(NPCData_Event event, NPCData_EventCallback callback) {
 		DH_RegisterHook(this, event, callback);
 	}
+	
 	// -- int
 	property int Health {
 		public get() { 	return 			DH_GetClassInt(this, NPC_iHealth); }
@@ -170,10 +185,20 @@ methodmap NPCInstance {
 	public NPCInstance(NPCClass id, float pos[3], float ang[3]=NULL_VECTOR) {
 		return DH_Spawn(id, pos, ang);
 	}
-	public float Animate(NPCData_Animation data) {
-		return DH_Animate(this, data);
+	public float Animate(NPCData_Animation data, float scale = -1.0) {
+		return DH_Animate(this, data, scale);
 	}
+	public float Gesture(NPCData_Animation data, float scale = -1.0, bool remove_similar = false) {
+		return DH_Gesture(this, data, scale, remove_similar);
+	}
+	public void Pose(NPCData_Pose data, float value) {
+		DH_Pose(this, data, value);
+	}
+	
 	// -- int
+	property NPCClass Class {
+		public get() { return			view_as<NPCClass>(DH_GetInstanceInt(this, NPC_iClass)); }
+	}
 	property int Health {
 		public get() { 	return 			DH_GetInstanceInt(this, NPC_iHealth); }
 		public set(const int value) { 	DH_SetInstanceInt(this, NPC_iHealth, value); }

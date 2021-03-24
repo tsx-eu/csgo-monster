@@ -32,14 +32,17 @@ public void OnLibraryAdded(const char[] sLibrary) {
 		
 		g_Class.AddAttack(NPC_ATTACK_MELEE, 	NPC_RANGE_MELEE);
 		
-		g_Class.AddAnimation(NPC_ANIM_IDLE, 	0, 		200, 	35.0);
-		g_Class.AddAnimation(NPC_ANIM_WALK,     3, 		210, 	28.0);
-		g_Class.AddAnimation(NPC_ANIM_RUN, 		6, 		30, 	35.0);
+		g_Class.AddAnimation(NPC_ANIM_IDLE, 	0, 		200, 	30.0);
+		g_Class.AddAnimation(NPC_ANIM_WALK,     1, 		210, 	28.0);
+		g_Class.AddAnimation(NPC_ANIM_RUN, 		2, 		30, 	35.0);
 		
-		g_Class.AddAnimation(NPC_ANIM_ATTACK, 	9, 		40, 	50.0);
-		g_Class.AddAnimation(NPC_ANIM_ATTACK, 	10,		40, 	50.0);
-		g_Class.AddAnimation(NPC_ANIM_DYING, 	11, 	55, 	35.0);
-		g_Class.AddAnimation(NPC_ANIM_DEAD, 	12, 	1, 		35.0);
+		g_Class.AddAnimation(NPC_ANIM_SPEED, 	3, 		30, 	35.0);		
+		
+		g_Class.AddAnimation(NPC_ANIM_ATTACK, 	4, 		40, 	50.0);
+		g_Class.AddAnimation(NPC_ANIM_ATTACK, 	5,		45, 	50.0);
+		
+		g_Class.AddAnimation(NPC_ANIM_DYING, 	6, 		55, 	35.0);
+		g_Class.AddAnimation(NPC_ANIM_DEAD, 	7, 		1, 		35.0);
 		
 		g_Class.AddEvent(NPC_EVENT_SPAWN,	OnSpawn);
 		g_Class.AddEvent(NPC_EVENT_ATTACK,	OnAttack);

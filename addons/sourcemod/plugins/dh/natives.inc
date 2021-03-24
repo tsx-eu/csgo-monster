@@ -19,11 +19,14 @@ APLRes Native_REGISTER() {
 	CreateNative("DH_GetInstanceString", 	Native_DH_GetInstanceString);
 	
 	CreateNative("DH_RegisterAnimation", 	Native_DH_RegisterAnimation);
+	CreateNative("DH_HasAnimation", 		Native_DH_HasAnimation);
 	CreateNative("DH_RegisterAttack", 		Native_DH_RegisterAttack);
 	CreateNative("DH_RegisterHook", 		Native_DH_RegisterHook);
+	CreateNative("DH_RegisterPose", 		Native_DH_RegisterPose);
 	
 	CreateNative("DH_Animate", 				Native_DH_Animate);
 	CreateNative("DH_Gesture", 				Native_DH_Gesture);
+	CreateNative("DH_Pose", 				Native_DH_Pose);
 	
 	RegPluginLibrary("DH-CORE"); 
 	return APLRes_Success;
@@ -152,6 +155,11 @@ public any Native_DH_RegisterAnimation(Handle plugin, int numParams) {
 	
 	g_anClass[id][data][0].seq = cpt;
 }
+public any Native_DH_HasAnimation(Handle plugin, int numParams) {
+	int id = GetNativeCell(1);
+	int anim = GetNativeCell(2);
+	return g_anClass[id][anim][0].seq >= 1;
+}
 public any Native_DH_RegisterAttack(Handle plugin, int numParams) {
 	int id = GetNativeCell(1);
 	int cpt = g_iClass[id][NPC_iAttackCount];
@@ -165,11 +173,14 @@ public any Native_DH_RegisterAttack(Handle plugin, int numParams) {
 public any Native_DH_RegisterHook(Handle plugin, int numParams) {
 	g_hClass[GetNativeCell(1)][GetNativeCell(2)].AddFunction(plugin, GetNativeFunction(3));
 }
+public any Native_DH_RegisterPose(Handle plugin, int numParams) {
+	g_iPose[GetNativeCell(1)][GetNativeCell(2)] = GetNativeCell(3);
+}
 public any Native_DH_Animate(Handle plugin, int numParams) {
 	int entity = GetNativeCell(1);
 	int anim = GetNativeCell(2);
 	float desired_duration = GetNativeCell(3);
-	float trim = GetNativeCell(4);
+	//float trim = GetNativeCell(4);
 	
 	int id = g_iInstance[entity][NPC_iClass];
 	int rnd = Math_GetRandomInt(1, g_anClass[id][anim][0].seq);
@@ -183,8 +194,8 @@ public any Native_DH_Animate(Handle plugin, int numParams) {
 		duration = desired_duration;
 	}
 	
-	if( trim >= 0.0 )
-		duration = trim;
+	//if( trim >= 0.0 )
+	//	duration = trim;
 	
 	g_iInstance[entity][NPC_iCurrentAnim] = seq;
 	view_as<float>(g_flInstance[entity][NPC_flNextAnim]) = (GetGameTime() + duration);
@@ -192,11 +203,12 @@ public any Native_DH_Animate(Handle plugin, int numParams) {
 	
 	int animator = EntRefToEntIndex(g_iInstance[entity][NPC_iAnimator]);
 	if( animator > 0 ) {
-		SetEntPropFloat(animator, Prop_Data, "m_flAnimTime", GetGameTime());
+		//SetEntPropFloat(animator, Prop_Data, "m_flAnimTime", GetGameTime());
 		SetEntPropFloat(animator, Prop_Data, "m_flPlaybackRate", scale);
 		
 		SetEntProp(animator, Prop_Data, "m_nSequence", seq);
 		SetEntProp(animator, Prop_Data, "m_nIdealSequence", seq);
+		SetEntProp(animator, Prop_Data, "m_bSequenceLoops", 0);
 	}
 	
 	return duration;
@@ -234,4 +246,21 @@ public any Native_DH_Gesture(Handle plugin, int numParams) {
 	}
 	
 	return duration;
+}
+public any Native_DH_Pose(Handle plugin, int numParams) {
+	int entity = GetNativeCell(1);
+	int anim = GetNativeCell(2);
+	float value = GetNativeCell(3);
+	
+	if( value > 1.0 )
+		value = 1.0;
+	if( value < 0.0 )
+		value = 0.0;
+	
+	int id = g_iInstance[entity][NPC_iClass];
+	int animator = EntRefToEntIndex(g_iInstance[entity][NPC_iAnimator]);
+	
+	if( animator > 0 ) {
+		SetEntPropFloat(animator, Prop_Send, "m_flPoseParameter", value, g_iPose[id][anim]);
+	}
 }
