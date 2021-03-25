@@ -20,10 +20,14 @@ CGlobalVars *gpGlobals;
 IPhysics *iphysics = NULL;
 
 IForward *g_pIsFollowingSomeoneForwardPre = NULL;
+IForward *g_pTrackPathForwardPre = NULL;
 IForward *g_pWiggleForwardPre = NULL;
 
 IForward *g_pUpdateFollowingForwardPre = NULL;
 IForward *g_pUpdateFollowingForwardPost = NULL;
+
+IForward *g_pCalcMainActivityForwardPre = NULL;
+IForward *g_pCalcMainActivityForwardPost = NULL;
 
 /*
 size_t UTIL_DecodeHexString(unsigned char *buffer, size_t maxlength, const char *hexstr) {
@@ -80,6 +84,29 @@ void *GetAddressFromKeyValues(void *pBaseAddr, IGameConfig *pGameConfig, const c
 */
 
 
+typedef void (*TrackPath_func)(CBaseEntity* pEntity, const Vector& pos, float deltaT);
+void TrackPath(CBaseEntity* pEntity, const Vector& pos, float deltaT) {
+
+	cell_t vec[3] = {sp_ftoc(pos.x), sp_ftoc(pos.y), sp_ftoc(pos.z)};
+	Vector vec2 = pos;
+
+	cell_t result = Pl_Continue;
+
+	g_pTrackPathForwardPre->PushCell(gamehelpers->EntityToBCompatRef(pEntity));
+	g_pTrackPathForwardPre->PushArray(vec, 3, SM_PARAM_COPYBACK);
+	g_pTrackPathForwardPre->PushCell(deltaT);
+	g_pTrackPathForwardPre->Execute(&result);
+
+	if( result == Pl_Changed ) {
+		vec2.x = sp_ctof(vec[0]);
+		vec2.y = sp_ctof(vec[1]);
+		vec2.z = sp_ctof(vec[2]);
+	}
+
+	if( result == Pl_Continue || result == Pl_Changed ) {
+		((TrackPath_func)g_sglExtInterface.g_hTrackPath->GetTrampoline())(pEntity, vec2, deltaT);
+	}
+}
 
 typedef bool (*IsFollowingSomeone_func)(CBaseEntity* pEntity);
 bool IsFollowingSomeone(CBaseEntity* pEntity) {
@@ -119,6 +146,28 @@ void UpdateFollowing(CBaseEntity* pEntity, float deltaT) {
 	g_pUpdateFollowingForwardPost->Execute();
 }
 
+typedef int (*CalcMainActivity_func)(CBaseEntity* pEntity);
+int CalcMainActivity(CBaseEntity* pEntity) {
+	cell_t result = Pl_Continue;
+	cell_t data = -1;
+
+	g_pCalcMainActivityForwardPre->PushCell(42);
+	g_pCalcMainActivityForwardPre->PushCellByRef(&data);
+	g_pCalcMainActivityForwardPre->Execute(&result);
+
+	if( result == Pl_Continue ) {
+		data = ((CalcMainActivity_func)g_sglExtInterface.g_hCalcMainActivity->GetTrampoline())(pEntity);
+	}
+
+	g_pCalcMainActivityForwardPost->PushCell(42);
+	g_pCalcMainActivityForwardPost->PushCell(data);
+	g_pCalcMainActivityForwardPost->Execute();
+
+	return result;
+}
+
+
+
 bool DH::SDK_OnLoad(char *error, size_t maxlength, bool late) {
 	IGameConfig *g_pGameConf;
 
@@ -157,6 +206,25 @@ bool DH::SDK_OnLoad(char *error, size_t maxlength, bool late) {
 	g_pUpdateFollowingForwardPre = forwards->CreateForward("DH_OnUpdateFollowingPre", ET_Hook, 1, NULL, Param_Cell);
 	g_pUpdateFollowingForwardPost = forwards->CreateForward("DH_OnUpdateFollowingPost", ET_Hook, 1, NULL, Param_Cell);
 	// ----------------------------------------------------------------------------------------------------------
+        void *addr_CalcMainActivity;
+        if ( !g_pGameConf->GetMemSig("CalcMainActivity", &addr_CalcMainActivity) || !addr_CalcMainActivity ) {
+                snprintf(error, maxlength, "Failed to lookup signature: CalcMainActivity");
+                return false;
+        }
+        g_hCalcMainActivity = new subhook::Hook(addr_CalcMainActivity, (void *)CalcMainActivity);
+        g_hCalcMainActivity->Install();
+	g_pCalcMainActivityForwardPre = forwards->CreateForward("DH_OnCalcMainActivityPre", ET_Hook, 2, NULL, Param_Cell, Param_CellByRef);
+	g_pCalcMainActivityForwardPost = forwards->CreateForward("DH_OnCalcMainActivityPost", ET_Hook, 2, NULL, Param_Cell, Param_Cell);
+        // ----------------------------------------------------------------------------------------------------------
+	void* addr_TrackPath;
+	if ( !g_pGameConf->GetMemSig("TrackPath", &addr_TrackPath) || !addr_TrackPath ) {
+		snprintf(error, maxlength, "Failed to lookup signature: TrackPath");
+		return false;
+	}
+	g_hTrackPath = new subhook::Hook(addr_TrackPath, (void *)TrackPath);
+	g_hTrackPath->Install();
+	g_pTrackPathForwardPre = forwards->CreateForward("DH_OnTrackPath", ET_Hook, 3, NULL, Param_Cell, Param_Array, Param_Cell);
+	// ----------------------------------------------------------------------------------------------------------
 
 	sharesys->RegisterLibrary(myself, "dh");
 	sharesys->AddNatives(myself, g_PhysNatives);
@@ -182,6 +250,11 @@ void DH::SDK_OnUnload() {
 	forwards->ReleaseForward(g_pUpdateFollowingForwardPost);
 	g_hUpdateFollowing->Remove();
 	delete g_hUpdateFollowing;
+
+        forwards->ReleaseForward(g_pCalcMainActivityForwardPre);
+        forwards->ReleaseForward(g_pCalcMainActivityForwardPost);
+        g_hCalcMainActivity->Remove();
+        delete g_hCalcMainActivity;
 }
 
 void DH::OnPluginLoaded(IPlugin *plugin) {

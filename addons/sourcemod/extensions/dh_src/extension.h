@@ -95,6 +95,8 @@ public:
 	subhook::Hook* g_hIsFollowingSomeone;
 	subhook::Hook* g_hWiggle;
 	subhook::Hook* g_hUpdateFollowing;
+	subhook::Hook* g_hCalcMainActivity;
+	subhook::Hook* g_hTrackPath;
 private:
 
 };
