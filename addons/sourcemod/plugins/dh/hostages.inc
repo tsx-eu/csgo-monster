@@ -1,13 +1,13 @@
 
 void DH_OnEntityCreated(int entity) {
 	SDKHook(entity, SDKHook_Touch, OnTouch);
-	SDKHook(entity, SDKHook_Think, OnThink);
+	SDKHook(entity, SDKHook_ThinkPost, OnThink);
 	m_inhibitDoorTimer[entity] = 0.0;
 }
 
-
-public Action DH_OnUpdateFollowingPre(int hostage, float delta) {
-	return Plugin_Continue;
+public Action DH_OnTrackPath(int hostage, float dst[3], float delta) {
+	// TODO Handle SPEED
+	return Plugin_Handled;
 }
 public void DH_OnUpdateFollowingPost(int entity, float delta) {
 	AvoidPhysicsProps(entity);
@@ -152,5 +152,115 @@ public Action OnTouch(int entity, int target) {
 	}
 }
 public void OnThink(int entity) {
+	// Animate entity	
+	//
+	float time = GetGameTime();
+	int id = g_iInstance[entity][NPC_iClass];
+	int animator = EntRefToEntIndex(g_iInstance[entity][NPC_iAnimator]);
+
+	if( animator > 0 ) {
+		fctAnimate(id, entity, animator, time);
+	}
+	
 	SetEntPropEnt(entity, Prop_Send, "m_leader", g_iInstance[entity][NPC_iLeader]);
+	fctAttack(id, entity, animator, time);
+}
+
+
+// -------------------------------------
+public void fctAttack(int id, int entity, int animator, float time) {
+	
+	if( view_as<float>(g_flInstance[entity][NPC_flNextAttack]) < time ) {
+		
+		float duration = 0.1;
+		int attackId = -1;
+		int sum = 0;
+		int rnd = GetRandomInt(0, g_iClass[id][NPC_iAttackSum]);
+		
+		do {
+			attackId++;
+			sum += g_atClass[id][attackId].probability;
+		} while (sum < rnd);
+		
+		float src[3], ang[3], hit[3], dst[3], min[3], max[3];
+		
+		int target;
+		bool can = false;
+		switch( g_atClass[id][attackId].type ) {
+			case NPC_ATTACK_MELEE: {
+				
+				Entity_GetAbsOrigin(entity, src);
+				src[2] += 64.0;
+				
+				Entity_GetAbsAngles(entity, ang);
+				GetAngleVectors(ang, dst, NULL_VECTOR, NULL_VECTOR);
+				ScaleVector(dst, 10000.0);
+				AddVectors(src, dst, dst);
+				
+				min[0] = min[1] = min[2] = -MELEE_HULL;
+				max[0] = max[1] = max[2] =  MELEE_HULL;
+				
+				Handle trace = TR_TraceHullFilterEx(src, dst, min, max, MASK_SHOT, FilterToOne, entity);
+				if( TR_DidHit(trace) ) {
+					TR_GetEndPosition(hit, trace);
+					target = TR_GetEntityIndex(trace);
+					
+					if( target > 0 && GetVectorDistance(src, hit) < g_atClass[id][attackId].range ) {
+						can = true;
+					}
+					
+					if( false ) {
+						TE_SetupBeamPoints(src, hit, g_cBeam, g_cBeam, 0, 10, 1.0, 1.0, 1.0, 0, 0.0, can ? {0, 255, 0, 250} : { 255, 0, 0, 250 }, 1);
+						TE_SendToAll();
+					}
+				}
+				delete trace;
+			}
+			case NPC_ATTACK_WEAPON: {
+				
+			}
+		}
+		
+		if( can ) {
+			Call_StartForward(view_as<Handle>(g_hClass[id][NPC_EVENT_ATTACK]));
+			Call_PushCell(entity);
+			Call_PushCell(attackId);
+			Call_Finish(duration);
+		}
+		
+		view_as<float>(g_flInstance[entity][NPC_flNextAttack]) = time + duration;
+	}
+}
+public void fctAnimate(int id, int entity, int animator, float time) {	
+	float vel[3], speed;
+	Entity_GetAbsVelocity(entity, vel);
+	vel[2] = 0.0;
+	speed = GetVectorLength(vel);
+	view_as<float>(g_flInstance[entity][NPC_flSpeed]) = (view_as<float>(g_flInstance[entity][NPC_flSpeed]) * (9.0/10.0)) + (speed * (1.0/10.0));
+	
+	NPCInstance instance = view_as<NPCInstance>(entity);
+	
+	if( view_as<float>(g_flInstance[entity][NPC_flNextAnim]) < time ) {
+		
+		if( false && instance.Class.HasAnimation(NPC_ANIM_SPEED) ) {
+			instance.Animate(NPC_ANIM_SPEED);
+			SetEntProp(animator, Prop_Data, "m_bSequenceLoops", 1);
+		}
+		else {	
+			if( speed > 100.0 )
+				instance.Animate(NPC_ANIM_RUN);
+			else if( speed > 1.0 )
+				instance.Animate(NPC_ANIM_WALK);
+			else
+				instance.Animate(NPC_ANIM_IDLE);
+			
+			view_as<float>(g_flInstance[entity][NPC_flNextAnim]) = time + 0.25;
+		}
+	}
+	
+	float param = speed / view_as<float>(g_flClass[g_iInstance[entity][NPC_iClass]][NPC_flSpeed]);	
+	instance.Pose(NPC_POSE_SPEED, param);
+	PrintHintText(g_iInstance[entity][NPC_iLeader], "%f", param);
+	
+	SDKCall(hSDKCallStudioFrameAdvance, animator); 
 }

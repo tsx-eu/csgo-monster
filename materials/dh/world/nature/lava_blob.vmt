@@ -1,0 +1,117 @@
+"Lightmapped_4WayBlend"
+{
+    "$surfaceprop"              "rock"
+
+	"$basetexture" 				"dh/world/nature/lava02"
+    "$texture1_blendstart"      "0.0"
+	
+	"$basetexture2" 			"dh/world/nature/lava01"
+    "$texture2_blendstart"      "0.25"
+	
+	"$basetexture3" 			"dh/world/nature/lava03"
+    "$texture3_blendstart"      "0.5"
+	
+	"$basetexture4" 			"dh/world/nature/lava"
+    "$texture4_blendstart"      "0.75"
+	
+	"$detail"                   "dh/world/nature/lava"
+	$detailscale 				0.25
+	
+	$tvar "[0 0]"
+	$rvar 0
+
+	$sine1 0
+	$sine2 0
+	
+	proxies
+	{
+		sine
+		{
+			sineperiod 2
+			sinemin 0.5
+			sinemax 1
+			resultvar	"$color[1]"
+		}
+		sine
+		{
+			sineperiod 1
+			sinemin 2.5
+			sinemax 2.501
+			resultvar $detailscale
+		}
+		linearramp
+		{
+			rate .02
+			initialvalue 0
+			resultvar "$tvar[1]"
+		}
+		sine
+		{
+			sineperiod 3
+			sinemin -.04
+			sinemax .02
+			timeoffset 0
+			resultvar $sine1
+		}
+		sine
+		{
+			sineperiod 3
+			sinemin -.03
+			sinemax .07
+			timeoffset 1.5
+			resultvar $sine2
+		}
+		linearramp
+		{
+			rate -1.0
+			initialvalue 0
+			resultvar "$rvar"
+		}
+		add
+		{
+			srcvar1 $sine1
+			srcvar2 $sine2
+			resultvar "$tvar[0]"
+		}
+		texturetransform
+		{
+			rotatevar 		$rvar
+			translatevar 	$tvar
+			resultvar 		$basetexturetransform
+		}
+		
+		
+		sine
+		{
+			sineperiod	3
+			timeoffset	2.5
+			sinemin		0.0
+			sinemax		1.0
+			resultvar	"$texture1_blendstart"
+		}
+		sine
+		{
+			sineperiod	6
+			timeoffset	5.0
+			sinemin		0.0
+			sinemax		1.0
+			resultvar	"$texture2_blendstart"
+		}
+		sine
+		{
+			sineperiod	9
+			timeoffset	7.5
+			sinemin		0.0
+			sinemax		1.0
+			resultvar	"$texture3_blendstart"
+		}
+		sine
+		{
+			sineperiod	12
+			timeoffset	10
+			sinemin		0.0
+			sinemax		1.0
+			resultvar	"$texture4_blendstart"
+		}
+	}
+}

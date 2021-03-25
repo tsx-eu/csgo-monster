@@ -10,12 +10,11 @@
 
 #pragma newdecls required
 
-#include "dh/variables.inc"
-#include "dh/functions.inc"
+Handle hSDKCallStudioFrameAdvance; 
+Handle hSDKCallAddLayeredSequence;
+int AnimatingOverlay_Count;
 
-#include "dh/hostages.inc"
-#include "dh/natives.inc"
-#include "dh/patch.inc"
+#include "dh/variables.inc"
 
 public Plugin myinfo = {
 	name = "Les test de kosso",
@@ -24,6 +23,7 @@ public Plugin myinfo = {
 	version = "1.0",
 	url = "zaretti.be"
 };
+
 
 public void OnPluginStart() {
 	RegConsoleCmd("hostage", block);
@@ -46,10 +46,13 @@ public void OnPluginStart() {
 			OnEntityCreated(i, classname);
 		}
 	}
+
+	INIT_Animator();
 }
+
 // ---------------------------------------------------------------------------------------------------------
 public APLRes AskPluginLoad2(Handle hPlugin, bool isAfterMapLoaded, char[] error, int err_max) {
-	Native_REGISTER();
+	return Native_REGISTER();
 }
 // ---------------------------------------------------------------------------------------------------------
 public void OnMapStart() {
@@ -65,7 +68,6 @@ public void OnEntityCreated(int entity, const char[] classname) {
 public Action block(int client, int args) {
 	
 	PrecacheModel("models/npc/tsx/zombie/zombie.mdl");
-	PrecacheModel("models/npc/tsx/skeleton/skeleton.mdl");
 	
 	int hostage = 0;
 	while( (hostage = FindEntityByClassname(hostage, "hostage_entity")) && hostage > 0 ) {		
@@ -76,12 +78,15 @@ public Action block(int client, int args) {
 		
 		NPCInstance bot = NPCInstance(DH_GetClass("zombie"), pos);
 		bot.Target = client;
-		
-		TeleportEntity(hostage, pos, NULL_VECTOR, NULL_VECTOR);
+		break;
 	}
 	
-	
-	
-	CS_SwitchTeam(client, CS_TEAM_CT);
+	//CS_SwitchTeam(client, CS_TEAM_CT);
 	return Plugin_Handled;
 }
+
+#include "dh/functions.inc"
+#include "dh/animator.inc"
+#include "dh/hostages.inc"
+#include "dh/natives.inc"
+#include "dh/patch.inc"

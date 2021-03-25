@@ -7,6 +7,7 @@
 #define MAX_ATTACK 		4
 #define	MAX_ANIMATION 	8
 #define STEP_SIZE		16.0
+#define MELEE_HULL		8.0
 
 native bool Phys_IsPhysicsObject(int entity);
 native void Phys_SetMass(int entity,  float mass);
@@ -18,21 +19,41 @@ native int Nav_GetArea(float pos[3]);
 
 forward Action DH_OnIsFollowingSomeoneForwardPre(int hostage);
 forward Action DH_OnWigglePre(int hostage);
+forward Action DH_OnTrackPath(int hostage, float vec[3], float delta);
 
 forward Action DH_OnUpdateFollowingPre(int hostage, float delta);
 forward void DH_OnUpdateFollowingPost(int hostage, float delta);
+
+forward Action DH_OnCalcMainActivityPre(int hostage, int& anim);
+forward void DH_OnCalcMainActivityPost(int hostage, int anim);
 
 enum NPCData_Int {
 	NPC_iClass,
 	NPC_iHealth,
 	NPC_iLeader,
 	NPC_iAttackCount,
+	NPC_iAttackSum,
+	NPC_iAnimator,
+	
+	NPC_iBody,
+	NPC_iMinBody,
+	NPC_iMaxBody,
+	
+	NPC_iSkin,
+	NPC_iMinSkin,
+	NPC_iMaxSkin,
+	
+	NPC_iCurrentAnim,
 	
 	NPCData_max_Int
 }
 enum NPCData_Float {
 	NPC_flSpeed,
 	NPC_flGravity,
+	
+	NPC_flNextAttack,
+	NPC_flNextAnim,
+	NPC_flAnimScale,
 	
 	NPCData_max_Float
 };
@@ -49,14 +70,22 @@ enum NPCData_Animation {
 	NPC_ANIM_WALK,
 	NPC_ANIM_RUN,
 	
+	NPC_ANIM_SPEED,
+	
 	NPC_ANIM_ATTACK,
 	NPC_ANIM_ATTACK2,
 	NPC_ANIM_RELOAD,
 	
 	NPC_ANIM_DYING,
 	NPC_ANIM_DEAD,
+	
 	NPCData_max_Animation
 };
+enum NPCData_Pose {
+	NPC_POSE_SPEED,
+	
+	NPCData_max_Pose
+}
 enum NPCData_Event {
 	NPC_EVENT_SPAWN,
 	NPC_EVENT_ATTACK,
@@ -74,7 +103,7 @@ enum NPC_AttackType {
 
 typeset NPCData_EventCallback {
 	function void(NPCInstance entity);					// NPC_EVENT_SPAWN
-	function void(NPCInstance entity, int attack_id);	// NPC_EVENT_ATTACK
+	function float(NPCInstance entity, int attack_id);	// NPC_EVENT_ATTACK
 	function void(NPCInstance entity);					// NPC_EVENT_DEAD
 }
 
@@ -99,10 +128,14 @@ native void 		DH_SetInstanceString(NPCInstance id, NPCData_String data, const ch
 native void 		DH_GetInstanceString(NPCInstance id, NPCData_String data, char[] value, length);
 
 native void 		DH_RegisterAttack(NPCClass id, NPC_AttackType type, float range, int probability=1);
-native void 		DH_RegisterAnimation(NPCClass id, NPCData_Animation data, int sequence, int frames, int fps);
+native void 		DH_RegisterAnimation(NPCClass id, NPCData_Animation data, int sequence, int frames, float fps);
+native bool 		DH_HasAnimation(NPCClass id, NPCData_Animation data);
+native void 		DH_RegisterPose(NPCClass id, NPCData_Pose data, int value);
 native void 		DH_RegisterHook(NPCClass id, NPCData_Event event, NPCData_EventCallback callback);
 
-native float 		DH_Animate(NPCInstance id, NPCData_Animation data);
+native float 		DH_Animate(NPCInstance id, NPCData_Animation data, float scale = -1.0);
+native float 		DH_Gesture(NPCInstance id, NPCData_Animation data, float scale = -1.0, bool remove_similar = false);
+native void 		DH_Pose(NPCInstance id, NPCData_Pose data, float pose);
 
 methodmap NPCClass {
 	public NPCClass(const char[] fullname, const char[] name, const char[] model) {
@@ -111,16 +144,36 @@ methodmap NPCClass {
 	public void AddAttack(NPC_AttackType type, float range, int probability=1) {
 		DH_RegisterAttack(this, type, range, probability);
 	}
-	public void AddAnimation(NPCData_Animation data, int sequence, int frames, int fps) {
+	public void AddAnimation(NPCData_Animation data, int sequence, int frames, float fps) {
 		DH_RegisterAnimation(this, data, sequence, frames, fps);
+	}
+	public bool HasAnimation(NPCData_Animation data) {
+		return DH_HasAnimation(this, data);
 	}
 	public void AddEvent(NPCData_Event event, NPCData_EventCallback callback) {
 		DH_RegisterHook(this, event, callback);
 	}
+	
 	// -- int
 	property int Health {
 		public get() { 	return 			DH_GetClassInt(this, NPC_iHealth); }
 		public set(const int value) { 	DH_SetClassInt(this, NPC_iHealth, value); }
+	}
+	property int MinBody {
+		public get() { 	return 			DH_GetClassInt(this, NPC_iMinBody); }
+		public set(const int value) { 	DH_SetClassInt(this, NPC_iMinBody, value); }
+	}
+	property int MaxBody {
+		public get() { 	return 			DH_GetClassInt(this, NPC_iMaxBody); }
+		public set(const int value) { 	DH_SetClassInt(this, NPC_iMaxBody, value); }
+	}
+	property int MinSkin {
+		public get() { 	return 			DH_GetClassInt(this, NPC_iMinSkin); }
+		public set(const int value) { 	DH_SetClassInt(this, NPC_iMinSkin, value); }
+	}
+	property int MaxSkin {
+		public get() { 	return 			DH_GetClassInt(this, NPC_iMaxSkin); }
+		public set(const int value) { 	DH_SetClassInt(this, NPC_iMaxSkin, value); }
 	}
 	// -- float
 	property float Speed {
@@ -136,10 +189,20 @@ methodmap NPCInstance {
 	public NPCInstance(NPCClass id, float pos[3], float ang[3]=NULL_VECTOR) {
 		return DH_Spawn(id, pos, ang);
 	}
-	public float Animate(NPCData_Animation data) {
-		return DH_Animate(this, data);
+	public float Animate(NPCData_Animation data, float scale = -1.0) {
+		return DH_Animate(this, data, scale);
 	}
+	public float Gesture(NPCData_Animation data, float scale = -1.0, bool remove_similar = false) {
+		return DH_Gesture(this, data, scale, remove_similar);
+	}
+	public void Pose(NPCData_Pose data, float value) {
+		DH_Pose(this, data, value);
+	}
+	
 	// -- int
+	property NPCClass Class {
+		public get() { return			view_as<NPCClass>(DH_GetInstanceInt(this, NPC_iClass)); }
+	}
 	property int Health {
 		public get() { 	return 			DH_GetInstanceInt(this, NPC_iHealth); }
 		public set(const int value) { 	DH_SetInstanceInt(this, NPC_iHealth, value); }
@@ -147,6 +210,14 @@ methodmap NPCInstance {
 	property int Target {
 		public get() { 	return 			DH_GetInstanceInt(this, NPC_iLeader); }
 		public set(const int value) { 	DH_SetInstanceInt(this, NPC_iLeader, value); }
+	}
+	property int Body {
+		public get() { 	return 			DH_GetInstanceInt(this, NPC_iBody); }
+		public set(const int value) { 	DH_SetInstanceInt(this, NPC_iBody, value); }
+	}
+	property int Skin {
+		public get() { 	return 			DH_GetInstanceInt(this, NPC_iSkin); }
+		public set(const int value) { 	DH_SetInstanceInt(this, NPC_iSkin, value); }
 	}
 	// -- float
 	property float Speed {
