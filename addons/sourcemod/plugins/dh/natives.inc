@@ -72,6 +72,7 @@ public int Native_DH_Spawn(Handle plugin, int numParams) {
 	TeleportEntity(entity, pos, ang, NULL_VECTOR);
 	
 	SetEntProp(entity, Prop_Send, "m_nHostageState", 3);
+	SetEntProp(entity, Prop_Send, "m_bClientSideAnimation", 0);
 	g_iInstance[entity][NPC_iClass] = id;
 	
 	
@@ -82,6 +83,8 @@ public int Native_DH_Spawn(Handle plugin, int numParams) {
 	SetEntProp(child, Prop_Send, "m_fEffects", EF_BONEMERGE|EF_NOSHADOW|EF_NORECEIVESHADOW|EF_PARENT_ANIMATES);	
 	SetEntProp(child, Prop_Send, "m_nBody", GetRandomInt(g_iClass[id][NPC_iMinBody], g_iClass[id][NPC_iMaxBody]));
 	SetEntProp(child, Prop_Send, "m_nSkin", GetRandomInt(g_iClass[id][NPC_iMinSkin], g_iClass[id][NPC_iMaxSkin]));
+	SetEntProp(child, Prop_Data, "m_lifeState", 2);
+	SetEntProp(entity, Prop_Send, "m_bClientSideAnimation", 0);
 	
 	TeleportEntity(child, pos, ang, NULL_VECTOR);
 	SetVariantString("!activator");
@@ -169,6 +172,7 @@ public any Native_DH_RegisterAttack(Handle plugin, int numParams) {
 	g_atClass[id][cpt].probability = GetNativeCell(4);
 	
 	g_iClass[id][NPC_iAttackCount] = cpt + 1;
+	g_iClass[id][NPC_iAttackSum] = g_iClass[id][NPC_iAttackSum] + g_atClass[id][cpt].probability;
 }
 public any Native_DH_RegisterHook(Handle plugin, int numParams) {
 	g_hClass[GetNativeCell(1)][GetNativeCell(2)].AddFunction(plugin, GetNativeFunction(3));
@@ -206,9 +210,11 @@ public any Native_DH_Animate(Handle plugin, int numParams) {
 		//SetEntPropFloat(animator, Prop_Data, "m_flAnimTime", GetGameTime());
 		SetEntPropFloat(animator, Prop_Data, "m_flPlaybackRate", scale);
 		
-		SetEntProp(animator, Prop_Data, "m_nSequence", seq);
+		SetEntProp(animator, Prop_Send, "m_nSequence", seq);
 		SetEntProp(animator, Prop_Data, "m_nIdealSequence", seq);
-		SetEntProp(animator, Prop_Data, "m_bSequenceLoops", 0);
+		
+		SetEntPropFloat(animator, Prop_Data, "m_flAnimTime", GetGameTime());
+		SetEntProp(animator, Prop_Data, "m_bSequenceLoops", 1);
 	}
 	
 	return duration;

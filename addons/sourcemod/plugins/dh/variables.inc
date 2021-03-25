@@ -5,7 +5,7 @@ enum struct Animation {
 	float fps;
 }
 enum struct Attack {
-	int type;
+	NPC_AttackType type;
 	float range;
 	int probability;
 }

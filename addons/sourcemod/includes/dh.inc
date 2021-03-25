@@ -7,6 +7,7 @@
 #define MAX_ATTACK 		4
 #define	MAX_ANIMATION 	8
 #define STEP_SIZE		16.0
+#define MELEE_HULL		8.0
 
 native bool Phys_IsPhysicsObject(int entity);
 native void Phys_SetMass(int entity,  float mass);
@@ -18,6 +19,7 @@ native int Nav_GetArea(float pos[3]);
 
 forward Action DH_OnIsFollowingSomeoneForwardPre(int hostage);
 forward Action DH_OnWigglePre(int hostage);
+forward Action DH_OnTrackPath(int hostage, float vec[3], float delta);
 
 forward Action DH_OnUpdateFollowingPre(int hostage, float delta);
 forward void DH_OnUpdateFollowingPost(int hostage, float delta);
@@ -30,6 +32,7 @@ enum NPCData_Int {
 	NPC_iHealth,
 	NPC_iLeader,
 	NPC_iAttackCount,
+	NPC_iAttackSum,
 	NPC_iAnimator,
 	
 	NPC_iBody,
@@ -48,6 +51,7 @@ enum NPCData_Float {
 	NPC_flSpeed,
 	NPC_flGravity,
 	
+	NPC_flNextAttack,
 	NPC_flNextAnim,
 	NPC_flAnimScale,
 	
@@ -99,7 +103,7 @@ enum NPC_AttackType {
 
 typeset NPCData_EventCallback {
 	function void(NPCInstance entity);					// NPC_EVENT_SPAWN
-	function void(NPCInstance entity, int attack_id);	// NPC_EVENT_ATTACK
+	function float(NPCInstance entity, int attack_id);	// NPC_EVENT_ATTACK
 	function void(NPCInstance entity);					// NPC_EVENT_DEAD
 }
 

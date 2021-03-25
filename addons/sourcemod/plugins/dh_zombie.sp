@@ -49,11 +49,11 @@ public void OnLibraryAdded(const char[] sLibrary) {
 		g_Class.AddEvent(NPC_EVENT_DEAD,	OnDead);
 	}
 }
-public void OnAttack(NPCInstance entity, int attack_id) {	
-	entity.Animate(NPC_ANIM_ATTACK);
+public float OnAttack(NPCInstance entity, int attack_id) {
+	return entity.Gesture(NPC_ANIM_ATTACK);
 }
 public void OnSpawn(NPCInstance entity) {
-	entity.Animate(NPC_ANIM_RUN);
+	//entity.Animate(NPC_ANIM_RUN);
 }
 public void OnDead(NPCInstance entity) {
 	

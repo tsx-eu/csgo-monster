@@ -190,45 +190,25 @@ $weightlist body_bot {
 
 $sequence "idle" {
 	"zombie_anims\idle_lower.smd"
-	fadein 0.2
-	fadeout 0.2
+	fadein 1
+	fadeout 0.5
 	fps 30
 	loop
 }
 $sequence "walk" {
 	"zombie_anims\walk_lower.smd"
-	fadein 0.2
-	fadeout 0.2
+	fadein 0.5
+	fadeout 0.5
 	fps 28
 	loop
 }
 $sequence "run" {
 	"zombie_anims\run_lower.smd"
-	fadein 0.2
-	fadeout 0.2
+	fadein 0.25
+	fadeout 0.5
 	fps 35
 	loop
 }
-$poseparameter "speed" 0 1
-$animation "a_idle" "zombie_anims\idle_lower.smd" {
-	fps 30
-	loop
-}
-$animation "a_walk" "zombie_anims\walk_lower.smd" {
-	fps 28
-	loop
-}
-$animation "a_run" "zombie_anims\run_lower.smd" {
-	fps 35
-	loop
-}
-$sequence "walk_speed" {
-	a_idle
-	a_walk
-	a_run
-	blend "speed" 0 1
-}
-
 $sequence "melee_L_uper" {
 	"zombie_anims\Run_Shoot_KNIFE_LIGHT_R.smd"
 	fadein 0.2
@@ -243,14 +223,12 @@ $sequence "melee_R_uper" {
 	fps 50
 	weightlist "body_top_right"
 }
-
 $sequence "dead" {
 	"zombie_anims\dead.smd"
 	fadein 0.2
 	fadeout 0.2
 	fps 35
 }
-
 $sequence "dead_loop" {
 	"zombie_anims\dead_loop.smd"
 	fadein 0.2
