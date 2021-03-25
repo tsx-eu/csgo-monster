@@ -89,6 +89,8 @@ public int Native_DH_Spawn(Handle plugin, int numParams) {
 	TeleportEntity(child, pos, ang, NULL_VECTOR);
 	SetVariantString("!activator");
 	AcceptEntityInput(child, "SetParent", entity);	
+	
+	g_flInstance[entity][NPC_flSpeed] = g_flClass[id][NPC_flSpeed];
 
 	g_iInstance[entity][NPC_iAnimator] = EntIndexToEntRef(child);	
 	

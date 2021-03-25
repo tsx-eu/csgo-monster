@@ -6,7 +6,31 @@ void DH_OnEntityCreated(int entity) {
 }
 
 public Action DH_OnTrackPath(int hostage, float dst[3], float delta) {
-	// TODO Handle SPEED
+	float src[3], vel[3], acc[3];
+	Entity_GetAbsOrigin(hostage, src);
+	Entity_GetAbsVelocity(hostage, vel);
+	
+	// face in the direction of our motion
+	ScaleVector(vel, 10.0);
+	AddVectors(src, vel, vel);
+	SDKCall(hSDKCallFaceTowards, vel, delta); 
+	
+	if( GetEntityFlags(hostage) & FL_ONGROUND ) {
+		// move towards dst
+		SubtractVectors(dst, src, vel);
+		NormalizeVector(vel, vel);
+	}
+	else {
+		// continue forward motion
+		Entity_GetAbsAngles(hostage, src);
+		GetAngleVectors(src, vel, NULL_VECTOR, NULL_VECTOR);
+	}
+	
+	ScaleVector(vel, view_as<float>(g_flInstance[hostage][NPC_flSpeed]));
+	GetEntDataVector(hostage, m_accel, acc);
+	AddVectors(vel, acc, acc);
+	SetEntDataVector(hostage, m_accel, acc);
+	
 	return Plugin_Handled;
 }
 public void DH_OnUpdateFollowingPost(int entity, float delta) {

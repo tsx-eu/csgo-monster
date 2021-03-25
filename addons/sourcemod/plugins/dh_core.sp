@@ -12,6 +12,7 @@
 
 Handle hSDKCallStudioFrameAdvance; 
 Handle hSDKCallAddLayeredSequence;
+Handle hSDKCallFaceTowards;
 int AnimatingOverlay_Count;
 
 #include "dh/variables.inc"

@@ -1,5 +1,7 @@
 void INIT_Animator() {
-	Handle hConfig = LoadGameConfigFile("plugin.turret"); 
+	Handle hConfig;
+
+	hConfig = LoadGameConfigFile("plugin.turret"); 
 	
 	if ((AnimatingOverlay_Count = GameConfGetOffset(hConfig, "CBaseAnimatingOverlay::Count")) == -1)
 		SetFailState("Failed to get offset: \"CBaseAnimatingOverlay::Count\". Update offset in \"plugin.turret\""); 
@@ -19,7 +21,16 @@ void INIT_Animator() {
 	if ((hSDKCallAddLayeredSequence = EndPrepSDKCall()) == null)
 		SetFailState("Failed to load SDK call \"CBaseAnimatingOverlay::AddLayeredSequence\". Update signature in \"plugin.turret\""); 
 	
+	delete hConfig;
 	// ----------------------------------------------------------------------------------------------------------------------------------------------
+	hConfig = LoadGameConfigFile("test"); 
+	StartPrepSDKCall(SDKCall_Entity); 
+	PrepSDKCall_SetFromConf(hConfig, SDKConf_Signature, "CHostage::FaceTowards"); 
+	PrepSDKCall_AddParameter(SDKType_Vector, SDKPass_ByRef);
+	PrepSDKCall_AddParameter(SDKType_Float, SDKPass_ByValue);
+	
+	if ((hSDKCallFaceTowards = EndPrepSDKCall()) == null)
+		SetFailState("Failed to load SDK call \"CHostage::FaceTowards\". Update signature in \"test\"");      
 	delete hConfig;
 }
 
