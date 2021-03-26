@@ -34,6 +34,7 @@ public void OnLibraryAdded(const char[] sLibrary) {
 		g_Class.MinSkin = 0;
 		g_Class.MaxSkin = 0;
 		
+		//g_Class.AddAttack(NPC_ATTACK_MELEE, 	NPC_RANGE_MELEE);
 		g_Class.AddAttack(NPC_ATTACK_WEAPON, 	1024.0);
 		
 		g_Class.AddAnimation(NPC_ANIM_IDLE, 	0, 		100, 	30.0);
@@ -43,7 +44,9 @@ public void OnLibraryAdded(const char[] sLibrary) {
 		g_Class.AddAnimation(NPC_ANIM_RUN, 		16,		30, 	35.0);
 		
 		
-		g_Class.AddAnimation(NPC_ANIM_ATTACK, 	17, 	50, 	35.0);
+		g_Class.AddAnimation(NPC_ANIM_ATTACK, 	3, 		100, 	30.0);
+		g_Class.AddAnimation(NPC_ANIM_ATTACK, 	4, 		100, 	30.0);
+		g_Class.AddAnimation(NPC_ANIM_ATTACK2, 	17, 	50, 	35.0);
 		
 		g_Class.AddAnimation(NPC_ANIM_DYING, 	5, 		45, 	35.0);
 		g_Class.AddAnimation(NPC_ANIM_DEAD, 	6, 		1, 		35.0);

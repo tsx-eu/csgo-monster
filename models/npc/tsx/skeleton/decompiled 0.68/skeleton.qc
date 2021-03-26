@@ -252,7 +252,7 @@ $sequence "melee_R_uper" {
 
 $sequence "dead" {
 	"skeleton_anims\dead.smd"
-	fadein 0.2
+	fadein 1
 	fadeout 0.2
 	fps 35
 }

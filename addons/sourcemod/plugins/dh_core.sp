@@ -76,7 +76,7 @@ public Action block(int client, int args) {
 		pos[2] += 16.0;
 		AcceptEntityInput(hostage, "Kill");
 		
-		NPCInstance bot = NPCInstance(DH_GetClass("zombie"), pos);
+		NPCInstance bot = NPCInstance(DH_GetClass("skeleton_bow"), pos);
 		bot.Target = client;
 		break;
 	}
