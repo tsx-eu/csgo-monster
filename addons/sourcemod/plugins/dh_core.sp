@@ -50,7 +50,6 @@ public void OnPluginStart() {
 
 	INIT_Animator();
 }
-
 // ---------------------------------------------------------------------------------------------------------
 public APLRes AskPluginLoad2(Handle hPlugin, bool isAfterMapLoaded, char[] error, int err_max) {
 	return Native_REGISTER();

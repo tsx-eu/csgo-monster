@@ -293,24 +293,31 @@ public any Native_DH_Pose(Handle plugin, int numParams) {
 public any Native_DH_Melee(Handle plugin, int numParams) {
 	DataPack pack;
 	CreateDataTimer(GetNativeCell(4), Task_DH_Melee, pack, TIMER_DATA_HNDL_CLOSE);
-	pack.WriteCell(EntRefToEntIndex(GetNativeCell(1)));
+	pack.WriteCell(EntIndexToEntRef(GetNativeCell(1)));
 	pack.WriteCell(GetNativeCell(2));
 	pack.WriteCell(GetNativeCell(3));
 }
 public Action Task_DH_Melee(Handle timer, DataPack pack) {
 	pack.Reset();
-	int entity = EntIndexToEntRef(pack.ReadCell());
+	int entity = EntRefToEntIndex(pack.ReadCell());
 	
 	if( entity > 0 ) {
 		int id = g_iInstance[entity][NPC_iClass];
-		float range = pack.ReadCell();
 		int damage = pack.ReadCell();
+		float range = pack.ReadCell();
 		
 		float src[3], hit[3];
-		int target = Entity_TraceMeleeHull(entity, src, hit);
+		Entity_GetAbsOrigin(entity, src);
+		src[2] += 64.0;
 		
+		int target = Entity_TraceMeleeHull(entity, src, hit);
+
+		PrintToChatAll("yes ? %d range: %f", target, range);
+
 		if( target > 0 && GetVectorDistance(src, hit) < range ) {
 			Entity_Hurt(target, damage, entity, DMG_CRUSH|DMG_SLASH, g_szClass[id][NPC_szName]);
 		}
 	}
+	
+	return Plugin_Stop;
 }
