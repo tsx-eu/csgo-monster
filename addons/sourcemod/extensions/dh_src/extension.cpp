@@ -86,7 +86,6 @@ void *GetAddressFromKeyValues(void *pBaseAddr, IGameConfig *pGameConfig, const c
 
 typedef void (*TrackPath_func)(CBaseEntity* pEntity, const Vector& pos, float deltaT);
 void TrackPath(CBaseEntity* pEntity, const Vector& pos, float deltaT) {
-
 	cell_t vec[3] = {sp_ftoc(pos.x), sp_ftoc(pos.y), sp_ftoc(pos.z)};
 	Vector vec2 = pos;
 
@@ -94,7 +93,7 @@ void TrackPath(CBaseEntity* pEntity, const Vector& pos, float deltaT) {
 
 	g_pTrackPathForwardPre->PushCell(gamehelpers->EntityToBCompatRef(pEntity));
 	g_pTrackPathForwardPre->PushArray(vec, 3, SM_PARAM_COPYBACK);
-	g_pTrackPathForwardPre->PushCell(deltaT);
+	g_pTrackPathForwardPre->PushCell(sp_ftoc(deltaT));
 	g_pTrackPathForwardPre->Execute(&result);
 
 	if( result == Pl_Changed ) {
