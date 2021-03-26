@@ -91,6 +91,7 @@ enum NPCData_Event {
 	NPC_EVENT_SPAWN,
 	NPC_EVENT_ATTACK,
 	NPC_EVENT_DEAD,
+	NPC_EVENT_DAMAGE,
 	
 	NPCData_max_Event
 };
@@ -103,9 +104,10 @@ enum NPC_AttackType {
 };
 
 typeset NPCData_EventCallback {
-	function void(NPCInstance entity);					// NPC_EVENT_SPAWN
-	function float(NPCInstance entity, int attack_id);	// NPC_EVENT_ATTACK
-	function void(NPCInstance entity);					// NPC_EVENT_DEAD
+	function void(NPCInstance entity);												// NPC_EVENT_SPAWN
+	function float(NPCInstance entity, int attack_id);								// NPC_EVENT_ATTACK
+	function void(NPCInstance entity);												// NPC_EVENT_DEAD
+	function void(NPCInstance entity, int attacker, int damage);					// NPC_EVENT_DAMAGE
 }
 
 #define NPC_RANGE_MELEE		52.0

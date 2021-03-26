@@ -41,6 +41,7 @@ public int Native_DH_Create(Handle plugin, int numParams) {
 	view_as<PrivateForward>(g_hClass[id][NPC_EVENT_SPAWN]) = CreateForward(ET_Hook, Param_Cell);					// void(NPCInstance entity)
 	view_as<PrivateForward>(g_hClass[id][NPC_EVENT_ATTACK]) = CreateForward(ET_Hook, Param_Cell, Param_Cell);		// void(NPCInstance entity, int attack_id)
 	view_as<PrivateForward>(g_hClass[id][NPC_EVENT_DEAD]) = CreateForward(ET_Hook, Param_Cell);						// void(NPCInstance entity)
+	view_as<PrivateForward>(g_hClass[id][NPC_EVENT_DAMAGE]) = CreateForward(ET_Hook, Param_Cell, Param_Cell, Param_Cell);		// void(NPCInstance entity, int attacker, int damage)
 	
 	g_hNamedIdentified.SetValue(g_szClass[id][NPC_szName], id);
 	

@@ -47,6 +47,7 @@ public void OnLibraryAdded(const char[] sLibrary) {
 		g_Class.AddEvent(NPC_EVENT_SPAWN,	OnSpawn);
 		g_Class.AddEvent(NPC_EVENT_ATTACK,	OnAttack);
 		g_Class.AddEvent(NPC_EVENT_DEAD,	OnDead);
+		g_Class.AddEvent(NPC_EVENT_DAMAGE,	OnDamage);
 	}
 }
 public float OnAttack(NPCInstance entity, int attack_id) {
@@ -56,6 +57,9 @@ public void OnSpawn(NPCInstance entity) {
 	// No
 }
 public void OnDead(NPCInstance entity) {
+	// No
+}
+public void OnDamage(NPCInstance entity, int attacker, int damage) {
 	// No
 }
 

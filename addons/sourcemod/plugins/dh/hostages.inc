@@ -42,15 +42,20 @@ public void DH_OnUpdateFollowingPost(int entity, float delta) {
 }
 // -------------------------------------
 public Action OnDamage(int victim, int& attacker, int& inflictor, float& damage, int& damageType, int& weapon, float damageForce[3], float damagePosition[3]) {
-	static char class[128];
-	GetEdictClassname(victim, class, sizeof(class));
-	
+	int id = g_iInstance[victim][NPC_iClass];
 	
 	g_iInstance[victim][NPC_iHealth] -= RoundFloat(damage);	
+	
+	Call_StartForward(view_as<Handle>(g_hClass[id][NPC_EVENT_DAMAGE]));
+	Call_PushCell(victim);
+	Call_PushCell(attacker);
+	Call_PushCell(RoundFloat(damage));
+	Call_Finish();
+	
 	if( g_iInstance[victim][NPC_iHealth] <= 0 ) {
 		g_iInstance[victim][NPC_iHealth] = 0;
 		
-		int id = g_iInstance[victim][NPC_iClass];
+		
 		int animator = EntRefToEntIndex(g_iInstance[victim][NPC_iAnimator]);
 		fctDead(id, victim, animator, GetGameTime());
 	}
