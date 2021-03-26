@@ -5,19 +5,21 @@ void DH_OnEntityCreated(int entity) {
 	m_inhibitDoorTimer[entity] = 0.0;
 }
 
-public Action DH_OnTrackPath(int hostage, float dst[3], float delta) {
+public Action DH_OnTrackPath(int hostage, float dst[3], float delta) {	
 	float src[3], vel[3], acc[3];
 	Entity_GetAbsOrigin(hostage, src);
-	Entity_GetAbsVelocity(hostage, vel);
+	GetEntPropVector(hostage, Prop_Send, "m_vel", vel);
+	
 	
 	// face in the direction of our motion
 	ScaleVector(vel, 10.0);
 	AddVectors(src, vel, vel);
-	SDKCall(hSDKCallFaceTowards, vel, delta); 
+	SDKCall(hSDKCallFaceTowards, hostage, vel, delta); 
 	
 	if( GetEntityFlags(hostage) & FL_ONGROUND ) {
 		// move towards dst
 		SubtractVectors(dst, src, vel);
+		vel[2] = 0.0;
 		NormalizeVector(vel, vel);
 	}
 	else {
@@ -26,7 +28,8 @@ public Action DH_OnTrackPath(int hostage, float dst[3], float delta) {
 		GetAngleVectors(src, vel, NULL_VECTOR, NULL_VECTOR);
 	}
 	
-	ScaleVector(vel, view_as<float>(g_flInstance[hostage][NPC_flSpeed]));
+	PrintToChatAll("delta is: %f", delta);
+	ScaleVector(vel, view_as<float>(g_flClass[ g_iInstance[hostage][NPC_iClass] ][NPC_flSpeed])*2.1775);
 	GetEntDataVector(hostage, m_accel, acc);
 	AddVectors(vel, acc, acc);
 	SetEntDataVector(hostage, m_accel, acc);

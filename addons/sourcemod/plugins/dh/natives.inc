@@ -119,7 +119,7 @@ public any Native_DH_GetClassInt(Handle plugin, int numParams) {
 	return g_iClass[GetNativeCell(1)][GetNativeCell(2)];
 }
 public any Native_DH_SetClassFloat(Handle plugin, int numParams) {
-	g_flClass[GetNativeCell(1)][GetNativeCell(2)] = GetNativeCell(3);
+	view_as<float>(g_flClass[GetNativeCell(1)][GetNativeCell(2)]) = GetNativeCell(3);
 }
 public any Native_DH_GetClassFloat(Handle plugin, int numParams) {
 	return g_flClass[GetNativeCell(1)][GetNativeCell(2)];
@@ -138,7 +138,7 @@ public any Native_DH_GetInstanceInt(Handle plugin, int numParams) {
 	return g_iInstance[GetNativeCell(1)][GetNativeCell(2)];
 }
 public any Native_DH_SetInstanceFloat(Handle plugin, int numParams) {
-	g_flInstance[GetNativeCell(1)][GetNativeCell(2)] = GetNativeCell(3);
+	view_as<float>(g_flInstance[GetNativeCell(1)][GetNativeCell(2)]) = GetNativeCell(3);
 }
 public any Native_DH_GetInstanceFloat(Handle plugin, int numParams) {
 	return g_flInstance[GetNativeCell(1)][GetNativeCell(2)];

@@ -23,14 +23,14 @@ void INIT_Animator() {
 	
 	delete hConfig;
 	// ----------------------------------------------------------------------------------------------------------------------------------------------
-	hConfig = LoadGameConfigFile("test"); 
+	hConfig = LoadGameConfigFile("test.gamedata"); 
 	StartPrepSDKCall(SDKCall_Entity); 
-	PrepSDKCall_SetFromConf(hConfig, SDKConf_Signature, "CHostage::FaceTowards"); 
+	PrepSDKCall_SetFromConf(hConfig, SDKConf_Signature, "FaceTowards"); 
 	PrepSDKCall_AddParameter(SDKType_Vector, SDKPass_ByRef);
 	PrepSDKCall_AddParameter(SDKType_Float, SDKPass_ByValue);
 	
 	if ((hSDKCallFaceTowards = EndPrepSDKCall()) == null)
-		SetFailState("Failed to load SDK call \"CHostage::FaceTowards\". Update signature in \"test\"");      
+		SetFailState("Failed to load SDK call \"FaceTowards\". Update signature in \"test\"");      
 	delete hConfig;
 }
 

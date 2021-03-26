@@ -23,7 +23,7 @@ public void OnLibraryAdded(const char[] sLibrary) {
 	if( StrEqual(sLibrary, "DH-CORE") ) {
 		g_Class = NPCClass("Zombie", "zombie", g_szModel);
 		g_Class.Health = 250;
-		g_Class.Speed = 260.0;
+		g_Class.Speed = 250.0;
 		g_Class.Gravity = 1.0;
 		g_Class.MinBody = 0;
 		g_Class.MaxBody = 18;
