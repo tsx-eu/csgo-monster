@@ -244,8 +244,7 @@ public void fctAttack(int id, int entity, int animator, float time) {
 			sum += g_atClass[id][attackId].probability;
 		} while (sum < rnd);
 		
-		float src[3], ang[3], hit[3], dst[3], min[3], max[3];
-		
+		float hit[3], src[3];
 		int target;
 		bool can = false;
 		switch( g_atClass[id][attackId].type ) {
@@ -253,30 +252,12 @@ public void fctAttack(int id, int entity, int animator, float time) {
 				
 				Entity_GetAbsOrigin(entity, src);
 				src[2] += 64.0;
+				target = Entity_TraceMeleeHull(entity, src, hit);
 				
-				Entity_GetAbsAngles(entity, ang);
-				GetAngleVectors(ang, dst, NULL_VECTOR, NULL_VECTOR);
-				ScaleVector(dst, 10000.0);
-				AddVectors(src, dst, dst);
-				
-				min[0] = min[1] = min[2] = -MELEE_HULL;
-				max[0] = max[1] = max[2] =  MELEE_HULL;
-				
-				Handle trace = TR_TraceHullFilterEx(src, dst, min, max, MASK_SHOT, FilterToOne, entity);
-				if( TR_DidHit(trace) ) {
-					TR_GetEndPosition(hit, trace);
-					target = TR_GetEntityIndex(trace);
-					
-					if( target > 0 && GetVectorDistance(src, hit) < g_atClass[id][attackId].range ) {
-						can = true;
-					}
-					
-					if( false ) {
-						TE_SetupBeamPoints(src, hit, g_cBeam, g_cBeam, 0, 10, 1.0, 1.0, 1.0, 0, 0.0, can ? {0, 255, 0, 250} : { 255, 0, 0, 250 }, 1);
-						TE_SendToAll();
-					}
+				if( target > 0 && GetVectorDistance(src, hit) < g_atClass[id][attackId].range ) {
+					can = true;
 				}
-				delete trace;
+
 			}
 			case NPC_ATTACK_WEAPON: {
 				

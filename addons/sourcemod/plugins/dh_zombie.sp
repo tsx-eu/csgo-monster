@@ -51,7 +51,9 @@ public void OnLibraryAdded(const char[] sLibrary) {
 	}
 }
 public float OnAttack(NPCInstance entity, int attack_id) {
-	return entity.Gesture(NPC_ANIM_ATTACK);
+	float duration = entity.Gesture(NPC_ANIM_ATTACK);
+	entity.Melee(40, NPC_RANGE_MELEE, duration / 2.0);
+	return duration;
 }
 public void OnSpawn(NPCInstance entity) {
 	// No

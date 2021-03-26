@@ -140,6 +140,8 @@ native float 		DH_Animate(NPCInstance id, NPCData_Animation data, float scale = 
 native float 		DH_Gesture(NPCInstance id, NPCData_Animation data, float scale = -1.0, bool remove_similar = false);
 native void 		DH_Pose(NPCInstance id, NPCData_Pose data, float pose);
 
+native void 		DH_Melee(NPCInstance id, int damage, float range=NPC_RANGE_MELEE, float time=0.0);
+
 methodmap NPCClass {
 	public NPCClass(const char[] fullname, const char[] name, const char[] model) {
 		return DH_Create(fullname, name, model);
@@ -200,6 +202,9 @@ methodmap NPCInstance {
 	}
 	public void Pose(NPCData_Pose data, float value) {
 		DH_Pose(this, data, value);
+	}
+	public void Melee(int damage, float range=NPC_RANGE_MELEE, float time=0.0) {
+		DH_Melee(this, damage, range, time);
 	}
 	
 	// -- int
