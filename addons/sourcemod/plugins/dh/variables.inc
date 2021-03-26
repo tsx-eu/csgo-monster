@@ -20,7 +20,6 @@ Animation g_anClass[MAX_CLASSES][NPCData_max_Animation][MAX_ANIMATION];
 Attack g_atClass[MAX_CLASSES][MAX_ATTACK];
 PrivateForward g_hClass[MAX_CLASSES][view_as<int>(NPCData_max_Event)];
 
-float m_inhibitDoorTimer[2048];
 ConVar sv_pushaway_hostage_force, sv_pushaway_max_hostage_force, sv_pushaway_force, sv_pushaway_max_force;
 
 StringMap g_hNamedIdentified;

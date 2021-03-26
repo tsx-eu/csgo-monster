@@ -51,6 +51,7 @@ enum NPCData_Float {
 	NPC_flSpeed,
 	NPC_flGravity,
 	
+	NPC_flNextDoor,
 	NPC_flNextAttack,
 	NPC_flNextAnim,
 	NPC_flAnimScale,

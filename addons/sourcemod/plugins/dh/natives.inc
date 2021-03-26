@@ -55,7 +55,7 @@ public int Native_DH_Create(Handle plugin, int numParams) {
 
 public int Native_DH_Spawn(Handle plugin, int numParams) {
 	static char tmp[32];
-	Format(tmp, sizeof(tmp), "!self,Kill,,%f,-1", 30.0);
+	Format(tmp, sizeof(tmp), "!self,KillHierarchy,,%f,-1", 30.0);
 	
 	float pos[3], ang[3];
 	int id = GetNativeCell(1);
@@ -73,8 +73,10 @@ public int Native_DH_Spawn(Handle plugin, int numParams) {
 	
 	SetEntProp(entity, Prop_Send, "m_nHostageState", 3);
 	SetEntProp(entity, Prop_Send, "m_bClientSideAnimation", 0);
-	g_iInstance[entity][NPC_iClass] = id;
+	Entity_SetHealth(entity, g_iClass[id][NPC_iHealth]);
 	
+	g_iInstance[entity][NPC_iClass] = id;
+	g_iInstance[entity][NPC_iHealth] = g_iClass[id][NPC_iHealth];
 	
 	int child = CreateEntityByName("monster_generic");
 	DispatchKeyValue(child, "model", g_szClass[id][NPC_szModel]);
@@ -90,9 +92,12 @@ public int Native_DH_Spawn(Handle plugin, int numParams) {
 	SetVariantString("!activator");
 	AcceptEntityInput(child, "SetParent", entity);	
 	
-	g_flInstance[entity][NPC_flSpeed] = g_flClass[id][NPC_flSpeed];
-
-	g_iInstance[entity][NPC_iAnimator] = EntIndexToEntRef(child);	
+	view_as<float>(g_flInstance[entity][NPC_flNextDoor]) = GetGameTime();
+	g_iInstance[entity][NPC_iAnimator] = EntIndexToEntRef(child);
+	
+	SDKHook(entity, SDKHook_Touch, OnTouch);
+	SDKHook(entity, SDKHook_ThinkPost, OnThink);
+	SDKHook(entity, SDKHook_OnTakeDamage, OnDamage);
 	
 	Call_StartForward(view_as<Handle>(g_hClass[id][NPC_EVENT_SPAWN]));
 	Call_PushCell(entity);

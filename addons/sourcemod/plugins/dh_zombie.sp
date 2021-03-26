@@ -53,10 +53,10 @@ public float OnAttack(NPCInstance entity, int attack_id) {
 	return entity.Gesture(NPC_ANIM_ATTACK);
 }
 public void OnSpawn(NPCInstance entity) {
-	//entity.Animate(NPC_ANIM_RUN);
+	// No
 }
 public void OnDead(NPCInstance entity) {
-	
+	// No
 }
 
 public void OnMapStart() {

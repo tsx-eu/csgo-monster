@@ -1,11 +1,10 @@
-
-void DH_OnEntityCreated(int entity) {
-	SDKHook(entity, SDKHook_Touch, OnTouch);
-	SDKHook(entity, SDKHook_ThinkPost, OnThink);
-	m_inhibitDoorTimer[entity] = 0.0;
+public void DH_OnEntityCreated(int hostage) {
+	
 }
-
-public Action DH_OnTrackPath(int hostage, float dst[3], float delta) {	
+public Action DH_OnTrackPath(int hostage, float dst[3], float delta) {
+	if( g_iInstance[hostage][NPC_iHealth] <= 0 )
+		return Plugin_Handled;
+	
 	float src[3], vel[3], acc[3];
 	Entity_GetAbsOrigin(hostage, src);
 	GetEntPropVector(hostage, Prop_Send, "m_vel", vel);
@@ -28,7 +27,6 @@ public Action DH_OnTrackPath(int hostage, float dst[3], float delta) {
 		GetAngleVectors(src, vel, NULL_VECTOR, NULL_VECTOR);
 	}
 	
-	PrintToChatAll("delta is: %f", delta);
 	ScaleVector(vel, view_as<float>(g_flClass[ g_iInstance[hostage][NPC_iClass] ][NPC_flSpeed])*2.1775);
 	GetEntDataVector(hostage, m_accel, acc);
 	AddVectors(vel, acc, acc);
@@ -37,8 +35,57 @@ public Action DH_OnTrackPath(int hostage, float dst[3], float delta) {
 	return Plugin_Handled;
 }
 public void DH_OnUpdateFollowingPost(int entity, float delta) {
+	if( g_iInstance[entity][NPC_iHealth] <= 0 )
+		return;
+	
 	AvoidPhysicsProps(entity);
 }
+// -------------------------------------
+public Action OnDamage(int victim, int& attacker, int& inflictor, float& damage, int& damageType, int& weapon, float damageForce[3], float damagePosition[3]) {
+	static char class[128];
+	GetEdictClassname(victim, class, sizeof(class));
+	
+	
+	g_iInstance[victim][NPC_iHealth] -= RoundFloat(damage);	
+	if( g_iInstance[victim][NPC_iHealth] <= 0 ) {
+		g_iInstance[victim][NPC_iHealth] = 0;
+		
+		int id = g_iInstance[victim][NPC_iClass];
+		int animator = EntRefToEntIndex(g_iInstance[victim][NPC_iAnimator]);
+		fctDead(id, victim, animator, GetGameTime());
+	}
+}
+public Action OnTouch(int entity, int target) {
+	static char classname[128];
+	
+	if( target > 0 ) {
+		GetEdictClassname(target, classname, sizeof(classname));
+		
+		if( view_as<float>(g_flInstance[entity][NPC_flNextDoor]) < GetGameTime() && (StrContains(classname, "func_door") == 0 || StrContains(classname, "prop_door") == 0) ) {
+			AcceptEntityInput(target, "Use", entity, entity);
+			view_as<float>(g_flInstance[entity][NPC_flNextDoor]) = GetGameTime() + 3.0;
+		}
+		
+		if( StrContains(classname, "func_breakable_surf") == 0 ) {
+			SDKHooks_TakeDamage(target, entity, entity, 100.0, DMG_CRUSH);
+		}
+	}
+}
+public void OnThink(int entity) {
+	// Animate entity	
+	//
+	float time = GetGameTime();
+	int id = g_iInstance[entity][NPC_iClass];
+	int animator = EntRefToEntIndex(g_iInstance[entity][NPC_iAnimator]);
+
+	if( animator > 0 ) {
+		fctAnimate(id, entity, animator, time);
+	}
+	
+	SetEntPropEnt(entity, Prop_Send, "m_leader", g_iInstance[entity][NPC_iLeader]);
+	fctAttack(id, entity, animator, time);
+}
+// -------------------------------------
 void AvoidPhysicsProps(int entity) {
 	static float src[3], dst[3], push[3], norm[3], min[3], max[3], vel[3];
 	bool debugEnabled = false;
@@ -161,40 +208,23 @@ void AvoidPhysicsProps(int entity) {
 	
 	SetEntDataVector(entity, m_accel, vel);
 }
-
-public Action OnTouch(int entity, int target) {
-	static char classname[128];
-	
-	if( target > 0 ) {
-		GetEdictClassname(target, classname, sizeof(classname));
-		
-		if( m_inhibitDoorTimer[entity] < GetGameTime() && (StrContains(classname, "func_door") == 0 || StrContains(classname, "prop_door") == 0) ) {
-			AcceptEntityInput(target, "Use", entity, entity);
-			m_inhibitDoorTimer[entity] = GetGameTime() + 3.0;
-		}
-		
-		if( StrContains(classname, "func_breakable_surf") == 0 ) {
-			SDKHooks_TakeDamage(target, entity, entity, 100.0, DMG_CRUSH);
-		}
-	}
-}
-public void OnThink(int entity) {
-	// Animate entity	
-	//
-	float time = GetGameTime();
-	int id = g_iInstance[entity][NPC_iClass];
-	int animator = EntRefToEntIndex(g_iInstance[entity][NPC_iAnimator]);
-
-	if( animator > 0 ) {
-		fctAnimate(id, entity, animator, time);
-	}
-	
-	SetEntPropEnt(entity, Prop_Send, "m_leader", g_iInstance[entity][NPC_iLeader]);
-	fctAttack(id, entity, animator, time);
-}
-
-
 // -------------------------------------
+public void fctDead(int id, int entity, int animator, float time) {
+	SetEntPropEnt(entity, Prop_Send, "m_leader", 0);
+	
+	SDKUnhook(entity, SDKHook_Touch, OnTouch);
+	SDKUnhook(entity, SDKHook_ThinkPost, OnThink);
+	SDKUnhook(entity, SDKHook_OnTakeDamage, OnDamage);
+	
+	Call_StartForward(view_as<Handle>(g_hClass[id][NPC_EVENT_DEAD]));
+	Call_PushCell(entity);
+	Call_Finish();
+	
+	view_as<NPCInstance>(entity).Animate(NPC_ANIM_DEAD);
+	
+	Entity_SetCollisionGroup(entity, COLLISION_GROUP_DEBRIS);
+	AcceptEntityInput(entity, "FireUser1");
+}
 public void fctAttack(int id, int entity, int animator, float time) {
 	
 	if( view_as<float>(g_flInstance[entity][NPC_flNextAttack]) < time ) {
@@ -287,7 +317,6 @@ public void fctAnimate(int id, int entity, int animator, float time) {
 	
 	float param = speed / view_as<float>(g_flClass[g_iInstance[entity][NPC_iClass]][NPC_flSpeed]);	
 	instance.Pose(NPC_POSE_SPEED, param);
-	PrintHintText(g_iInstance[entity][NPC_iLeader], "%f", param);
 	
 	SDKCall(hSDKCallStudioFrameAdvance, animator); 
 }
