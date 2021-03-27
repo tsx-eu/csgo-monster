@@ -68,7 +68,7 @@ public void OnEntityCreated(int entity, const char[] classname) {
 	}
 }
 public void OnEntityDestroyed(int entity) {
-	if( g_hProjectile[entity] != null ) {
+	if( entity > 0 && g_hProjectile[entity] != null ) {
 		delete g_hProjectile[entity];
 		g_hProjectile[entity] = null;
 	}
@@ -84,7 +84,7 @@ public Action block(int client, int args) {
 		pos[2] += 16.0;
 		AcceptEntityInput(hostage, "Kill");
 		
-		NPCInstance bot = NPCInstance(DH_GetClass("skeleton_bow"), pos);
+		NPCInstance bot = NPCInstance(DH_GetClass("skeleton_axe"), pos);
 		bot.Target = client;
 		break;
 	}

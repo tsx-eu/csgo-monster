@@ -18,10 +18,9 @@ char g_szSounds[][PLATFORM_MAX_PATH] = {
 	"weapons/knife/knife_hit4.wav"
 };
 
-NPCClass g_Class;
 public void OnLibraryAdded(const char[] sLibrary) {
 	if( StrEqual(sLibrary, "DH-CORE") ) {
-		g_Class = NPCClass("Zombie", "zombie", g_szModel);
+		NPCClass g_Class = NPCClass("Zombie", "zombie", g_szModel);
 		g_Class.Health = 250;
 		g_Class.Speed = 250.0;
 		g_Class.Gravity = 1.0;

@@ -110,8 +110,6 @@ typeset NPCData_EventCallback {
 	function void(NPCInstance entity);												// NPC_EVENT_DEAD
 	function void(NPCInstance entity, int attacker, int damage);					// NPC_EVENT_DAMAGE
 }
-
-
 typeset DH_ProjectileCreate {
 	function void(NPCInstance entity, int inflictor);
 }
@@ -151,6 +149,7 @@ native void 		DH_Pose(NPCInstance id, NPCData_Pose data, float pose);
 
 native void 		DH_Melee(NPCInstance id, int damage, float range=NPC_RANGE_MELEE, float time=0.0);
 native int 			DH_Projectile(NPCInstance id, const char[] model, float time=0.0, float spreadAngle=0.0, float speed = 8192.0, float gravity = 0.0, DH_ProjectileCreate create = INVALID_FUNCTION, DH_ProjectileHit hit = INVALID_FUNCTION);
+native void 		DH_Damage(NPCInstance id, int victim, int damage, int type = DMG_GENERIC);
 
 methodmap NPCClass {
 	public NPCClass(const char[] fullname, const char[] name, const char[] model) {
@@ -204,6 +203,7 @@ methodmap NPCInstance {
 	public NPCInstance(NPCClass id, float pos[3], float ang[3]=NULL_VECTOR) {
 		return DH_Spawn(id, pos, ang);
 	}
+	// -- 
 	public float Animate(NPCData_Animation data, float scale = -1.0) {
 		return DH_Animate(this, data, scale);
 	}
@@ -213,13 +213,16 @@ methodmap NPCInstance {
 	public void Pose(NPCData_Pose data, float value) {
 		DH_Pose(this, data, value);
 	}
+	// -- 
 	public void Melee(int damage, float range=NPC_RANGE_MELEE, float time=0.0) {
 		DH_Melee(this, damage, range, time);
 	}
 	public int Projectile(const char[] model, float time=0.0, float spreadAngle=0.0, float speed=8192.0, float gravity=0.0, DH_ProjectileCreate create = INVALID_FUNCTION, DH_ProjectileHit hit = INVALID_FUNCTION) {
 		return DH_Projectile(this, model, time, spreadAngle, speed, gravity, create, hit);
 	}
-	
+	public void Damage(int victim, int damage, int type=DMG_GENERIC) {
+		DH_Damage(this, victim, damage, type);
+	}
 	// -- int
 	property NPCClass Class {
 		public get() { return			view_as<NPCClass>(DH_GetInstanceInt(this, NPC_iClass)); }

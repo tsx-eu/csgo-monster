@@ -30,6 +30,7 @@ APLRes Native_REGISTER() {
 	
 	CreateNative("DH_Melee", 				Native_DH_Melee);
 	CreateNative("DH_Projectile", 			Native_DH_Projectile);
+	CreateNative("DH_Damage", 				Native_DH_Damage);
 	
 	RegPluginLibrary("DH-CORE"); 
 	return APLRes_Success;
@@ -366,27 +367,32 @@ public Action Task_DH_Projectile(Handle timer, DataPack pack) {
 		SetEntityGravity(ent, gravity);
 		
 		float vecOrigin[3], vecTarget[3], vecDir[3], vecAngles[3], vecPush[3];
-	
 		Entity_GetAbsOrigin(entity, vecOrigin);
-		Entity_GetAbsOrigin(target, vecTarget);
 		vecOrigin[2] += HEIGHT_SIZE;
-		vecTarget[2] += HEIGHT_SIZE;
 		
-		// Anticiper les mouvements du joueur
-		Entity_GetAbsVelocity(target, vecPush);
-		ScaleVector(vecPush, GetVectorDistance(vecOrigin, vecTarget) / speed );
-		AddVectors(vecTarget, vecPush, vecTarget);
-		
-		SubtractVectors(vecTarget, vecOrigin, vecDir);
-		GetVectorAngles(vecDir, vecAngles);
-		
-		vecAngles[0] = GetProjectileAngle(vecDir, speed, gravity);
+		if( Entity_IsInSightRange(entity, target, 22.5) ) {
+			Entity_GetAbsOrigin(target, vecTarget);
+			vecTarget[2] += HEIGHT_SIZE;
+			
+			// Anticiper les mouvements du joueur
+			Entity_GetAbsVelocity(target, vecPush);
+			ScaleVector(vecPush, GetVectorDistance(vecOrigin, vecTarget) / speed );
+			AddVectors(vecTarget, vecPush, vecTarget);
+			
+			SubtractVectors(vecTarget, vecOrigin, vecDir);
+			GetVectorAngles(vecDir, vecAngles);
+			
+			vecAngles[0] = GetProjectileAngle(vecDir, speed, gravity);
+		}
+		else {
+			Entity_GetAbsAngles(entity, vecAngles);
+		}
+
 		vecAngles[0] += Math_GetRandomFloat(-spreadAngle, spreadAngle);
 		vecAngles[1] += Math_GetRandomFloat(-spreadAngle, spreadAngle);
-		
 		GetAngleVectors(vecAngles, vecPush, NULL_VECTOR, NULL_VECTOR);
 		ScaleVector(vecPush, speed);
-		
+
 		TeleportEntity(ent, vecOrigin, vecAngles, vecPush);
 		TeleportEntity(entity, NULL_VECTOR, vecAngles, NULL_VECTOR);
 		
@@ -424,7 +430,6 @@ public Action Touch_DH_Projectile(int ent, int target) {
 		Call_Finish();
 	}
 	
-	
 	AcceptEntityInput(ent, "Kill");
 }
 public Action Think_DH_Projectile(Handle timer, any ref) {
@@ -438,4 +443,10 @@ public Action Think_DH_Projectile(Handle timer, any ref) {
 	TeleportEntity(ent, NULL_VECTOR, ang, NULL_VECTOR);
 	
 	return Plugin_Continue;
+}
+public any Native_DH_Damage(Handle plugin, int numParams) {
+	int entity = GetNativeCell(1);
+	int id = g_iInstance[entity][NPC_iClass];
+	
+	Entity_Hurt(GetNativeCell(2), GetNativeCell(3), entity, GetNativeCell(4), g_szClass[id][NPC_szName]);
 }
