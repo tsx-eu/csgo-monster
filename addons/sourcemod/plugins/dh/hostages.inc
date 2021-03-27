@@ -225,7 +225,7 @@ public void fctDead(int id, int entity, int animator, float time) {
 	Call_PushCell(entity);
 	Call_Finish();
 	
-	view_as<NPCInstance>(entity).Animate(NPC_ANIM_DEAD);
+	view_as<NPCInstance>(entity).Animate(NPC_ANIM_DYING);
 	
 	Entity_SetCollisionGroup(entity, COLLISION_GROUP_DEBRIS);
 	AcceptEntityInput(entity, "FireUser1");

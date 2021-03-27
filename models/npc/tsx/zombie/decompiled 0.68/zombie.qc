@@ -227,13 +227,13 @@ $sequence "dead" {
 	"zombie_anims\dead.smd"
 	fadein 1
 	fadeout 0.2
-	fps 35
+	fps 20
 }
 $sequence "dead_loop" {
 	"zombie_anims\dead_loop.smd"
 	fadein 0.2
 	fadeout 0.2
-	fps 35
+	fps 1
 }
 
 $collisionjoints "zombie_physics.smd"

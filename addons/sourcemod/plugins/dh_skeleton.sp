@@ -51,8 +51,7 @@ public void OnLibraryAdded(const char[] sLibrary) {
 			g_Class.AddAnimation(NPC_ANIM_ATTACK, 	4, 		100, 	30.0);
 			g_Class.AddAnimation(NPC_ANIM_ATTACK2, 	17, 	50, 	35.0);
 			
-			g_Class.AddAnimation(NPC_ANIM_DYING, 	5, 		45, 	35.0);
-			g_Class.AddAnimation(NPC_ANIM_DEAD, 	6, 		1, 		35.0);
+			g_Class.AddAnimation(NPC_ANIM_DYING, 	5, 		45, 	20.0);
 			
 			g_Class.AddEvent(NPC_EVENT_SPAWN,	OnSpawn);
 			g_Class.AddEvent(NPC_EVENT_ATTACK,	OnAttack_BOW);
@@ -82,8 +81,7 @@ public void OnLibraryAdded(const char[] sLibrary) {
 			g_Class.AddAnimation(NPC_ANIM_ATTACK, 	13, 	70, 	35.0);
 			g_Class.AddAnimation(NPC_ANIM_ATTACK2, 	14, 	70, 	35.0);
 			
-			g_Class.AddAnimation(NPC_ANIM_DYING, 	5, 		45, 	35.0);
-			g_Class.AddAnimation(NPC_ANIM_DEAD, 	6, 		1, 		35.0);
+			g_Class.AddAnimation(NPC_ANIM_DYING, 	5, 		45, 	20.0);
 			
 			g_Class.AddEvent(NPC_EVENT_SPAWN,	OnSpawn);
 			g_Class.AddEvent(NPC_EVENT_ATTACK,	OnAttack_AXE);
@@ -112,8 +110,7 @@ public void OnLibraryAdded(const char[] sLibrary) {
 			g_Class.AddAnimation(NPC_ANIM_ATTACK, 	9, 		45, 	35.0);
 			g_Class.AddAnimation(NPC_ANIM_ATTACK, 	10, 	45, 	35.0);
 			
-			g_Class.AddAnimation(NPC_ANIM_DYING, 	5, 		45, 	35.0);
-			g_Class.AddAnimation(NPC_ANIM_DEAD, 	6, 		1, 		35.0);
+			g_Class.AddAnimation(NPC_ANIM_DYING, 	5, 		45, 	20.0);
 			
 			g_Class.AddEvent(NPC_EVENT_SPAWN,	OnSpawn);
 			g_Class.AddEvent(NPC_EVENT_ATTACK,	OnAttack_SHIELD);
@@ -141,8 +138,7 @@ public void OnLibraryAdded(const char[] sLibrary) {
 			g_Class.AddAnimation(NPC_ANIM_ATTACK, 	9, 		45, 	35.0);
 			g_Class.AddAnimation(NPC_ANIM_ATTACK, 	10, 	45, 	35.0);
 			
-			g_Class.AddAnimation(NPC_ANIM_DYING, 	5, 		45, 	35.0);
-			g_Class.AddAnimation(NPC_ANIM_DEAD, 	6, 		1, 		35.0);
+			g_Class.AddAnimation(NPC_ANIM_DYING, 	5, 		45, 	20.0);
 			
 			g_Class.AddEvent(NPC_EVENT_SPAWN,	OnSpawn);
 			g_Class.AddEvent(NPC_EVENT_ATTACK,	OnAttack_SHIELD);
@@ -170,8 +166,7 @@ public void OnLibraryAdded(const char[] sLibrary) {
 			g_Class.AddAnimation(NPC_ANIM_ATTACK, 	9, 		45, 	35.0);
 			g_Class.AddAnimation(NPC_ANIM_ATTACK, 	10, 	45, 	35.0);
 			
-			g_Class.AddAnimation(NPC_ANIM_DYING, 	5, 		45, 	35.0);
-			g_Class.AddAnimation(NPC_ANIM_DEAD, 	6, 		1, 		35.0);
+			g_Class.AddAnimation(NPC_ANIM_DYING, 	5, 		45, 	20.0);
 			
 			g_Class.AddEvent(NPC_EVENT_SPAWN,	OnSpawn);
 			g_Class.AddEvent(NPC_EVENT_ATTACK,	OnAttack_SHIELD);

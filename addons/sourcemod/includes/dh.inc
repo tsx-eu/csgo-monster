@@ -79,7 +79,6 @@ enum NPCData_Animation {
 	NPC_ANIM_RELOAD,
 	
 	NPC_ANIM_DYING,
-	NPC_ANIM_DEAD,
 	
 	NPCData_max_Animation
 };
