@@ -249,18 +249,16 @@ public void fctAttack(int id, int entity, int animator, float time) {
 		bool can = false;
 		switch( g_atClass[id][attackId].type ) {
 			case NPC_ATTACK_MELEE: {
-				
 				Entity_GetAbsOrigin(entity, src);
-				src[2] += 64.0;
+				src[2] += HEIGHT_SIZE;
 				target = Entity_TraceMeleeHull(entity, src, hit);
 				
 				if( target > 0 && GetVectorDistance(src, hit) < g_atClass[id][attackId].range ) {
 					can = true;
 				}
-
 			}
 			case NPC_ATTACK_WEAPON: {
-				
+				can = Entity_IsInSightRange(entity, g_iInstance[entity][NPC_iLeader], 45.0, g_atClass[id][attackId].range);
 			}
 		}
 		

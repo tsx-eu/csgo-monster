@@ -44,6 +44,69 @@ stock int Entity_TraceMeleeHull(int entity, float src[3], float hit[3]) {
 	
 	return target;
 }
+
+stock bool Entity_IsInSightRange(int client, int target, float angle = 90.0, float distance = 99999.9, bool heightcheck = true) {
+	float src[3], dst[3], ang[3], anglevector[3], targetvector[3], min[3], max[3];
+	float resultangle, resultdistance;
+	
+	Entity_GetAbsOrigin(client, src);
+	Entity_GetAbsOrigin(target, dst);
+	
+	// Can be seen
+	min[0] = min[1] = min[2] = -MELEE_HULL;
+	max[0] = max[1] = max[2] =  MELEE_HULL;
+	src[2] += HEIGHT_SIZE;
+	dst[2] += HEIGHT_SIZE;	
+	Handle trace = TR_TraceHullFilterEx(src, dst, min, max, MASK_SHOT, FilterToOne, client);
+	if( TR_DidHit(trace) ) {
+		if( TR_GetEntityIndex(trace) != target ) {
+			delete trace;
+			return false;
+		}
+	}
+	
+	// in view angle
+	Entity_GetAbsAngles(client, ang);
+	ang[0] = ang[2] = 0.0;
+	GetAngleVectors(ang, anglevector, NULL_VECTOR, NULL_VECTOR);
+	NormalizeVector(anglevector, anglevector);
+		
+	if( heightcheck )
+		resultdistance = GetVectorDistance(src, dst);
+	
+	src[2] = dst[2] = 0.0;
+	MakeVectorFromPoints(src, dst, targetvector);
+	NormalizeVector(targetvector, targetvector);
+	
+	resultangle = RadToDeg(ArcCosine(GetVectorDotProduct(targetvector, anglevector)));
+	
+	if( resultangle <= angle / 2.0 ) {
+		if( !heightcheck )
+			resultdistance = GetVectorDistance(src, dst);
+		return distance >= resultdistance;
+	}
+	
+	return false;
+}
+stock float GetProjectileAngle(float dir[3], float v, float gravity) {
+	float v2 = v*v;
+	float g = -sv_gravity.FloatValue * gravity;
+	
+	float x = SquareRoot(dir[0] * dir[0] + dir[1] * dir[1]); // Distance au sol
+	float y = -dir[2];										 // Distance en hauteur
+	
+	if( g == 0.0 )
+		g = 0.01;
+	if( x == 0.0 )
+		x = 0.01;
+	
+	float delta = (v2*v2) - g * (g*x*x + 2.0*y*v2 );
+	if( delta < 0.0 )
+		return 45.0;
+	
+	float neg = (v2-SquareRoot(delta))/(g*x);
+	return RadToDeg(ArcTangent(neg));
+}
 stock int GetPushawayEnts(int entity, int[] ents, int nMaxEnts, float flPlayerExpand=0.0, int PartitionMask=PARTITION_SOLID_EDICTS) {
 	static float src[3], min[3], max[3];
 	

@@ -20,8 +20,9 @@ Animation g_anClass[MAX_CLASSES][NPCData_max_Animation][MAX_ANIMATION];
 Attack g_atClass[MAX_CLASSES][MAX_ATTACK];
 PrivateForward g_hClass[MAX_CLASSES][view_as<int>(NPCData_max_Event)];
 
-ConVar sv_pushaway_hostage_force, sv_pushaway_max_hostage_force, sv_pushaway_force, sv_pushaway_max_force;
+ConVar sv_pushaway_hostage_force, sv_pushaway_max_hostage_force, sv_pushaway_force, sv_pushaway_max_force, sv_gravity;
 
+DataPack g_hProjectile[2048];
 StringMap g_hNamedIdentified;
 
 int m_accel = -1;

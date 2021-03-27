@@ -22,6 +22,8 @@ char g_szSounds[][PLATFORM_MAX_PATH] = {
 	"weapons/knife/knife_hit4.wav"
 };
 
+int g_cBeam;
+
 NPCClass g_Class;
 public void OnLibraryAdded(const char[] sLibrary) {
 	if( StrEqual(sLibrary, "DH-CORE") ) {
@@ -58,7 +60,16 @@ public void OnLibraryAdded(const char[] sLibrary) {
 	}
 }
 public float OnAttack(NPCInstance entity, int attack_id) {
-	return entity.Gesture(NPC_ANIM_ATTACK);
+	entity.Projectile(g_szModel2, 15 / 35.0, 5.0, 1024.0, 1.0, OnProjectileCreate, OnProjectileHit);
+	return entity.Gesture(NPC_ANIM_ATTACK2);
+}
+public void OnProjectileCreate(NPCInstance entity, int inflictor) {
+	TE_SetupBeamFollow(inflictor, g_cBeam, g_cBeam, 1.0, 1.0, 0.0, 1, {200, 200, 200, 50} );
+	TE_SendToAll();
+}
+public void OnProjectileHit(NPCInstance entity, int inflictor, int victim) {
+	if( victim > 0 && victim < 65 )
+		SlapPlayer(victim);
 }
 public void OnSpawn(NPCInstance entity) {
 	// No
@@ -71,6 +82,8 @@ public void OnDamage(NPCInstance entity, int attacker, int damage) {
 }
 
 public void OnMapStart() {
+	g_cBeam = PrecacheModel("materials/sprites/laserbeam.vmt");
+	
 	PrecacheModel(g_szModel1);
 	PrecacheModel(g_szModel2);
 	AddModelToDownloadsTable(g_szModel1);

@@ -7,6 +7,7 @@
 #define MAX_ATTACK 		4
 #define	MAX_ANIMATION 	8
 #define STEP_SIZE		16.0
+#define HEIGHT_SIZE		48.0
 #define MELEE_HULL		8.0
 
 native bool Phys_IsPhysicsObject(int entity);
@@ -110,6 +111,14 @@ typeset NPCData_EventCallback {
 	function void(NPCInstance entity, int attacker, int damage);					// NPC_EVENT_DAMAGE
 }
 
+
+typeset DH_ProjectileCreate {
+	function void(NPCInstance entity, int inflictor);
+}
+typeset DH_ProjectileHit {
+	function void(NPCInstance entity, int inflictor, int victim);
+}
+
 #define NPC_RANGE_MELEE		52.0
 
 native NPCClass 	DH_Create(const char[] fullname, const char[] name, const char[] model);
@@ -141,6 +150,7 @@ native float 		DH_Gesture(NPCInstance id, NPCData_Animation data, float scale = 
 native void 		DH_Pose(NPCInstance id, NPCData_Pose data, float pose);
 
 native void 		DH_Melee(NPCInstance id, int damage, float range=NPC_RANGE_MELEE, float time=0.0);
+native int 			DH_Projectile(NPCInstance id, const char[] model, float time=0.0, float spreadAngle=0.0, float speed = 8192.0, float gravity = 0.0, DH_ProjectileCreate create = INVALID_FUNCTION, DH_ProjectileHit hit = INVALID_FUNCTION);
 
 methodmap NPCClass {
 	public NPCClass(const char[] fullname, const char[] name, const char[] model) {
@@ -205,6 +215,9 @@ methodmap NPCInstance {
 	}
 	public void Melee(int damage, float range=NPC_RANGE_MELEE, float time=0.0) {
 		DH_Melee(this, damage, range, time);
+	}
+	public int Projectile(const char[] model, float time=0.0, float spreadAngle=0.0, float speed=8192.0, float gravity=0.0, DH_ProjectileCreate create = INVALID_FUNCTION, DH_ProjectileHit hit = INVALID_FUNCTION) {
+		return DH_Projectile(this, model, time, spreadAngle, speed, gravity, create, hit);
 	}
 	
 	// -- int

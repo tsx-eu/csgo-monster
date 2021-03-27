@@ -29,6 +29,7 @@ APLRes Native_REGISTER() {
 	CreateNative("DH_Pose", 				Native_DH_Pose);
 	
 	CreateNative("DH_Melee", 				Native_DH_Melee);
+	CreateNative("DH_Projectile", 			Native_DH_Projectile);
 	
 	RegPluginLibrary("DH-CORE"); 
 	return APLRes_Success;
@@ -293,9 +294,9 @@ public any Native_DH_Pose(Handle plugin, int numParams) {
 public any Native_DH_Melee(Handle plugin, int numParams) {
 	DataPack pack;
 	CreateDataTimer(GetNativeCell(4), Task_DH_Melee, pack, TIMER_DATA_HNDL_CLOSE);
-	pack.WriteCell(EntIndexToEntRef(GetNativeCell(1)));
-	pack.WriteCell(GetNativeCell(2));
-	pack.WriteCell(GetNativeCell(3));
+	pack.WriteCell(EntIndexToEntRef(GetNativeCell(1)));	// instanceId
+	pack.WriteCell(GetNativeCell(2));					// damage
+	pack.WriteCell(GetNativeCell(3));					// range
 }
 public Action Task_DH_Melee(Handle timer, DataPack pack) {
 	pack.Reset();
@@ -308,16 +309,133 @@ public Action Task_DH_Melee(Handle timer, DataPack pack) {
 		
 		float src[3], hit[3];
 		Entity_GetAbsOrigin(entity, src);
-		src[2] += 64.0;
+		src[2] += HEIGHT_SIZE;
 		
 		int target = Entity_TraceMeleeHull(entity, src, hit);
-
-		PrintToChatAll("yes ? %d range: %f", target, range);
-
 		if( target > 0 && GetVectorDistance(src, hit) < range ) {
 			Entity_Hurt(target, damage, entity, DMG_CRUSH|DMG_SLASH, g_szClass[id][NPC_szName]);
 		}
 	}
 	
 	return Plugin_Stop;
+}
+public any Native_DH_Projectile(Handle plugin, int numParams) {
+	static char model[PLATFORM_MAX_PATH];
+	
+	DataPack pack;
+	CreateDataTimer(GetNativeCell(3), Task_DH_Projectile, pack, TIMER_DATA_HNDL_CLOSE);
+	pack.WriteCell(EntIndexToEntRef(GetNativeCell(1)));	// instanceId
+	
+	GetNativeString(2, model, sizeof(model));
+	pack.WriteString(model);							// model
+	
+	pack.WriteCell(GetNativeCell(4)); 					// spreadAngle
+	pack.WriteCell(GetNativeCell(5)); 					// speed 
+	pack.WriteCell(GetNativeCell(6)); 					// gravity 
+	
+	pack.WriteCell(plugin);
+	pack.WriteFunction(GetNativeFunction(7)); 			// DH_ProjectileCreate
+	pack.WriteFunction(GetNativeFunction(8)); 			// DH_ProjectileHit
+}
+public Action Task_DH_Projectile(Handle timer, DataPack pack) {
+	static char model[PLATFORM_MAX_PATH];
+	pack.Reset();
+	int entity = EntRefToEntIndex(pack.ReadCell());
+	
+	if( entity > 0 ) {
+		pack.ReadString(model, sizeof(model));
+		
+		float spreadAngle = pack.ReadCell();
+		float speed = pack.ReadCell();
+		float gravity = pack.ReadCell();
+		
+		Handle plugin = pack.ReadCell();
+		Function create = pack.ReadFunction();
+		Function hit = pack.ReadFunction();
+		
+		int target = g_iInstance[entity][NPC_iLeader];
+		
+		int ent = CreateEntityByName("hegrenade_projectile");
+		//DispatchKeyValue(ent, "classname", name);
+		DispatchSpawn(ent);
+		
+		SetEntPropEnt(ent, Prop_Send, "m_hOwnerEntity", entity);
+		SetEntPropFloat(ent, Prop_Send, "m_flElasticity", 0.4);
+		SetEntityMoveType(ent, MOVETYPE_FLYGRAVITY);
+		SetEntityModel(ent, model);
+		SetEntityGravity(ent, gravity);
+		
+		float vecOrigin[3], vecTarget[3], vecDir[3], vecAngles[3], vecPush[3];
+	
+		Entity_GetAbsOrigin(entity, vecOrigin);
+		Entity_GetAbsOrigin(target, vecTarget);
+		vecOrigin[2] += HEIGHT_SIZE;
+		vecTarget[2] += HEIGHT_SIZE;
+		
+		// Anticiper les mouvements du joueur
+		Entity_GetAbsVelocity(target, vecPush);
+		ScaleVector(vecPush, GetVectorDistance(vecOrigin, vecTarget) / speed );
+		AddVectors(vecTarget, vecPush, vecTarget);
+		
+		SubtractVectors(vecTarget, vecOrigin, vecDir);
+		GetVectorAngles(vecDir, vecAngles);
+		
+		vecAngles[0] = GetProjectileAngle(vecDir, speed, gravity);
+		vecAngles[0] += Math_GetRandomFloat(-spreadAngle, spreadAngle);
+		vecAngles[1] += Math_GetRandomFloat(-spreadAngle, spreadAngle);
+		
+		GetAngleVectors(vecAngles, vecPush, NULL_VECTOR, NULL_VECTOR);
+		ScaleVector(vecPush, speed);
+		
+		TeleportEntity(ent, vecOrigin, vecAngles, vecPush);
+		TeleportEntity(entity, NULL_VECTOR, vecAngles, NULL_VECTOR);
+		
+		CreateTimer(0.1, Think_DH_Projectile, EntIndexToEntRef(ent), TIMER_REPEAT);
+		
+		if( create != INVALID_FUNCTION ) {
+			Call_StartFunction(plugin, create);
+			Call_PushCell(entity);
+			Call_PushCell(ent);
+			Call_Finish();
+		}
+		if( hit != INVALID_FUNCTION ) {
+			g_hProjectile[ent] = new DataPack();
+			g_hProjectile[ent].WriteCell(EntIndexToEntRef(entity));
+			g_hProjectile[ent].WriteCell(plugin);
+			g_hProjectile[ent].WriteFunction(hit);
+			SDKHook(ent, SDKHook_Touch, Touch_DH_Projectile);
+		}
+	}
+	
+	return Plugin_Stop;
+}
+public Action Touch_DH_Projectile(int ent, int target) {
+	g_hProjectile[ent].Reset();
+	
+	int entity = EntRefToEntIndex(g_hProjectile[ent].ReadCell());
+	if( entity > 0 ) {
+		Handle plugin = g_hProjectile[ent].ReadCell();
+		Function callback = g_hProjectile[ent].ReadFunction();
+				
+		Call_StartFunction(plugin, callback);
+		Call_PushCell(entity);
+		Call_PushCell(ent);
+		Call_PushCell(target);
+		Call_Finish();
+	}
+	
+	
+	AcceptEntityInput(ent, "Kill");
+}
+public Action Think_DH_Projectile(Handle timer, any ref) {
+	int ent = EntRefToEntIndex(ref);
+	if( ent == INVALID_ENT_REFERENCE )
+		return Plugin_Stop;
+	
+	float vel[3], ang[3];
+	Entity_GetAbsVelocity(ent, vel);
+	GetVectorAngles(vel, ang);
+	TeleportEntity(ent, NULL_VECTOR, ang, NULL_VECTOR);
+	
+	return Plugin_Continue;
 }

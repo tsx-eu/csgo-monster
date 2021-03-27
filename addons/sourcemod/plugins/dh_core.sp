@@ -35,6 +35,8 @@ public void OnPluginStart() {
 	sv_pushaway_force = FindConVar("sv_pushaway_force");
 	sv_pushaway_max_force = FindConVar("sv_pushaway_max_force");
 	
+	sv_gravity = FindConVar("sv_gravity");
+	
 	m_accel = FindSendPropInfo("CHostage", "m_leader") + 24;
 	
 	g_hNamedIdentified = new StringMap();
@@ -63,6 +65,12 @@ public void OnMapStart() {
 public void OnEntityCreated(int entity, const char[] classname) {
 	if( StrEqual(classname, "hostage_entity") ) {
 		DH_OnEntityCreated(entity);
+	}
+}
+public void OnEntityDestroyed(int entity) {
+	if( g_hProjectile[entity] != null ) {
+		delete g_hProjectile[entity];
+		g_hProjectile[entity] = null;
 	}
 }
 public Action block(int client, int args) {
