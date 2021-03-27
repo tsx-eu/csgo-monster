@@ -367,8 +367,15 @@ public Action Task_DH_Projectile(Handle timer, DataPack pack) {
 		SetEntityGravity(ent, gravity);
 		
 		float vecOrigin[3], vecTarget[3], vecDir[3], vecAngles[3], vecPush[3];
-		Entity_GetAbsOrigin(entity, vecOrigin);
-		vecOrigin[2] += HEIGHT_SIZE;
+		
+		int animator = EntRefToEntIndex(g_iInstance[entity][NPC_iAnimator]);
+		if( animator > 0 && Entity_GetAttachment(animator, "muzzle_flash", vecOrigin, vecAngles) > 0 ) {
+			vecOrigin[2] += 8.0;
+		}
+		else {
+			Entity_GetAbsOrigin(entity, vecOrigin);
+			vecOrigin[2] += HEIGHT_SIZE;
+		}
 		
 		if( Entity_IsInSightRange(entity, target, 22.5) ) {
 			Entity_GetAbsOrigin(target, vecTarget);
@@ -395,6 +402,8 @@ public Action Task_DH_Projectile(Handle timer, DataPack pack) {
 
 		TeleportEntity(ent, vecOrigin, vecAngles, vecPush);
 		TeleportEntity(entity, NULL_VECTOR, vecAngles, NULL_VECTOR);
+		
+		SetEntityMoveType(ent, MOVETYPE_NONE);
 		
 		CreateTimer(0.1, Think_DH_Projectile, EntIndexToEntRef(ent), TIMER_REPEAT);
 		
@@ -430,7 +439,7 @@ public Action Touch_DH_Projectile(int ent, int target) {
 		Call_Finish();
 	}
 	
-	AcceptEntityInput(ent, "Kill");
+	AcceptEntityInput(ent, "KillHierarchy");
 }
 public Action Think_DH_Projectile(Handle timer, any ref) {
 	int ent = EntRefToEntIndex(ref);

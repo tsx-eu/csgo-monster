@@ -133,6 +133,7 @@ $definebone "shield_B" "Bone_shield" 4.434834 0.000004 0.000003 -10.000009 89.99
 $definebone "shield_C" "Bone_shield" 3.562582 -0.664375 -0.930375 -11.554379 39.753354 -72.411951 0 0 0 0 0 0
 
 $sectionframes 30 30
+$attachment muzzle_flash "Bone_Bow_A" 0 0 0 rotate 0 0 0
 
 $weightlist body_top {
 	"Bip001"			0

@@ -23,6 +23,14 @@ public bool GetPushawayEnts_enumerator(int entity, any ref) {
 	
 	return data.Length < data.BlockSize;
 }
+
+stock int Entity_GetAttachment(int entity, const char[] name, float pos[3], float ang[3]) {
+	int attach = SDKCall(hSDKCallLookupAttachment, entity, name);
+	if( attach > 0 )
+		SDKCall(hSDKCallGetAttachment, entity, attach, pos, ang); 
+	return attach;
+}
+
 stock int Entity_TraceMeleeHull(int entity, float src[3], float hit[3]) {
 	float ang[3], dst[3], min[3], max[3];
 	
@@ -44,7 +52,6 @@ stock int Entity_TraceMeleeHull(int entity, float src[3], float hit[3]) {
 	
 	return target;
 }
-
 stock bool Entity_IsInSightRange(int client, int target, float angle = 90.0, float distance = 99999.9, bool heightcheck = true) {
 	float src[3], dst[3], ang[3], anglevector[3], targetvector[3], min[3], max[3];
 	float resultangle, resultdistance;

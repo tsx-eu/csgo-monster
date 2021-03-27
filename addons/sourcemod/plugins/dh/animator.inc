@@ -23,6 +23,27 @@ void INIT_Animator() {
 	
 	delete hConfig;
 	// ----------------------------------------------------------------------------------------------------------------------------------------------
+	hConfig = LoadGameConfigFile("plugin.zombieplague");
+	
+	StartPrepSDKCall(SDKCall_Entity);
+	PrepSDKCall_SetFromConf(hConfig, SDKConf_Signature, "CBaseAnimating::LookupAttachment");
+	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
+	PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
+	
+	if ((hSDKCallLookupAttachment = EndPrepSDKCall()) == null)
+		SetFailState("Failed to load SDK call \"CBaseAnimating::LookupAttachment\". Update signature in \"plugin.zombieplague\""); 
+		
+	StartPrepSDKCall(SDKCall_Entity);
+	PrepSDKCall_SetFromConf(hConfig, SDKConf_Signature, "CBaseAnimating::GetAttachment");
+	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+	PrepSDKCall_AddParameter(SDKType_Vector, SDKPass_ByRef, _, VENCODE_FLAG_COPYBACK);
+	PrepSDKCall_AddParameter(SDKType_QAngle, SDKPass_ByRef, _, VENCODE_FLAG_COPYBACK);
+	
+	if ((hSDKCallGetAttachment = EndPrepSDKCall()) == null)
+		SetFailState("Failed to load SDK call \"CBaseAnimating::GetAttachment\". Update signature in \"plugin.zombieplague\""); 
+	
+	delete hConfig;
+	// ----------------------------------------------------------------------------------------------------------------------------------------------
 	hConfig = LoadGameConfigFile("test.gamedata"); 
 	StartPrepSDKCall(SDKCall_Entity); 
 	PrepSDKCall_SetFromConf(hConfig, SDKConf_Signature, "FaceTowards"); 

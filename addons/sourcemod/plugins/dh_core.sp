@@ -10,8 +10,8 @@
 
 #pragma newdecls required
 
-Handle hSDKCallStudioFrameAdvance; 
-Handle hSDKCallAddLayeredSequence;
+Handle hSDKCallStudioFrameAdvance, hSDKCallAddLayeredSequence;
+Handle hSDKCallLookupAttachment, hSDKCallGetAttachment;
 Handle hSDKCallFaceTowards;
 int AnimatingOverlay_Count;
 
@@ -84,7 +84,7 @@ public Action block(int client, int args) {
 		pos[2] += 16.0;
 		AcceptEntityInput(hostage, "Kill");
 		
-		NPCInstance bot = NPCInstance(DH_GetClass("skeleton_axe"), pos);
+		NPCInstance bot = NPCInstance(DH_GetClass("skeleton_bow"), pos);
 		bot.Target = client;
 		break;
 	}

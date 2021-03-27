@@ -90,6 +90,15 @@ public void OnThink(int entity) {
 	SetEntPropEnt(entity, Prop_Send, "m_leader", g_iInstance[entity][NPC_iLeader]);
 	fctAttack(id, entity, animator, time);
 }
+public Action OnEntityDissolve(Handle timer, any ref) {
+	int entity = EntRefToEntIndex(ref);
+	if( entity > 0 ) {
+		int animator = EntRefToEntIndex(g_iInstance[entity][NPC_iAnimator]);
+		if( animator > 0 )
+			Effect_DissolveEntity(animator, DISSOLVE_ELECTRICAL_LIGHT);
+	}
+	return Plugin_Handled;
+}
 // -------------------------------------
 void AvoidPhysicsProps(int entity) {
 	static float src[3], dst[3], push[3], norm[3], min[3], max[3], vel[3];
@@ -232,14 +241,6 @@ public void fctDead(int id, int entity, int animator, float time) {
 	Entity_SetCollisionGroup(entity, COLLISION_GROUP_DEBRIS);
 	AcceptEntityInput(entity, "FireUser1");
 	CreateTimer(REMOVE_TIME * 0.75, OnEntityDissolve, EntIndexToEntRef(entity));
-}
-public Action OnEntityDissolve(Handle timer, any ref) {
-	int entity = EntRefToEntIndex(ref);
-	if( entity > 0 ) {
-		int animator = EntRefToEntIndex(g_iInstance[entity][NPC_iAnimator]);
-		if( animator > 0 )
-			Effect_DissolveEntity(animator, DISSOLVE_ELECTRICAL_LIGHT);
-	}
 }
 public void fctAttack(int id, int entity, int animator, float time) {
 	
