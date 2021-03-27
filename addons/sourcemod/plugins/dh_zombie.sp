@@ -40,7 +40,7 @@ public void OnLibraryAdded(const char[] sLibrary) {
 		g_Class.AddAnimation(NPC_ANIM_ATTACK, 	4, 		40, 	50.0);
 		g_Class.AddAnimation(NPC_ANIM_ATTACK, 	5,		45, 	50.0);
 		
-		g_Class.AddAnimation(NPC_ANIM_DYING, 	6, 		55, 	20.0);
+		g_Class.AddAnimation(NPC_ANIM_DYING, 	6, 		55, 	25.0);
 		
 		g_Class.AddEvent(NPC_EVENT_SPAWN,	OnSpawn);
 		g_Class.AddEvent(NPC_EVENT_ATTACK,	OnAttack);

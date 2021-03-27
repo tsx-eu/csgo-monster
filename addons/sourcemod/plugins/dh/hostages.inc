@@ -226,9 +226,20 @@ public void fctDead(int id, int entity, int animator, float time) {
 	Call_Finish();
 	
 	view_as<NPCInstance>(entity).Animate(NPC_ANIM_DYING);
+	SetEntProp(animator, Prop_Data, "m_bSequenceLoops", 0);
+	IAnimator(animator).RemoveAllGesture();
 	
 	Entity_SetCollisionGroup(entity, COLLISION_GROUP_DEBRIS);
 	AcceptEntityInput(entity, "FireUser1");
+	CreateTimer(REMOVE_TIME * 0.75, OnEntityDissolve, EntIndexToEntRef(entity));
+}
+public Action OnEntityDissolve(Handle timer, any ref) {
+	int entity = EntRefToEntIndex(ref);
+	if( entity > 0 ) {
+		int animator = EntRefToEntIndex(g_iInstance[entity][NPC_iAnimator]);
+		if( animator > 0 )
+			Effect_DissolveEntity(animator, DISSOLVE_ELECTRICAL_LIGHT);
+	}
 }
 public void fctAttack(int id, int entity, int animator, float time) {
 	

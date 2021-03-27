@@ -254,7 +254,7 @@ $sequence "dead" {
 	"skeleton_anims\dead.smd"
 	fadein 1
 	fadeout 0.2
-	fps 20
+	fps 25
 }
 
 $sequence "dead_loop" {

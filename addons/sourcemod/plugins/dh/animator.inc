@@ -197,4 +197,17 @@ methodmap IAnimator {
 		
 		pOverlay.RemoveLayer(iLayer, 0.0, 0.0);
 	}
+	public void RemoveAllGesture() {
+		CAnimationOverlay pOverlay = this.CBaseAnimatingOverlay(); 
+		if (pOverlay.isNull)
+			return; 
+		
+		int iCount = this.AnimOverlayCount();
+		for (int i = 0; i < iCount; i++) {
+			if (!pOverlay.IsAlive(i))
+				continue; 
+			
+			pOverlay.RemoveLayer(i, 0.0, 0.0);
+		}
+	}
 };

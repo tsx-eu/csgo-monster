@@ -9,6 +9,7 @@
 #define STEP_SIZE		16.0
 #define HEIGHT_SIZE		48.0
 #define MELEE_HULL		8.0
+#define REMOVE_TIME		30.0
 
 native bool Phys_IsPhysicsObject(int entity);
 native void Phys_SetMass(int entity,  float mass);

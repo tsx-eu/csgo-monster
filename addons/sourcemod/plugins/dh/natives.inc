@@ -60,7 +60,7 @@ public int Native_DH_Create(Handle plugin, int numParams) {
 
 public int Native_DH_Spawn(Handle plugin, int numParams) {
 	static char tmp[32];
-	Format(tmp, sizeof(tmp), "!self,KillHierarchy,,%f,-1", 30.0);
+	Format(tmp, sizeof(tmp), "!self,KillHierarchy,,%f,-1", REMOVE_TIME);
 	
 	float pos[3], ang[3];
 	int id = GetNativeCell(1);
