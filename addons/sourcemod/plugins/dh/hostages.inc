@@ -34,6 +34,26 @@ public Action DH_OnTrackPath(int hostage, float dst[3], float delta) {
 	
 	return Plugin_Handled;
 }
+public Action DH_OnUpdateFollowingPre(int entity, float delta) {
+	
+	
+	if( g_iInstance[entity][NPC_iLeader] > 0 ) {
+		Address pathFollower = GetEntityAddress(entity) + view_as<Address>(m_pathFollower);
+		Address path = GetEntityAddress(entity) + view_as<Address>(m_path);
+		
+		if( GetRandomFloat() > 0.95 ) {
+			float src[3], dst[3];
+			Entity_GetAbsOrigin(entity, src);
+			Entity_GetAbsOrigin(g_iInstance[entity][NPC_iLeader], dst);
+			
+			bool worked = SDKCall(hSDKCallCompute, path, src, dst, 1);
+		}
+		SDKCall(hSDKCallUpdate, pathFollower, delta, false);
+	}
+	
+	return Plugin_Handled;
+	
+}
 public void DH_OnUpdateFollowingPost(int entity, float delta) {
 	if( g_iInstance[entity][NPC_iHealth] <= 0 )
 		return;

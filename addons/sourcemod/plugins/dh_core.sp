@@ -12,6 +12,7 @@
 
 Handle hSDKCallStudioFrameAdvance, hSDKCallAddLayeredSequence;
 Handle hSDKCallLookupAttachment, hSDKCallGetAttachment;
+Handle hSDKCallUpdate, hSDKCallCompute;
 Handle hSDKCallFaceTowards;
 int AnimatingOverlay_Count;
 
@@ -38,6 +39,8 @@ public void OnPluginStart() {
 	sv_gravity = FindConVar("sv_gravity");
 	
 	m_accel = FindSendPropInfo("CHostage", "m_leader") + 24;
+	m_path = FindSendPropInfo("CHostage", "m_nHostageState") + 60;
+	m_pathFollower = FindSendPropInfo("CHostage", "m_flGrabSuccessTime") - 176;
 	
 	g_hNamedIdentified = new StringMap();
 	
@@ -51,6 +54,16 @@ public void OnPluginStart() {
 	}
 
 	INIT_Animator();
+	//PATCH();
+}
+
+void PATCH() {
+	int hostage = CreateEntityByName("hostage_entity");
+	DispatchSpawn(hostage);
+	
+	PrintToServer("--> %d", GetEntData(hostage, FindSendPropInfo("CHostage", "m_leader") + m_path, 4) );
+	
+	AcceptEntityInput(hostage, "Kill");
 }
 // ---------------------------------------------------------------------------------------------------------
 public APLRes AskPluginLoad2(Handle hPlugin, bool isAfterMapLoaded, char[] error, int err_max) {

@@ -34,8 +34,30 @@ void Memory_Patch() {
 			StoreToAddress(ref, 0x90, NumberType_Int8);
 		}
 		
-		int hexa = LoadFromAddress(addr + view_as<Address>(offset), NumberType_Int16);
-		if( hexa == 0x2F0F ) { // Search for COMISS
+		if( offset == 0x4CB ) {
+			int H8 = LoadFromAddress(addr + view_as<Address>(offset), NumberType_Int8);
+			if( H8 == 0xE8 ) { // Search for a call to: https://github.com/perilouswithadollarsign/cstrike15_src/blob/master/game/server/cstrike15/hostage/cs_simple_hostage.cpp#L977
+				Address ptr = addr + view_as<Address>(offset + 1);
+				Address ref = addr + view_as<Address>(offset + 5 + LoadFromAddress(ptr, NumberType_Int32)); // +5 is really used?
+				
+				StartPrepSDKCall(SDKCall_Raw);
+				PrepSDKCall_SetAddress(ref);
+				PrepSDKCall_AddParameter(SDKType_Vector, SDKPass_ByRef);
+				PrepSDKCall_AddParameter(SDKType_Vector, SDKPass_ByRef);
+				PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Pointer);
+				PrepSDKCall_SetReturnInfo(SDKType_Bool, SDKPass_ByValue);
+				
+				if ((hSDKCallCompute = EndPrepSDKCall()) == null)
+					SetFailState("Failed to load SDK call \"Compute\".");
+				else
+					PrintToServer("Compute is ready at: %u", ref);
+				
+			}
+		}
+		
+		int H16 = LoadFromAddress(addr + view_as<Address>(offset), NumberType_Int16);
+		
+		if( H16 == 0x2F0F ) { // Search for COMISS
 			// Search for a reference to giveUpRange=2000x2000: https://github.com/perilouswithadollarsign/cstrike15_src/blob/master/game/server/cstrike15/hostage/cs_simple_hostage.cpp#L983
 			if( PatchRefIfValue(addr + view_as<Address>(offset+3), view_as<int>(2000.0*2000.0), view_as<int>(4096.0 * 4096.0)) ) {
 				PrintToServer("giveUpRange has been patched at offset %d", offset);
@@ -50,16 +72,18 @@ void Memory_Patch() {
 			}
 		}
 		
-		if( hexa == 0x0FF3 ) { // Search for MOVSS
+		if( H16 == 0x0FF3 ) { // Search for MOVSS
 			// Search for a reference to nearRange=125x125: https://github.com/perilouswithadollarsign/cstrike15_src/blob/master/game/server/cstrike15/hostage/cs_simple_hostage.cpp#L1013
 			if( PatchRefIfValue(addr + view_as<Address>(offset+4), view_as<int>(125.0*125.0), view_as<int>(32.0*32.0)) ) {
 				PrintToServer("nearRange has been patched at offset %d", offset);
 			}
 		}
 		
-		if( hexa == 0x5500 ) { // break loop if we find a new fct
+		if( H16 == 0x5500 ) { // break loop if we find a new fct
 			break;
 		}
+
+			
 	}
 
 	

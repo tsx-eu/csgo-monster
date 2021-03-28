@@ -5,7 +5,6 @@ void INIT_Animator() {
 	
 	if ((AnimatingOverlay_Count = GameConfGetOffset(hConfig, "CBaseAnimatingOverlay::Count")) == -1)
 		SetFailState("Failed to get offset: \"CBaseAnimatingOverlay::Count\". Update offset in \"plugin.turret\""); 
-	
 
 	StartPrepSDKCall(SDKCall_Entity); 
 	PrepSDKCall_SetFromConf(hConfig, SDKConf_Signature, "CBaseAnimatingOverlay::StudioFrameAdvance"); 
@@ -29,7 +28,6 @@ void INIT_Animator() {
 	PrepSDKCall_SetFromConf(hConfig, SDKConf_Signature, "CBaseAnimating::LookupAttachment");
 	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
 	PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
-	
 	if ((hSDKCallLookupAttachment = EndPrepSDKCall()) == null)
 		SetFailState("Failed to load SDK call \"CBaseAnimating::LookupAttachment\". Update signature in \"plugin.zombieplague\""); 
 		
@@ -38,20 +36,26 @@ void INIT_Animator() {
 	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
 	PrepSDKCall_AddParameter(SDKType_Vector, SDKPass_ByRef, _, VENCODE_FLAG_COPYBACK);
 	PrepSDKCall_AddParameter(SDKType_QAngle, SDKPass_ByRef, _, VENCODE_FLAG_COPYBACK);
-	
 	if ((hSDKCallGetAttachment = EndPrepSDKCall()) == null)
 		SetFailState("Failed to load SDK call \"CBaseAnimating::GetAttachment\". Update signature in \"plugin.zombieplague\""); 
 	
 	delete hConfig;
 	// ----------------------------------------------------------------------------------------------------------------------------------------------
 	hConfig = LoadGameConfigFile("test.gamedata"); 
-	StartPrepSDKCall(SDKCall_Entity); 
+	StartPrepSDKCall(SDKCall_Entity);
 	PrepSDKCall_SetFromConf(hConfig, SDKConf_Signature, "FaceTowards"); 
 	PrepSDKCall_AddParameter(SDKType_Vector, SDKPass_ByRef);
 	PrepSDKCall_AddParameter(SDKType_Float, SDKPass_ByValue);
-	
 	if ((hSDKCallFaceTowards = EndPrepSDKCall()) == null)
-		SetFailState("Failed to load SDK call \"FaceTowards\". Update signature in \"test\"");      
+		SetFailState("Failed to load SDK call \"FaceTowards\". Update signature in \"test\"");
+	
+	StartPrepSDKCall(SDKCall_Raw);
+	PrepSDKCall_SetFromConf(hConfig, SDKConf_Signature, "Update");
+	PrepSDKCall_AddParameter(SDKType_Float, SDKPass_ByValue);
+	PrepSDKCall_AddParameter(SDKType_Bool, SDKPass_ByValue);
+	if ((hSDKCallUpdate = EndPrepSDKCall()) == null)
+		SetFailState("Failed to load SDK call \"FaceTowards\". Update signature in \"test\"");
+		
 	delete hConfig;
 }
 
