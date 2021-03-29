@@ -4,61 +4,40 @@
 	{
 		"Addresses"
 		{
-			"CHostage"
+			"CHostage::CHostage"
 			{
 				"linux"
 				{
-					"signature"	"CHostage"
+					"signature"	"CHostage::CHostage"
 				}
 			}
-			"IsFollowingSomeone"
+			"CHostage::UpdateFollowing"
 			{
 				"linux"
 				{
-					"signature"         "IsFollowingSomeone"
-				}
-			}
-			"UpdateFollowing"
-			{
-				"linux"
-				{
-					"signature"         "UpdateFollowing"
-				}
-			}
-			"Wiggle"
-			{
-				"linux"
-				{
-					"signature"		"Wiggle"
-				}
-			}
-			"TrackPath"
-			{
-				"linux"
-				{
-					"signature"		"TrackPath"
+					"signature"	"CHostage::UpdateFollowing"
 				}
 			}
 		}
 
 		"Signatures"
 		{
-			"CHostage" // The maximum number of hostages (%i) has been exceeded.
+			"CHostage::CHostage" // The maximum number of hostages (%i) has been exceeded.
 			{
 				"library"	"server"
 				"linux"		"\x55\x89\xE5\x57\x56\xBE\x2A\x2A\x2A\x2A\x53\x83\xEC\x2C\x8B\x5D\x08\x89\x1C\x24"
 			}
-			"IsFollowingSomeone" // StopFollowing
+			"CHostage::IsFollowingSomeone" // StopFollowing
 			{
 				"library"       "server"
 				"linux"         "\x55\x89\xE5\x53\x8B\x1D\x2A\x2A\x2A\x2A\x8B\x45\x08\x8B\x90\x68\x0A\x00\x00"
 			}
-			"Wiggle"
+			"CHostage::Wiggle"
 			{
 				"library"	"server"
 				"linux"		"\x55\x89\xE5\x57\x56\x53\x83\xEC\x5C\x8B\x5D\x08\x8D\xB3\x30\x23\x00\x00"
 			}
-			"UpdateFollowing" // hostage_stops_following
+			"CHostage::UpdateFollowing" // hostage_stops_following
 			{
 				"library"       "server"
 				"linux"         "\x55\x89\xE5\x83\xEC\x78\x89\x5D\xF4\x8B\x5D\x08\x89\x75\xF8\x89\x7D\xFC\x89\x1C\x24\xE8\x2A\x2A\x2A\x2A\x84\xC0"
@@ -68,15 +47,30 @@
 				"library"	"server"
 				"linux"		"\x55\x89\xE5\x53\x83\xEC\x24\x8B\x5D\x08\x89\x1C\x24\xE8\x2A\x2A\x2A\x2A\x89\x1C\x24\xD9\x5D\xF4\xE8\x2A\x2A\x2A\x2A\xBA\x1D\x00\x00\x00"
 			}
-			"TrackPath" // "hostage_stops_following" one function above
+			"CHostage::TrackPath" // "hostage_stops_following" one function above
 			{
 				"library"	"server"
 				"linux"		"\x55\x89\xE5\x56\x53\x83\xC4\x80\x8B\x5D\x08\xF3\x0F\x10\x05\x2A\x2A\x2A\x2A"
 			}
-			"FaceTowards"
+			"CHostage::FaceTowards"
 			{
 				"library"	"server"
 				"linux"		"\x55\x89\xE5\x56\x53\x83\xEC\x40\x8B\x5D\x08\x8B\x75\x0C\x8B\x03\x89\x1C\x24\xFF\x90\xA8\x05\x00\x00"
+			}
+			"CNavPathFollower::Update"
+			{
+				"library"	"server"
+				"linux"		"\x55\x89\xE5\x57\x56\x53\x81\xEC\x9C\x00\x00\x00\x8B\x5D\x08\x0F\xB6\x55\x10\x8B\x43\x04"
+			}
+			"CNavPathFollower::Reset"
+			{
+				"library"	"server"
+				"linux"		"\x55\x89\xE5\x8B\x45\x08\xC7\x40\x08\x01\x00\x00\x00"
+			}
+			"CCSNavPath::GetLength"
+			{
+				"library"	"server"
+				"linux"		"\x55\x0F\x57\xDB\x89\xE5\x57\x56\x53\x83\xEC\x1C"
 			}
 		}
 	}

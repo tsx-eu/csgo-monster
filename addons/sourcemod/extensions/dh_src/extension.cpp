@@ -21,7 +21,6 @@ IPhysics *iphysics = NULL;
 
 IForward *g_pIsFollowingSomeoneForwardPre = NULL;
 IForward *g_pTrackPathForwardPre = NULL;
-IForward *g_pWiggleForwardPre = NULL;
 
 IForward *g_pUpdateFollowingForwardPre = NULL;
 IForward *g_pUpdateFollowingForwardPost = NULL;
@@ -120,21 +119,11 @@ bool IsFollowingSomeone(CBaseEntity* pEntity) {
 	return false;
 }
 
-typedef void (*Wiggle_func)(CBaseEntity* pEntity);
-void Wiggle(CBaseEntity* pEntity) {
-	cell_t result = Pl_Continue;
-	g_pWiggleForwardPre->PushCell(gamehelpers->EntityToBCompatRef(pEntity));
-	g_pWiggleForwardPre->Execute(&result);
-
-	if( result == Pl_Continue ) {
-		((Wiggle_func)g_sglExtInterface.g_hWiggle->GetTrampoline())(pEntity);
-	}
-}
-
 typedef void (*UpdateFollowing_func)(CBaseEntity* pEntity, float deltaT);
 void UpdateFollowing(CBaseEntity* pEntity, float deltaT) {
 	cell_t result = Pl_Continue;
 	g_pUpdateFollowingForwardPre->PushCell(gamehelpers->EntityToBCompatRef(pEntity));
+	g_pUpdateFollowingForwardPre->PushCell(sp_ftoc(deltaT));
 	g_pUpdateFollowingForwardPre->Execute(&result);
 
 	if( result == Pl_Continue ) {
@@ -142,6 +131,7 @@ void UpdateFollowing(CBaseEntity* pEntity, float deltaT) {
 	}
 
 	g_pUpdateFollowingForwardPost->PushCell(gamehelpers->EntityToBCompatRef(pEntity));
+	g_pUpdateFollowingForwardPost->PushCell(sp_ftoc(deltaT));
 	g_pUpdateFollowingForwardPost->Execute();
 }
 
@@ -175,7 +165,7 @@ bool DH::SDK_OnLoad(char *error, size_t maxlength, bool late) {
 
 	// ----------------------------------------------------------------------------------------------------------
 	void *addr_IsFollowingSomeone;
-	if ( !g_pGameConf->GetMemSig("IsFollowingSomeone", &addr_IsFollowingSomeone) || !addr_IsFollowingSomeone ) {
+	if ( !g_pGameConf->GetMemSig("CHostage::IsFollowingSomeone", &addr_IsFollowingSomeone) || !addr_IsFollowingSomeone ) {
 		snprintf(error, maxlength, "Failed to lookup signature: IsFollowingSomeone");
 		return false;
 	}
@@ -184,26 +174,16 @@ bool DH::SDK_OnLoad(char *error, size_t maxlength, bool late) {
 	//
 	g_pIsFollowingSomeoneForwardPre = forwards->CreateForward("DH_OnIsFollowingSomeonePre", ET_Hook, 1, NULL, Param_Cell);
 	// ----------------------------------------------------------------------------------------------------------
-	void *addr_Wiggle;
-	if ( !g_pGameConf->GetMemSig("Wiggle", &addr_Wiggle) || !addr_Wiggle ) {
-		snprintf(error, maxlength, "Failed to lookup signature: Wiggle");
-		return false;
-	}
-	g_hWiggle = new subhook::Hook(addr_Wiggle, (void *)Wiggle);
-	g_hWiggle->Install();
-	//
-	g_pWiggleForwardPre = forwards->CreateForward("DH_OnWigglePre", ET_Hook, 1, NULL, Param_Cell);
-	// ----------------------------------------------------------------------------------------------------------
 	void *addr_UpdateFollowing;
-	if ( !g_pGameConf->GetMemSig("UpdateFollowing", &addr_UpdateFollowing) || !addr_UpdateFollowing ) {
+	if ( !g_pGameConf->GetMemSig("CHostage::UpdateFollowing", &addr_UpdateFollowing) || !addr_UpdateFollowing ) {
 		snprintf(error, maxlength, "Failed to lookup signature: UpdateFollowing");
 		return false;
 	}
 	g_hUpdateFollowing = new subhook::Hook(addr_UpdateFollowing, (void *)UpdateFollowing);
 	g_hUpdateFollowing->Install();
 	//
-	g_pUpdateFollowingForwardPre = forwards->CreateForward("DH_OnUpdateFollowingPre", ET_Hook, 1, NULL, Param_Cell);
-	g_pUpdateFollowingForwardPost = forwards->CreateForward("DH_OnUpdateFollowingPost", ET_Hook, 1, NULL, Param_Cell);
+	g_pUpdateFollowingForwardPre = forwards->CreateForward("DH_OnUpdateFollowingPre", ET_Hook, 2, NULL, Param_Cell, Param_Cell);
+	g_pUpdateFollowingForwardPost = forwards->CreateForward("DH_OnUpdateFollowingPost", ET_Hook, 2, NULL, Param_Cell, Param_Cell);
 	// ----------------------------------------------------------------------------------------------------------
         void *addr_CalcMainActivity;
         if ( !g_pGameConf->GetMemSig("CalcMainActivity", &addr_CalcMainActivity) || !addr_CalcMainActivity ) {
@@ -216,7 +196,7 @@ bool DH::SDK_OnLoad(char *error, size_t maxlength, bool late) {
 	g_pCalcMainActivityForwardPost = forwards->CreateForward("DH_OnCalcMainActivityPost", ET_Hook, 2, NULL, Param_Cell, Param_Cell);
         // ----------------------------------------------------------------------------------------------------------
 	void* addr_TrackPath;
-	if ( !g_pGameConf->GetMemSig("TrackPath", &addr_TrackPath) || !addr_TrackPath ) {
+	if ( !g_pGameConf->GetMemSig("CHostage::TrackPath", &addr_TrackPath) || !addr_TrackPath ) {
 		snprintf(error, maxlength, "Failed to lookup signature: TrackPath");
 		return false;
 	}
@@ -240,10 +220,6 @@ void DH::SDK_OnUnload() {
 	forwards->ReleaseForward(g_pIsFollowingSomeoneForwardPre);
 	g_hIsFollowingSomeone->Remove();
 	delete g_hIsFollowingSomeone;
-
-	forwards->ReleaseForward(g_pWiggleForwardPre);
-        g_hWiggle->Remove();
-        delete g_hWiggle;
 
 	forwards->ReleaseForward(g_pUpdateFollowingForwardPre);
 	forwards->ReleaseForward(g_pUpdateFollowingForwardPost);
