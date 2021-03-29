@@ -7,6 +7,11 @@ void INIT_NavPath() {
 	if ((hSDKCallFaceTowards = EndPrepSDKCall()) == null)
 		SetFailState("Failed to load SDK call \"CHostage::FaceTowards\". Update signature in \"test\"");
 	
+	StartPrepSDKCall(SDKCall_Entity);
+	PrepSDKCall_SetFromConf(hConfig, SDKConf_Signature, "CHostage::Wiggle"); 
+	if ((hSDKCallWiggle = EndPrepSDKCall()) == null)
+		SetFailState("Failed to load SDK call \"CHostage::Wiggle\". Update signature in \"test\"");
+	
 	StartPrepSDKCall(SDKCall_Raw);
 	PrepSDKCall_SetFromConf(hConfig, SDKConf_Signature, "CNavPathFollower::Update");
 	PrepSDKCall_AddParameter(SDKType_Float, SDKPass_ByValue);
@@ -32,7 +37,7 @@ methodmap CCSNavPath {
 	public CCSNavPath(int index) {
 		return view_as<CCSNavPath>(index);
 	}
-	
+	// ---
 	property bool IsWaiting {
 		public get() { return g_iInstance[view_as<int>(this)][NPC_isWaiting] == 1; }
 		public set(const bool value) { g_iInstance[view_as<int>(this)][NPC_isWaiting] = value ? 1 : 0; } 
@@ -40,14 +45,17 @@ methodmap CCSNavPath {
 	property bool CanRepath {
 		public get() { return view_as<float>(g_flInstance[view_as<int>(this)][NPC_flNextRepath]) < GetGameTime(); }
 	}
-	
+	property bool IsStuck {
+		public get() { return GetEntData(view_as<int>(this), m_isStuck, 1) > 0 ; }
+	}
+	// ---
 	public void Invalidate() {
 		SetEntData(view_as<int>(this), m_segmentCount, 0);
 	}
 	public bool IsValid() {
 		return GetEntData(view_as<int>(this), m_segmentCount) > 0 ;
 	}
-	
+	// ---
 	public float GetLength() {
 		Address path = GetEntityAddress(view_as<int>(this)) + view_as<Address>(m_path);
 		if( this.IsValid() )
@@ -58,6 +66,7 @@ methodmap CCSNavPath {
 		int count = GetEntData(view_as<int>(this), m_segmentCount);
 		GetEntDataVector(view_as<int>(this), m_path + 8 + (count-1) * 24, vec);
 	}
+	// ---
 	public bool Compute(float src[3], float dst[3]) {
 		view_as<float>(g_flInstance[view_as<int>(this)][NPC_flNextRepath]) = GetGameTime() + 0.5;
 		
@@ -70,6 +79,9 @@ methodmap CCSNavPath {
 	public void Track(float delta) {
 		Address pathFollower = GetEntityAddress(view_as<int>(this)) + view_as<Address>(m_pathFollower);
 		SDKCall(hSDKCallUpdate, pathFollower, delta, false);
+		
+		if( this.IsStuck )
+			SDKCall(hSDKCallWiggle, view_as<int>(this));
 	}
 	public void FaceToward(float vec[3], float delta) {
 		SDKCall(hSDKCallFaceTowards, view_as<int>(this), vec, delta); 

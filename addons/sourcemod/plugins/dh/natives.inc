@@ -80,6 +80,12 @@ public int Native_DH_Spawn(Handle plugin, int numParams) {
 	SetEntProp(entity, Prop_Send, "m_bClientSideAnimation", 0);
 	Entity_SetHealth(entity, g_iClass[id][NPC_iHealth]);
 	
+	for(int i=0; i<view_as<int>(NPCData_max_Int); i++)
+		g_iInstance[entity][i] = g_iClass[entity][id];
+	
+	for(int i=0; i<view_as<int>(NPCData_max_Float); i++)
+		view_as<float>(g_flInstance[entity][i]) = view_as<float>(g_flClass[entity][id]);
+	
 	g_iInstance[entity][NPC_iClass] = id;
 	g_iInstance[entity][NPC_iHealth] = g_iClass[id][NPC_iHealth];
 	

@@ -13,7 +13,7 @@
 Handle hSDKCallStudioFrameAdvance, hSDKCallAddLayeredSequence;
 Handle hSDKCallLookupAttachment, hSDKCallGetAttachment;
 Handle hSDKCallUpdate, hSDKCallCompute, hSDKCallGetLength;
-Handle hSDKCallFaceTowards, hSDKCallReset;
+Handle hSDKCallFaceTowards, hSDKCallReset, hSDKCallWiggle;
 int AnimatingOverlay_Count;
 
 #include "dh/variables.inc"
@@ -40,6 +40,7 @@ public void OnPluginStart() {
 	
 	m_accel = FindSendPropInfo("CHostage", "m_leader") + 24;
 	m_path = FindSendPropInfo("CHostage", "m_nHostageState") + 60;
+	m_isStuck = FindSendPropInfo("CHostage", "m_flGrabSuccessTime") - 144;
 	m_pathFollower = FindSendPropInfo("CHostage", "m_flGrabSuccessTime") - 176;
 	m_segmentCount = FindSendPropInfo("CHostage", "m_flGrabSuccessTime") - 204;
 	
