@@ -1,4 +1,5 @@
 Handle hSDKCallStudioFrameAdvance, hSDKCallAddLayeredSequence;
+int AnimatingOverlay_Count;
 
 void INIT_Animator() {
 	Handle hConfig;

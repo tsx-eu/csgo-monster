@@ -12,7 +12,6 @@
 
 Handle hSDKCallCompute;
 Handle hSDKCallLookupAttachment, hSDKCallGetAttachment;
-int AnimatingOverlay_Count;
 
 #include "dh/variables.inc"
 
