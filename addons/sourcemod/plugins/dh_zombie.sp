@@ -28,6 +28,8 @@ public void OnLibraryAdded(const char[] sLibrary) {
 		g_Class.MaxBody = 18;
 		g_Class.MinSkin = 0;
 		g_Class.MaxSkin = 0;
+		g_Class.NearRange = NPC_RANGE_MELEE - 32.0;
+		g_Class.WaitRange = NPC_RANGE_MELEE;
 		
 		g_Class.AddAttack(NPC_ATTACK_MELEE, 	NPC_RANGE_MELEE);
 		

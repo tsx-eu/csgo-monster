@@ -6,10 +6,15 @@
 #define MAX_CLASSES		64
 #define MAX_ATTACK 		4
 #define	MAX_ANIMATION 	8
+
 #define STEP_SIZE		16.0
 #define HEIGHT_SIZE		48.0
 #define MELEE_HULL		8.0
 #define REMOVE_TIME		30.0
+
+#define NPC_RANGE_GIVEUP	2048.0
+#define NPC_RANGE_REPATH	100.0
+
 
 native bool Phys_IsPhysicsObject(int entity);
 native void Phys_SetMass(int entity,  float mass);
@@ -47,14 +52,19 @@ enum NPCData_Int {
 	
 	NPC_iCurrentAnim,
 	
+	NPC_isWaiting,
+	
 	NPCData_max_Int
 }
 enum NPCData_Float {
 	NPC_flSpeed,
 	NPC_flGravity,
+	NPC_flWaitRange,
+	NPC_flNearRange,
 	
 	NPC_flNextDoor,
 	NPC_flNextAttack,
+	NPC_flNextRepath,
 	NPC_flNextAnim,
 	NPC_flAnimScale,
 	
@@ -197,6 +207,14 @@ methodmap NPCClass {
 	property float Gravity {
 		public get() { 	return 			DH_GetClassFloat(this, NPC_flGravity); }
 		public set(const float value) { DH_SetClassFloat(this, NPC_flGravity, value); }
+	}
+	property float WaitRange {
+		public get() { 	return 			DH_GetClassFloat(this, NPC_flWaitRange); }
+		public set(const float value) { DH_SetClassFloat(this, NPC_flWaitRange, value); }
+	}
+	property float NearRange {
+		public get() { 	return 			DH_GetClassFloat(this, NPC_flNearRange); }
+		public set(const float value) { DH_SetClassFloat(this, NPC_flNearRange, value); }
 	}
 }
 methodmap NPCInstance {

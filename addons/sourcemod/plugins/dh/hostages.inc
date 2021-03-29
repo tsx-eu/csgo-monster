@@ -35,20 +35,43 @@ public Action DH_OnTrackPath(int hostage, float dst[3], float delta) {
 	return Plugin_Handled;
 }
 public Action DH_OnUpdateFollowingPre(int entity, float delta) {
-	
-	
+	float src[3], dst[3], end[3];
+	CCSNavPath path = CCSNavPath(entity);
+	int id = g_iInstance[entity][NPC_iClass];
+
 	if( g_iInstance[entity][NPC_iLeader] > 0 ) {
-		Address pathFollower = GetEntityAddress(entity) + view_as<Address>(m_pathFollower);
-		Address path = GetEntityAddress(entity) + view_as<Address>(m_path);
+		Entity_GetAbsOrigin(entity, src);
+		Entity_GetAbsOrigin(g_iInstance[entity][NPC_iLeader], dst);
 		
-		if( GetRandomFloat() > 0.95 ) {
-			float src[3], dst[3];
-			Entity_GetAbsOrigin(entity, src);
-			Entity_GetAbsOrigin(g_iInstance[entity][NPC_iLeader], dst);
-			
-			bool worked = SDKCall(hSDKCallCompute, path, src, dst, 1);
+		// if leader has moved, repath
+		if( path.IsValid() ) {
+			path.GetEndpoint(end);
+			if( GetVectorDistance(dst, end) > NPC_RANGE_REPATH )
+				path.Invalidate();
 		}
-		SDKCall(hSDKCallUpdate, pathFollower, delta, false);
+		
+		// build a path to our leader
+		if( !path.IsValid() && path.CanRepath )
+			path.Compute(src, dst);
+		
+		// if our rescuer is too far away, give up
+		if( GetVectorDistance(src, dst) > NPC_RANGE_GIVEUP || path.GetLength() > NPC_RANGE_GIVEUP*2.0 )
+			return Plugin_Handled;
+		
+		// don't crowd the leader
+		if( path.IsWaiting ) {
+			if( GetVectorDistance(src, dst) > view_as<float>(g_flClass[id][NPC_flWaitRange]) )
+				path.IsWaiting = false;
+			path.FaceToward(dst, delta);
+		}
+		else {
+			if( GetVectorDistance(src, dst) < view_as<float>(g_flClass[id][NPC_flNearRange]) )
+				path.IsWaiting = true;
+		}
+		
+		// move along path towards the leader
+		if( !path.IsWaiting )
+			path.Track(delta);
 	}
 	
 	return Plugin_Handled;

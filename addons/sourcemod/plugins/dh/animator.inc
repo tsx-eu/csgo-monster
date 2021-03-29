@@ -40,23 +40,6 @@ void INIT_Animator() {
 		SetFailState("Failed to load SDK call \"CBaseAnimating::GetAttachment\". Update signature in \"plugin.zombieplague\""); 
 	
 	delete hConfig;
-	// ----------------------------------------------------------------------------------------------------------------------------------------------
-	hConfig = LoadGameConfigFile("test.gamedata"); 
-	StartPrepSDKCall(SDKCall_Entity);
-	PrepSDKCall_SetFromConf(hConfig, SDKConf_Signature, "FaceTowards"); 
-	PrepSDKCall_AddParameter(SDKType_Vector, SDKPass_ByRef);
-	PrepSDKCall_AddParameter(SDKType_Float, SDKPass_ByValue);
-	if ((hSDKCallFaceTowards = EndPrepSDKCall()) == null)
-		SetFailState("Failed to load SDK call \"FaceTowards\". Update signature in \"test\"");
-	
-	StartPrepSDKCall(SDKCall_Raw);
-	PrepSDKCall_SetFromConf(hConfig, SDKConf_Signature, "Update");
-	PrepSDKCall_AddParameter(SDKType_Float, SDKPass_ByValue);
-	PrepSDKCall_AddParameter(SDKType_Bool, SDKPass_ByValue);
-	if ((hSDKCallUpdate = EndPrepSDKCall()) == null)
-		SetFailState("Failed to load SDK call \"FaceTowards\". Update signature in \"test\"");
-		
-	delete hConfig;
 }
 
 #define ANIM_LAYER_ACTIVE        0x0001 

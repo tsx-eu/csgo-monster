@@ -36,6 +36,8 @@ public void OnLibraryAdded(const char[] sLibrary) {
 			g_Class.MaxBody = 0;
 			g_Class.MinSkin = 0;
 			g_Class.MaxSkin = 0;
+			g_Class.NearRange = 512.0;
+			g_Class.WaitRange = 1024.0;
 			
 			g_Class.AddAttack(NPC_ATTACK_MELEE, 	NPC_RANGE_MELEE);
 			g_Class.AddAttack(NPC_ATTACK_WEAPON, 	1024.0);
@@ -68,6 +70,8 @@ public void OnLibraryAdded(const char[] sLibrary) {
 			g_Class.MaxBody = 15;
 			g_Class.MinSkin = 0;
 			g_Class.MaxSkin = 0;
+			g_Class.NearRange = NPC_RANGE_MELEE - 32.0;
+			g_Class.WaitRange = NPC_RANGE_MELEE;
 			
 			g_Class.AddAttack(NPC_ATTACK_MELEE, 	NPC_RANGE_MELEE, 2);
 			g_Class.AddAttack(NPC_ATTACK_MELEE, 	NPC_RANGE_MELEE);
@@ -98,6 +102,8 @@ public void OnLibraryAdded(const char[] sLibrary) {
 			g_Class.MaxBody = 30;
 			g_Class.MinSkin = 0;
 			g_Class.MaxSkin = 0;
+			g_Class.NearRange = NPC_RANGE_MELEE - 32.0;
+			g_Class.WaitRange = NPC_RANGE_MELEE;
 			
 			g_Class.AddAttack(NPC_ATTACK_MELEE, 	NPC_RANGE_MELEE);
 			
@@ -126,6 +132,8 @@ public void OnLibraryAdded(const char[] sLibrary) {
 			g_Class.MaxBody = 45;
 			g_Class.MinSkin = 0;
 			g_Class.MaxSkin = 0;
+			g_Class.NearRange = NPC_RANGE_MELEE - 32.0;
+			g_Class.WaitRange = NPC_RANGE_MELEE;
 			
 			g_Class.AddAttack(NPC_ATTACK_MELEE, 	NPC_RANGE_MELEE);
 			
@@ -154,6 +162,8 @@ public void OnLibraryAdded(const char[] sLibrary) {
 			g_Class.MaxBody = 60;
 			g_Class.MinSkin = 0;
 			g_Class.MaxSkin = 0;
+			g_Class.NearRange = NPC_RANGE_MELEE - 32.0;
+			g_Class.WaitRange = NPC_RANGE_MELEE;
 			
 			g_Class.AddAttack(NPC_ATTACK_MELEE, 	NPC_RANGE_MELEE);
 			

@@ -25,5 +25,5 @@ ConVar sv_pushaway_hostage_force, sv_pushaway_max_hostage_force, sv_pushaway_for
 DataPack g_hProjectile[2048];
 StringMap g_hNamedIdentified;
 
-int m_accel = -1, m_pathFollower = -1, m_path = -1;
+int m_accel = -1, m_pathFollower = -1, m_path = -1, m_segmentCount = -1;
 int g_cBeam;

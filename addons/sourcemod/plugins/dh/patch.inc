@@ -26,7 +26,7 @@ void Memory_Patch() {
 	GameData hGameConfg = LoadGameConfigFile("test.gamedata");
 	Address addr;
 
-	addr = hGameConfg.GetAddress("UpdateFollowing");
+	addr = hGameConfg.GetAddress("CHostage::UpdateFollowing");
 	for(int offset=0; offset<1536; offset++) {
 		
 		if( offset >= 0x1C && offset < 0x22 ) { // Search for a jump to https://github.com/perilouswithadollarsign/cstrike15_src/blob/master/game/server/cstrike15/hostage/cs_simple_hostage.cpp#L915-L924
@@ -87,7 +87,7 @@ void Memory_Patch() {
 	}
 
 	
-	addr = hGameConfg.GetAddress("CHostage");
+	addr = hGameConfg.GetAddress("CHostage::CHostage");
 	for(int offset=0; offset<0x3BB; offset++) {
 		if( offset >= 0x2F0 && offset < 0x2F9 ) { // Search for a jump to https://github.com/perilouswithadollarsign/cstrike15_src/blob/master/game/server/cstrike15/hostage/cs_simple_hostage.cpp#L162-L171
 			Address ref = addr + view_as<Address>(offset);

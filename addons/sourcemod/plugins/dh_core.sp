@@ -12,8 +12,8 @@
 
 Handle hSDKCallStudioFrameAdvance, hSDKCallAddLayeredSequence;
 Handle hSDKCallLookupAttachment, hSDKCallGetAttachment;
-Handle hSDKCallUpdate, hSDKCallCompute;
-Handle hSDKCallFaceTowards;
+Handle hSDKCallUpdate, hSDKCallCompute, hSDKCallGetLength;
+Handle hSDKCallFaceTowards, hSDKCallReset;
 int AnimatingOverlay_Count;
 
 #include "dh/variables.inc"
@@ -41,6 +41,7 @@ public void OnPluginStart() {
 	m_accel = FindSendPropInfo("CHostage", "m_leader") + 24;
 	m_path = FindSendPropInfo("CHostage", "m_nHostageState") + 60;
 	m_pathFollower = FindSendPropInfo("CHostage", "m_flGrabSuccessTime") - 176;
+	m_segmentCount = FindSendPropInfo("CHostage", "m_flGrabSuccessTime") - 204;
 	
 	g_hNamedIdentified = new StringMap();
 	
@@ -54,16 +55,7 @@ public void OnPluginStart() {
 	}
 
 	INIT_Animator();
-	//PATCH();
-}
-
-void PATCH() {
-	int hostage = CreateEntityByName("hostage_entity");
-	DispatchSpawn(hostage);
-	
-	PrintToServer("--> %d", GetEntData(hostage, FindSendPropInfo("CHostage", "m_leader") + m_path, 4) );
-	
-	AcceptEntityInput(hostage, "Kill");
+	INIT_NavPath();
 }
 // ---------------------------------------------------------------------------------------------------------
 public APLRes AskPluginLoad2(Handle hPlugin, bool isAfterMapLoaded, char[] error, int err_max) {
@@ -97,7 +89,7 @@ public Action block(int client, int args) {
 		pos[2] += 16.0;
 		AcceptEntityInput(hostage, "Kill");
 		
-		NPCInstance bot = NPCInstance(DH_GetClass("skeleton_bow"), pos);
+		NPCInstance bot = NPCInstance(DH_GetClass("skeleton_axe"), pos);
 		bot.Target = client;
 		break;
 	}
@@ -108,6 +100,7 @@ public Action block(int client, int args) {
 
 #include "dh/functions.inc"
 #include "dh/animator.inc"
+#include "dh/navpath.inc"
 #include "dh/hostages.inc"
 #include "dh/natives.inc"
 #include "dh/patch.inc"
