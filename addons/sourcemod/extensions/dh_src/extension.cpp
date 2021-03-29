@@ -19,7 +19,6 @@ SMEXT_LINK(&g_sglExtInterface);
 CGlobalVars *gpGlobals;
 IPhysics *iphysics = NULL;
 
-IForward *g_pIsFollowingSomeoneForwardPre = NULL;
 IForward *g_pTrackPathForwardPre = NULL;
 
 IForward *g_pUpdateFollowingForwardPre = NULL;
@@ -106,19 +105,6 @@ void TrackPath(CBaseEntity* pEntity, const Vector& pos, float deltaT) {
 	}
 }
 
-typedef bool (*IsFollowingSomeone_func)(CBaseEntity* pEntity);
-bool IsFollowingSomeone(CBaseEntity* pEntity) {
-	cell_t result = Pl_Continue;
-	g_pIsFollowingSomeoneForwardPre->PushCell(gamehelpers->EntityToBCompatRef(pEntity));
-	g_pIsFollowingSomeoneForwardPre->Execute(&result);
-
-	if( result == Pl_Continue ) {
-		return ((IsFollowingSomeone_func)g_sglExtInterface.g_hIsFollowingSomeone->GetTrampoline())(pEntity);
-	}
-
-	return false;
-}
-
 typedef void (*UpdateFollowing_func)(CBaseEntity* pEntity, float deltaT);
 void UpdateFollowing(CBaseEntity* pEntity, float deltaT) {
 	cell_t result = Pl_Continue;
@@ -135,44 +121,12 @@ void UpdateFollowing(CBaseEntity* pEntity, float deltaT) {
 	g_pUpdateFollowingForwardPost->Execute();
 }
 
-typedef int (*CalcMainActivity_func)(CBaseEntity* pEntity);
-int CalcMainActivity(CBaseEntity* pEntity) {
-	cell_t result = Pl_Continue;
-	cell_t data = -1;
-
-	g_pCalcMainActivityForwardPre->PushCell(42);
-	g_pCalcMainActivityForwardPre->PushCellByRef(&data);
-	g_pCalcMainActivityForwardPre->Execute(&result);
-
-	if( result == Pl_Continue ) {
-		data = ((CalcMainActivity_func)g_sglExtInterface.g_hCalcMainActivity->GetTrampoline())(pEntity);
-	}
-
-	g_pCalcMainActivityForwardPost->PushCell(42);
-	g_pCalcMainActivityForwardPost->PushCell(data);
-	g_pCalcMainActivityForwardPost->Execute();
-
-	return result;
-}
-
-
-
 bool DH::SDK_OnLoad(char *error, size_t maxlength, bool late) {
 	IGameConfig *g_pGameConf;
 
 	if (!gameconfs->LoadGameConfigFile("test.gamedata", &g_pGameConf, error, maxlength))
 		return false;
 
-	// ----------------------------------------------------------------------------------------------------------
-	void *addr_IsFollowingSomeone;
-	if ( !g_pGameConf->GetMemSig("CHostage::IsFollowingSomeone", &addr_IsFollowingSomeone) || !addr_IsFollowingSomeone ) {
-		snprintf(error, maxlength, "Failed to lookup signature: IsFollowingSomeone");
-		return false;
-	}
-	g_hIsFollowingSomeone = new subhook::Hook(addr_IsFollowingSomeone, (void *)IsFollowingSomeone);
-	g_hIsFollowingSomeone->Install();
-	//
-	g_pIsFollowingSomeoneForwardPre = forwards->CreateForward("DH_OnIsFollowingSomeonePre", ET_Hook, 1, NULL, Param_Cell);
 	// ----------------------------------------------------------------------------------------------------------
 	void *addr_UpdateFollowing;
 	if ( !g_pGameConf->GetMemSig("CHostage::UpdateFollowing", &addr_UpdateFollowing) || !addr_UpdateFollowing ) {
@@ -185,16 +139,6 @@ bool DH::SDK_OnLoad(char *error, size_t maxlength, bool late) {
 	g_pUpdateFollowingForwardPre = forwards->CreateForward("DH_OnUpdateFollowingPre", ET_Hook, 2, NULL, Param_Cell, Param_Cell);
 	g_pUpdateFollowingForwardPost = forwards->CreateForward("DH_OnUpdateFollowingPost", ET_Hook, 2, NULL, Param_Cell, Param_Cell);
 	// ----------------------------------------------------------------------------------------------------------
-        void *addr_CalcMainActivity;
-        if ( !g_pGameConf->GetMemSig("CalcMainActivity", &addr_CalcMainActivity) || !addr_CalcMainActivity ) {
-                snprintf(error, maxlength, "Failed to lookup signature: CalcMainActivity");
-                return false;
-        }
-        g_hCalcMainActivity = new subhook::Hook(addr_CalcMainActivity, (void *)CalcMainActivity);
-        g_hCalcMainActivity->Install();
-	g_pCalcMainActivityForwardPre = forwards->CreateForward("DH_OnCalcMainActivityPre", ET_Hook, 2, NULL, Param_Cell, Param_CellByRef);
-	g_pCalcMainActivityForwardPost = forwards->CreateForward("DH_OnCalcMainActivityPost", ET_Hook, 2, NULL, Param_Cell, Param_Cell);
-        // ----------------------------------------------------------------------------------------------------------
 	void* addr_TrackPath;
 	if ( !g_pGameConf->GetMemSig("CHostage::TrackPath", &addr_TrackPath) || !addr_TrackPath ) {
 		snprintf(error, maxlength, "Failed to lookup signature: TrackPath");
@@ -217,19 +161,14 @@ bool DH::SDK_OnLoad(char *error, size_t maxlength, bool late) {
 void DH::SDK_OnUnload() {
 	plsys->RemovePluginsListener(this);
 
-	forwards->ReleaseForward(g_pIsFollowingSomeoneForwardPre);
-	g_hIsFollowingSomeone->Remove();
-	delete g_hIsFollowingSomeone;
-
 	forwards->ReleaseForward(g_pUpdateFollowingForwardPre);
 	forwards->ReleaseForward(g_pUpdateFollowingForwardPost);
 	g_hUpdateFollowing->Remove();
 	delete g_hUpdateFollowing;
 
-        forwards->ReleaseForward(g_pCalcMainActivityForwardPre);
-        forwards->ReleaseForward(g_pCalcMainActivityForwardPost);
-        g_hCalcMainActivity->Remove();
-        delete g_hCalcMainActivity;
+	forwards->ReleaseForward(g_pTrackPathForwardPre);
+	g_hTrackPath->Remove();
+	delete g_hTrackPath;
 }
 
 void DH::OnPluginLoaded(IPlugin *plugin) {
