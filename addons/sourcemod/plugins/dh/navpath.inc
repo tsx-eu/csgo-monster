@@ -1,3 +1,6 @@
+Handle hSDKCallFaceTowards, hSDKCallWiggle;
+Handle hSDKCallUpdate, hSDKCallReset, hSDKCallGetLength;
+
 void INIT_NavPath() {
 	Handle hConfig = LoadGameConfigFile("test.gamedata"); 
 	StartPrepSDKCall(SDKCall_Entity);

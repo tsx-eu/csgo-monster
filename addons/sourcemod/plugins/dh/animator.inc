@@ -1,3 +1,5 @@
+Handle hSDKCallStudioFrameAdvance, hSDKCallAddLayeredSequence;
+
 void INIT_Animator() {
 	Handle hConfig;
 
@@ -217,5 +219,9 @@ methodmap IAnimator {
 			
 			pOverlay.RemoveLayer(i, 0.0, 0.0);
 		}
+	}
+	
+	public void Play() {
+		SDKCall(hSDKCallStudioFrameAdvance, view_as<int>(this)); 
 	}
 };

@@ -12,8 +12,8 @@ public Action DH_OnTrackPath(int hostage, float dst[3], float delta) {
 	
 	// face in the direction of our motion
 	ScaleVector(vel, 10.0);
-	AddVectors(src, vel, vel);
-	SDKCall(hSDKCallFaceTowards, hostage, vel, delta); 
+	AddVectors(src, vel, vel);	
+	CCSNavPath(hostage).FaceToward(vel, delta);
 	
 	if( GetEntityFlags(hostage) & FL_ONGROUND ) {
 		// move towards dst
@@ -357,5 +357,5 @@ public void fctAnimate(int id, int entity, int animator, float time) {
 	float param = speed / view_as<float>(g_flClass[g_iInstance[entity][NPC_iClass]][NPC_flSpeed]);	
 	instance.Pose(NPC_POSE_SPEED, param);
 	
-	SDKCall(hSDKCallStudioFrameAdvance, animator); 
+	IAnimator(animator).Play();
 }

@@ -24,14 +24,10 @@ native void Phys_GetWorldSpaceCenter(int entity, float pos[3]);
 native bool Nav_Load();
 native int Nav_GetArea(float pos[3]);
 
-forward Action DH_OnIsFollowingSomeoneForwardPre(int hostage);
 forward Action DH_OnTrackPath(int hostage, float vec[3], float delta);
 
 forward Action DH_OnUpdateFollowingPre(int hostage, float delta);
 forward void DH_OnUpdateFollowingPost(int hostage, float delta);
-
-forward Action DH_OnCalcMainActivityPre(int hostage, int& anim);
-forward void DH_OnCalcMainActivityPost(int hostage, int anim);
 
 enum NPCData_Int {
 	NPC_iClass,

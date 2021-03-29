@@ -10,10 +10,8 @@
 
 #pragma newdecls required
 
-Handle hSDKCallStudioFrameAdvance, hSDKCallAddLayeredSequence;
+Handle hSDKCallCompute;
 Handle hSDKCallLookupAttachment, hSDKCallGetAttachment;
-Handle hSDKCallUpdate, hSDKCallCompute, hSDKCallGetLength;
-Handle hSDKCallFaceTowards, hSDKCallReset, hSDKCallWiggle;
 int AnimatingOverlay_Count;
 
 #include "dh/variables.inc"
