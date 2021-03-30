@@ -320,10 +320,11 @@ public Action Task_DH_Melee(Handle timer, DataPack pack) {
 		
 		int target = Entity_TraceMeleeHull(entity, src, hit);
 		if( target > 0 && GetVectorDistance(src, hit) < range ) {
-			Entity_Hurt(target, damage, entity, DMG_CRUSH|DMG_SLASH, g_szClass[id][NPC_szName]);
+			DH_Damage(entity, target, damage, entity, DMG_CRUSH | DMG_SLASH);
 		}
 	}
 	
+	g_iInstance[entity][NPC_iAttackMeleeCount]++;
 	return Plugin_Stop;
 }
 public any Native_DH_Projectile(Handle plugin, int numParams) {
@@ -387,7 +388,7 @@ public Action Task_DH_Projectile(Handle timer, DataPack pack) {
 			Entity_GetAbsOrigin(target, vecTarget);
 			vecTarget[2] += HEIGHT_SIZE;
 			
-			// Anticiper les mouvements du joueur
+			// shot toward player movement direction
 			Entity_GetAbsVelocity(target, vecPush);
 			ScaleVector(vecPush, GetVectorDistance(vecOrigin, vecTarget) / speed );
 			AddVectors(vecTarget, vecPush, vecTarget);
@@ -400,9 +401,22 @@ public Action Task_DH_Projectile(Handle timer, DataPack pack) {
 		else {
 			Entity_GetAbsAngles(entity, vecAngles);
 		}
-
-		vecAngles[0] += Math_GetRandomFloat(-spreadAngle, spreadAngle);
-		vecAngles[1] += Math_GetRandomFloat(-spreadAngle, spreadAngle);
+		
+		// first shot will always miss.
+		if( g_iInstance[entity][NPC_iAttackRangeCount] == 0 ) {
+			vecDir[0] = GetRandomFloat(-1.0, 1.0);
+			vecDir[1] = GetRandomFloat(-1.0, 1.0);
+			vecDir[2] = 0.0;
+			NormalizeVector(tmp, tmp);
+			ScaleVector(tmp, (spreadAngle < 2.5 ? 2.5 : spreadAngle) * 2.0);
+		}
+		else {
+			vecDir[0] += Math_GetRandomFloat(-spreadAngle, spreadAngle);
+			vecDir[1] += Math_GetRandomFloat(-spreadAngle, spreadAngle);
+		}
+		
+		
+		AddVectors(vecDir, vecAngles, vecAngles);
 		GetAngleVectors(vecAngles, vecPush, NULL_VECTOR, NULL_VECTOR);
 		ScaleVector(vecPush, speed);
 
@@ -427,6 +441,8 @@ public Action Task_DH_Projectile(Handle timer, DataPack pack) {
 			SDKHook(ent, SDKHook_Touch, Touch_DH_Projectile);
 		}
 	}
+	
+	g_iInstance[entity][NPC_iAttackRangeCount]++;
 	
 	return Plugin_Stop;
 }
@@ -461,7 +477,24 @@ public Action Think_DH_Projectile(Handle timer, any ref) {
 }
 public any Native_DH_Damage(Handle plugin, int numParams) {
 	int entity = GetNativeCell(1);
+	int target = GetNativeCell(2);
+	int damage = GetNativeCell(3);
+	int inflictor = GetNativeCell(4);
 	int id = g_iInstance[entity][NPC_iClass];
 	
-	Entity_Hurt(GetNativeCell(2), GetNativeCell(3), entity, GetNativeCell(4), g_szClass[id][NPC_szName]);
+	int health = Entity_GetHealth(target);
+	if( inflictor == 0 )
+		inflictor = entity;
+
+	// less damage from behind
+	if( Entity_IsInSightRange(target, entity) )
+		damage /= 2;
+
+	// first attack cannot kill
+	if( g_iInstance[entity][NPC_iAttackSucceded] == 0 && damage > health )
+		damage = health - 1;
+		
+	Entity_Hurt(target, damage, entity, GetNativeCell(5), g_szClass[id][NPC_szName]);
+	if( IsValidClient(target) )
+		g_iInstance[entity][NPC_iAttackSucceded]++;
 }

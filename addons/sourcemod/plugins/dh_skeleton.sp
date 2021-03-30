@@ -235,7 +235,7 @@ public void OnProjectileHit(NPCInstance entity, int inflictor, int victim) {
 	DispatchSpawn(ent);
 	
 	if( victim > 0 ) {
-		entity.Damage(victim, 10, DMG_BULLET|DMG_SLASH);
+		entity.Damage(victim, 10, inflictor, DMG_BULLET|DMG_SLASH);
 		
 		SetVariantString("!activator");
 		AcceptEntityInput(ent, "SetParent", victim);

@@ -48,6 +48,9 @@ enum NPCData_Int {
 	NPC_iCurrentAnim,
 	
 	NPC_isWaiting,
+	NPC_iAttackSucceded,
+	NPC_iAttackRangeCount,
+	NPC_iAttackMeleeCount,
 	
 	NPCData_max_Int
 }
@@ -154,7 +157,7 @@ native void 		DH_Pose(NPCInstance id, NPCData_Pose data, float pose);
 
 native void 		DH_Melee(NPCInstance id, int damage, float range=NPC_RANGE_MELEE, float time=0.0);
 native int 			DH_Projectile(NPCInstance id, const char[] model, float time=0.0, float spreadAngle=0.0, float speed = 8192.0, float gravity = 0.0, DH_ProjectileCreate create = INVALID_FUNCTION, DH_ProjectileHit hit = INVALID_FUNCTION);
-native void 		DH_Damage(NPCInstance id, int victim, int damage, int type = DMG_GENERIC);
+native void 		DH_Damage(NPCInstance id, int victim, int damage, int inflictor=0, int type = DMG_GENERIC);
 
 methodmap NPCClass {
 	public NPCClass(const char[] fullname, const char[] name, const char[] model) {
@@ -233,8 +236,8 @@ methodmap NPCInstance {
 	public int Projectile(const char[] model, float time=0.0, float spreadAngle=0.0, float speed=8192.0, float gravity=0.0, DH_ProjectileCreate create = INVALID_FUNCTION, DH_ProjectileHit hit = INVALID_FUNCTION) {
 		return DH_Projectile(this, model, time, spreadAngle, speed, gravity, create, hit);
 	}
-	public void Damage(int victim, int damage, int type=DMG_GENERIC) {
-		DH_Damage(this, victim, damage, type);
+	public void Damage(int victim, int damage, int inflictor=0, int type=DMG_GENERIC) {
+		DH_Damage(this, victim, damage, inflictor, type);
 	}
 	// -- int
 	property NPCClass Class {
