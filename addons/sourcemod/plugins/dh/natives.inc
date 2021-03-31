@@ -2,6 +2,7 @@
 APLRes Native_REGISTER() {
 	CreateNative("DH_Create", 				Native_DH_Create);
 	CreateNative("DH_Spawn", 				Native_DH_Spawn);
+	CreateNative("DH_Kill", 				Native_DH_Kill);
 	CreateNative("DH_GetClass", 			Native_DH_GetClass);
 	
 	CreateNative("DH_SetClassInt", 			Native_DH_SetClassInt);
@@ -50,6 +51,19 @@ public int Native_DH_Create(Handle plugin, int numParams) {
 	g_hNamedIdentified.SetValue(g_szClass[id][NPC_szName], id);
 	
 	return g_iClassCount++;
+}
+
+public any Native_DH_Kill(Handle plugin, int numParams) {
+	int entity = GetNativeCell(1);
+	int id = g_iInstance[entity][NPC_iClass];
+	
+	
+	Director.Unregister(view_as<NPCInstance>(entity));
+	
+	g_iInstance[entity][NPC_iHealth] = 0;
+	
+	int animator = EntRefToEntIndex(g_iInstance[entity][NPC_iAnimator]);
+	fctDead(id, entity, animator, GetGameTime());
 }
 
 #define EF_BONEMERGE                (1 << 0)
@@ -109,10 +123,12 @@ public int Native_DH_Spawn(Handle plugin, int numParams) {
 	SDKHook(entity, SDKHook_Touch, OnTouch);
 	SDKHook(entity, SDKHook_ThinkPost, OnThink);
 	SDKHook(entity, SDKHook_OnTakeDamage, OnDamage);
+	Director.Register(view_as<NPCInstance>(entity));
 	
 	Call_StartForward(view_as<Handle>(g_hClass[id][NPC_EVENT_SPAWN]));
 	Call_PushCell(entity);
 	Call_Finish();
+	
 	
 	return entity;
 }
@@ -310,7 +326,6 @@ public Action Task_DH_Melee(Handle timer, DataPack pack) {
 	int entity = EntRefToEntIndex(pack.ReadCell());
 	
 	if( entity > 0 ) {
-		int id = g_iInstance[entity][NPC_iClass];
 		int damage = pack.ReadCell();
 		float range = pack.ReadCell();
 		
@@ -320,7 +335,7 @@ public Action Task_DH_Melee(Handle timer, DataPack pack) {
 		
 		int target = Entity_TraceMeleeHull(entity, src, hit);
 		if( target > 0 && GetVectorDistance(src, hit) < range ) {
-			DH_Damage(entity, target, damage, entity, DMG_CRUSH | DMG_SLASH);
+			DH_Damage(view_as<NPCInstance>(entity), target, damage, entity, DMG_CRUSH | DMG_SLASH);
 		}
 	}
 	
@@ -407,8 +422,8 @@ public Action Task_DH_Projectile(Handle timer, DataPack pack) {
 			vecDir[0] = GetRandomFloat(-1.0, 1.0);
 			vecDir[1] = GetRandomFloat(-1.0, 1.0);
 			vecDir[2] = 0.0;
-			NormalizeVector(tmp, tmp);
-			ScaleVector(tmp, (spreadAngle < 2.5 ? 2.5 : spreadAngle) * 2.0);
+			NormalizeVector(vecDir, vecDir);
+			ScaleVector(vecDir, (spreadAngle < 2.5 ? 2.5 : spreadAngle) * 2.0);
 		}
 		else {
 			vecDir[0] += Math_GetRandomFloat(-spreadAngle, spreadAngle);

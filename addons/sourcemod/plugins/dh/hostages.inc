@@ -59,19 +59,21 @@ public Action DH_OnUpdateFollowingPre(int entity, float delta) {
 			return Plugin_Handled;
 		
 		// don't crowd the leader
-		if( path.IsWaiting ) {
-			if( GetVectorDistance(src, dst) > view_as<float>(g_flClass[id][NPC_flWaitRange]) )
-				path.IsWaiting = false;
-			path.FaceToward(dst, delta);
+		bool walk = true;
+		if( g_iInstance[entity][NPC_isWaiting] == 1 ) {
+			if( GetVectorDistance(src, dst) < view_as<float>(g_flClass[id][NPC_flWaitRange]) )
+				walk = false;
 		}
 		else {
 			if( GetVectorDistance(src, dst) < view_as<float>(g_flClass[id][NPC_flNearRange]) )
-				path.IsWaiting = true;
+				walk = false;
 		}
 		
 		// move along path towards the leader
-		if( !path.IsWaiting )
+		if( walk )
 			path.Track(delta);
+		else
+			path.FaceToward(dst, delta);
 	}
 	
 	return Plugin_Handled;
@@ -95,13 +97,8 @@ public Action OnDamage(int victim, int& attacker, int& inflictor, float& damage,
 	Call_PushCell(RoundFloat(damage));
 	Call_Finish();
 	
-	if( g_iInstance[victim][NPC_iHealth] <= 0 ) {
-		g_iInstance[victim][NPC_iHealth] = 0;
-		
-		
-		int animator = EntRefToEntIndex(g_iInstance[victim][NPC_iAnimator]);
-		fctDead(id, victim, animator, GetGameTime());
-	}
+	if( g_iInstance[victim][NPC_iHealth] <= 0 )
+		view_as<NPCInstance>(victim).Kill();
 }
 public Action OnTouch(int entity, int target) {
 	static char classname[128];

@@ -14,6 +14,10 @@ Handle hSDKCallCompute;
 Handle hSDKCallLookupAttachment, hSDKCallGetAttachment;
 
 #include "dh/variables.inc"
+#include "dh/animator.inc"
+#include "dh/director.inc"
+#include "dh/functions.inc"
+#include "dh/navpath.inc"
 
 public Plugin myinfo = {
 	name = "Les test de kosso",
@@ -29,12 +33,10 @@ public void OnPluginStart() {
 	
 	sv_pushaway_hostage_force = FindConVar("sv_pushaway_hostage_force");
 	sv_pushaway_max_hostage_force = FindConVar("sv_pushaway_max_hostage_force");
-	
 	sv_pushaway_force = FindConVar("sv_pushaway_force");
 	sv_pushaway_max_force = FindConVar("sv_pushaway_max_force");
-	
 	sv_gravity = FindConVar("sv_gravity");
-	
+	// --------------------------
 	m_accel = FindSendPropInfo("CHostage", "m_leader") + 24;
 	m_path = FindSendPropInfo("CHostage", "m_nHostageState") + 60;
 	m_isStuck = FindSendPropInfo("CHostage", "m_flGrabSuccessTime") - 144;
@@ -54,6 +56,7 @@ public void OnPluginStart() {
 
 	INIT_Animator();
 	INIT_NavPath();
+	INIT_Director();
 }
 // ---------------------------------------------------------------------------------------------------------
 public APLRes AskPluginLoad2(Handle hPlugin, bool isAfterMapLoaded, char[] error, int err_max) {
@@ -96,9 +99,7 @@ public Action block(int client, int args) {
 	return Plugin_Handled;
 }
 
-#include "dh/functions.inc"
-#include "dh/animator.inc"
-#include "dh/navpath.inc"
+
 #include "dh/hostages.inc"
 #include "dh/natives.inc"
 #include "dh/patch.inc"

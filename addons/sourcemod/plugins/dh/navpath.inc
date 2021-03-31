@@ -41,16 +41,16 @@ methodmap CCSNavPath {
 		return view_as<CCSNavPath>(index);
 	}
 	// ---
-	property bool IsWaiting {
-		public get() { return g_iInstance[view_as<int>(this)][NPC_isWaiting] == 1; }
-		public set(const bool value) { g_iInstance[view_as<int>(this)][NPC_isWaiting] = value ? 1 : 0; } 
-	}
 	property bool CanRepath {
 		public get() { return view_as<float>(g_flInstance[view_as<int>(this)][NPC_flNextRepath]) < GetGameTime(); }
 	}
 	property bool IsStuck {
 		public get() { return GetEntData(view_as<int>(this), m_isStuck, 1) > 0 ; }
 	}
+	property NPCInstance Instance {
+		public get() { return view_as<NPCInstance>(this); } 
+	}
+	
 	// ---
 	public void Invalidate() {
 		SetEntData(view_as<int>(this), m_segmentCount, 0);

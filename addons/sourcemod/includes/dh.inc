@@ -13,6 +13,7 @@
 #define REMOVE_TIME		30.0
 
 #define NPC_RANGE_GIVEUP	2048.0
+#define NPC_RANGE_MELEE		52.0
 #define NPC_RANGE_REPATH	100.0
 
 
@@ -125,11 +126,11 @@ typeset DH_ProjectileHit {
 	function void(NPCInstance entity, int inflictor, int victim);
 }
 
-#define NPC_RANGE_MELEE		52.0
 
 native NPCClass 	DH_Create(const char[] fullname, const char[] name, const char[] model);
 native NPCClass 	DH_GetClass(const char[] name);
 native NPCInstance 	DH_Spawn(NPCClass id, float position[3], float angles[3]);
+native void 		DH_Kill(NPCInstance id);
 
 native void 		DH_SetClassInt(NPCClass id, NPCData_Int data, int value);
 native int 			DH_GetClassInt(NPCClass id, NPCData_Int data);
@@ -177,6 +178,9 @@ methodmap NPCClass {
 	}
 	
 	// -- int
+	property int Id {
+		public get() { 	return 			view_as<int>(this); }
+	}
 	property int Health {
 		public get() { 	return 			DH_GetClassInt(this, NPC_iHealth); }
 		public set(const int value) { 	DH_SetClassInt(this, NPC_iHealth, value); }
@@ -219,6 +223,9 @@ methodmap NPCInstance {
 	public NPCInstance(NPCClass id, float pos[3], float ang[3]=NULL_VECTOR) {
 		return DH_Spawn(id, pos, ang);
 	}
+	public void Kill() {
+		DH_Kill(this);
+	}
 	// -- 
 	public float Animate(NPCData_Animation data, float scale = -1.0) {
 		return DH_Animate(this, data, scale);
@@ -242,6 +249,9 @@ methodmap NPCInstance {
 	// -- int
 	property NPCClass Class {
 		public get() { return			view_as<NPCClass>(DH_GetInstanceInt(this, NPC_iClass)); }
+	}
+	property int Id {
+		public get() { 	return 			view_as<int>(this); }
 	}
 	property int Health {
 		public get() { 	return 			DH_GetInstanceInt(this, NPC_iHealth); }
@@ -267,6 +277,11 @@ methodmap NPCInstance {
 	property float Gravity {
 		public get() { 	return 			DH_GetInstanceFloat(this, NPC_flGravity); }
 		public set(const float value) { DH_SetInstanceFloat(this, NPC_flGravity, value); }
+	}
+	// -- bool
+	property bool IsWaiting {
+		public get() { return DH_GetInstanceInt(this, NPC_isWaiting) == 1; }
+		public set(const bool value) { DH_SetInstanceInt(this, NPC_isWaiting, value ? 1 : 0); } 
 	}
 }
 
