@@ -45,7 +45,6 @@ public void OnPluginStart() {
 	
 	g_hNamedIdentified = new StringMap();
 	
-	
 	char classname[128];
 	for(int i=1; i<=2048; i++) {
 		if( IsValidEdict(i) && IsValidEntity(i) ) {
@@ -74,15 +73,23 @@ public void OnEntityCreated(int entity, const char[] classname) {
 	}
 }
 public void OnEntityDestroyed(int entity) {
-	if( entity > 0 && g_hProjectile[entity] != null ) {
-		delete g_hProjectile[entity];
-		g_hProjectile[entity] = null;
+	if( entity > 0 ) {
+		if( g_hProjectile[entity] != null ) {
+			delete g_hProjectile[entity];
+			g_hProjectile[entity] = null;
+		}
+		
+		if( HasEntProp(entity, Prop_Send, "m_nHostageState") )
+			Director.Unregister(view_as<NPCInstance>(entity));
 	}
 }
 public Action block(int client, int args) {
+	char arg[32];
+	GetCmdArg(1, arg, sizeof(arg));
 	
-	PrecacheModel("models/npc/tsx/zombie/zombie.mdl");
-	
+	if( strlen(arg) < 1 )
+		Format(arg, sizeof(arg), "skeleton_axe");
+		
 	int hostage = 0;
 	while( (hostage = FindEntityByClassname(hostage, "hostage_entity")) && hostage > 0 ) {		
 		float pos[3];
@@ -90,7 +97,7 @@ public Action block(int client, int args) {
 		pos[2] += 16.0;
 		AcceptEntityInput(hostage, "Kill");
 		
-		NPCInstance bot = NPCInstance(DH_GetClass("skeleton_axe"), pos);
+		NPCInstance bot = NPCInstance(DH_GetClass(arg), pos);
 		bot.Target = client;
 		break;
 	}

@@ -95,10 +95,10 @@ public int Native_DH_Spawn(Handle plugin, int numParams) {
 	Entity_SetHealth(entity, g_iClass[id][NPC_iHealth]);
 	
 	for(int i=0; i<view_as<int>(NPCData_max_Int); i++)
-		g_iInstance[entity][i] = g_iClass[entity][id];
+		g_iInstance[entity][i] = g_iClass[id][i];
 	
 	for(int i=0; i<view_as<int>(NPCData_max_Float); i++)
-		view_as<float>(g_flInstance[entity][i]) = view_as<float>(g_flClass[entity][id]);
+		view_as<float>(g_flInstance[entity][i]) = view_as<float>(g_flClass[id][i]);
 	
 	g_iInstance[entity][NPC_iClass] = id;
 	g_iInstance[entity][NPC_iHealth] = g_iClass[id][NPC_iHealth];
@@ -399,11 +399,12 @@ public Action Task_DH_Projectile(Handle timer, DataPack pack) {
 			vecOrigin[2] += HEIGHT_SIZE;
 		}
 		
-		if( Entity_IsInSightRange(entity, target, 22.5) ) {
+		if( Entity_IsInSightRange(entity, target, 45.0/2.0) ) {
 			Entity_GetAbsOrigin(target, vecTarget);
 			vecTarget[2] += HEIGHT_SIZE;
 			
 			// shot toward player movement direction
+			// TODO: Limit the prediction of the movement based on the difficulty ?
 			Entity_GetAbsVelocity(target, vecPush);
 			ScaleVector(vecPush, GetVectorDistance(vecOrigin, vecTarget) / speed );
 			AddVectors(vecTarget, vecPush, vecTarget);
@@ -417,28 +418,22 @@ public Action Task_DH_Projectile(Handle timer, DataPack pack) {
 			Entity_GetAbsAngles(entity, vecAngles);
 		}
 		
-		// first shot will always miss.
-		if( g_iInstance[entity][NPC_iAttackRangeCount] == 0 ) {
-			vecDir[0] = GetRandomFloat(-1.0, 1.0);
-			vecDir[1] = GetRandomFloat(-1.0, 1.0);
-			vecDir[2] = 0.0;
-			NormalizeVector(vecDir, vecDir);
-			ScaleVector(vecDir, (spreadAngle < 2.5 ? 2.5 : spreadAngle) * 2.0);
-		}
-		else {
-			vecDir[0] += Math_GetRandomFloat(-spreadAngle, spreadAngle);
-			vecDir[1] += Math_GetRandomFloat(-spreadAngle, spreadAngle);
-		}
+		vecDir[0] = vecDir[2] = 0.0;
+		vecDir[1] = GetRandomFloat(-1.0, 1.0);
+		NormalizeVector(vecDir, vecDir);
 		
+		// first shot will always miss.
+		if( g_iInstance[entity][NPC_iAttackRangeCount] == 0 && false )
+			ScaleVector(vecDir, (spreadAngle < 2.5 ? 2.5 : spreadAngle) * 2.0);
+		else
+			ScaleVector(vecDir, GetRandomFloat(0.0, spreadAngle));
 		
 		AddVectors(vecDir, vecAngles, vecAngles);
 		GetAngleVectors(vecAngles, vecPush, NULL_VECTOR, NULL_VECTOR);
 		ScaleVector(vecPush, speed);
-
+		
 		TeleportEntity(ent, vecOrigin, vecAngles, vecPush);
 		TeleportEntity(entity, NULL_VECTOR, vecAngles, NULL_VECTOR);
-		
-		SetEntityMoveType(ent, MOVETYPE_NONE);
 		
 		CreateTimer(0.1, Think_DH_Projectile, EntIndexToEntRef(ent), TIMER_REPEAT);
 		

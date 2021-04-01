@@ -139,21 +139,4 @@ stock int GetPushawayEnts(int entity, int[] ents, int nMaxEnts, float flPlayerEx
 	delete data;
 	return size;
 }
-stock int findNearestInactiveNPC(float min, float max) {
-	int nearest = 0;
-	float dist = 99999999.9;
-	
-	for(int i=0; i<this.NPC.Length; i++) {
-		int entity = this.NPC.Get(i);
-		if( g_iInstance[entity][NPC_isWaiting] == 1 && g_iInstance[entity][NPC_iLeader] > 0 && g_iInstance[entity][NPC_flNearRange] < max && g_iInstance[entity][NPC_flNearRange] >= min ) {
-			
-			float tmp = Entity_GetDistance(entity, g_iInstance[entity][NPC_iLeader]);
-			if( tmp < dist ) {
-				tmp = dist;
-				nearest = entity;
-			}
-		}
-	}
-	
-	return nearest;
-}
+

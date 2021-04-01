@@ -70,8 +70,8 @@ public void OnLibraryAdded(const char[] sLibrary) {
 			g_Class.MaxBody = 15;
 			g_Class.MinSkin = 0;
 			g_Class.MaxSkin = 0;
-			g_Class.NearRange = NPC_RANGE_MELEE - 32.0;
-			g_Class.WaitRange = NPC_RANGE_MELEE;
+			g_Class.NearRange = NPC_RANGE_MELEE - 16.0;
+			g_Class.WaitRange = NPC_RANGE_MELEE * 4.0;
 			
 			g_Class.AddAttack(NPC_ATTACK_MELEE, 	NPC_RANGE_MELEE, 2);
 			g_Class.AddAttack(NPC_ATTACK_MELEE, 	NPC_RANGE_MELEE);
@@ -102,8 +102,8 @@ public void OnLibraryAdded(const char[] sLibrary) {
 			g_Class.MaxBody = 30;
 			g_Class.MinSkin = 0;
 			g_Class.MaxSkin = 0;
-			g_Class.NearRange = NPC_RANGE_MELEE - 32.0;
-			g_Class.WaitRange = NPC_RANGE_MELEE;
+			g_Class.NearRange = NPC_RANGE_MELEE - 16.0;
+			g_Class.WaitRange = NPC_RANGE_MELEE * 4.0;
 			
 			g_Class.AddAttack(NPC_ATTACK_MELEE, 	NPC_RANGE_MELEE);
 			
@@ -132,8 +132,8 @@ public void OnLibraryAdded(const char[] sLibrary) {
 			g_Class.MaxBody = 45;
 			g_Class.MinSkin = 0;
 			g_Class.MaxSkin = 0;
-			g_Class.NearRange = NPC_RANGE_MELEE - 32.0;
-			g_Class.WaitRange = NPC_RANGE_MELEE;
+			g_Class.NearRange = NPC_RANGE_MELEE - 16.0;
+			g_Class.WaitRange = NPC_RANGE_MELEE * 4.0;
 			
 			g_Class.AddAttack(NPC_ATTACK_MELEE, 	NPC_RANGE_MELEE);
 			
@@ -162,8 +162,8 @@ public void OnLibraryAdded(const char[] sLibrary) {
 			g_Class.MaxBody = 60;
 			g_Class.MinSkin = 0;
 			g_Class.MaxSkin = 0;
-			g_Class.NearRange = NPC_RANGE_MELEE - 32.0;
-			g_Class.WaitRange = NPC_RANGE_MELEE;
+			g_Class.NearRange = NPC_RANGE_MELEE - 16.0;
+			g_Class.WaitRange = NPC_RANGE_MELEE * 4.0;
 			
 			g_Class.AddAttack(NPC_ATTACK_MELEE, 	NPC_RANGE_MELEE);
 			
@@ -192,7 +192,7 @@ public float OnAttack_BOW(NPCInstance entity, int attack_id) {
 			return entity.Gesture(NPC_ANIM_ATTACK);
 		}
 		case 1: {
-			entity.Projectile(g_szModel2, 15 / 35.0, 3.0, 1024.0, 1.0, OnProjectileCreate, OnProjectileHit);
+			entity.Projectile(g_szModel2, 15 / 35.0, 2.5, 1024.0, 1.0, OnProjectileCreate, OnProjectileHit);
 			return entity.Gesture(NPC_ANIM_ATTACK2);
 		}
 	}

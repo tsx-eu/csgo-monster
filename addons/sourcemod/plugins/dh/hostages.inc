@@ -9,7 +9,6 @@ public Action DH_OnTrackPath(int hostage, float dst[3], float delta) {
 	Entity_GetAbsOrigin(hostage, src);
 	GetEntPropVector(hostage, Prop_Send, "m_vel", vel);
 	
-	
 	// face in the direction of our motion
 	ScaleVector(vel, 10.0);
 	AddVectors(src, vel, vel);	
@@ -309,8 +308,9 @@ public void fctAttack(int id, int entity, int animator, float time) {
 					can = true;
 				}
 			}
-			case NPC_ATTACK_WEAPON: {
-				can = Entity_IsInSightRange(entity, g_iInstance[entity][NPC_iLeader], 45.0, g_atClass[id][attackId].range);
+			case NPC_ATTACK_WEAPON: {			
+				if( g_iInstance[entity][NPC_isWaiting] == 0 )
+					can = Entity_IsInSightRange(entity, g_iInstance[entity][NPC_iLeader], 45.0, g_atClass[id][attackId].range);
 			}
 		}
 		
