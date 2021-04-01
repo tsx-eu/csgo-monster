@@ -1,20 +1,20 @@
 public void DH_OnEntityCreated(int hostage) {
 	
 }
-public Action DH_OnTrackPath(int hostage, float dst[3], float delta) {
-	if( g_iInstance[hostage][NPC_iHealth] <= 0 )
+public Action DH_OnTrackPath(int entity, float dst[3], float delta) {
+	if( g_iInstance[entity][NPC_iHealth] <= 0 )
 		return Plugin_Handled;
 	
 	float src[3], vel[3], acc[3];
-	Entity_GetAbsOrigin(hostage, src);
-	GetEntPropVector(hostage, Prop_Send, "m_vel", vel);
+	Entity_GetAbsOrigin(entity, src);
+	GetEntPropVector(entity, Prop_Send, "m_vel", vel);
 	
 	// face in the direction of our motion
 	ScaleVector(vel, 10.0);
 	AddVectors(src, vel, vel);	
-	CCSNavPath(hostage).FaceToward(vel, delta);
+	CCSNavPath(entity).FaceToward(vel, delta);
 	
-	if( GetEntityFlags(hostage) & FL_ONGROUND ) {
+	if( GetEntityFlags(entity) & FL_ONGROUND ) {
 		// move towards dst
 		SubtractVectors(dst, src, vel);
 		vel[2] = 0.0;
@@ -22,18 +22,21 @@ public Action DH_OnTrackPath(int hostage, float dst[3], float delta) {
 	}
 	else {
 		// continue forward motion
-		Entity_GetAbsAngles(hostage, src);
+		Entity_GetAbsAngles(entity, src);
 		GetAngleVectors(src, vel, NULL_VECTOR, NULL_VECTOR);
 	}
 	
-	ScaleVector(vel, view_as<float>(g_flClass[ g_iInstance[hostage][NPC_iClass] ][NPC_flSpeed])*2.1775);
-	GetEntDataVector(hostage, m_accel, acc);
+	ScaleVector(vel, view_as<float>(g_flClass[ g_iInstance[entity][NPC_iClass] ][NPC_flSpeed])*2.1775);
+	GetEntDataVector(entity, m_accel, acc);
 	AddVectors(vel, acc, acc);
-	SetEntDataVector(hostage, m_accel, acc);
+	SetEntDataVector(entity, m_accel, acc);
 	
 	return Plugin_Handled;
 }
 public Action DH_OnUpdateFollowingPre(int entity, float delta) {
+	if( g_iInstance[entity][NPC_iHealth] <= 0 )
+		return Plugin_Handled;
+	
 	float src[3], dst[3], end[3];
 	CCSNavPath path = CCSNavPath(entity);
 	int id = g_iInstance[entity][NPC_iClass];
