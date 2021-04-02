@@ -336,7 +336,7 @@ public Action Task_DH_Melee(Handle timer, DataPack pack) {
 		src[2] += HEIGHT_SIZE;
 		
 		int target = Entity_TraceMeleeHull(entity, src, hit);
-		if( target > 0 && GetVectorDistance(src, hit) < range ) {
+		if( Entity_IsAttackAble(target) && GetVectorDistance(src, hit) < range ) {
 			DH_Damage(view_as<NPCInstance>(entity), target, damage, entity, DMG_CRUSH | DMG_SLASH);
 		}
 	}

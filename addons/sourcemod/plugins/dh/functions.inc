@@ -17,6 +17,14 @@ stock float Math_InvLerp(float a, float b, float v) {
 public bool FilterToOne(int entity, int mask, any data) {
 	return (data != entity);
 }
+public bool FilterHostage(int entity, int mask, any data) {
+	if( entity <= MaxClients )
+		return true;
+	if( data == entity || HasEntProp(entity, Prop_Send, "m_nHostageState") )
+		return false;
+	return true;
+}
+
 public bool GetPushawayEnts_enumerator(int entity, any ref) {
 	ArrayList data = view_as<ArrayList>(ref);
 	data.Push(entity);
@@ -64,7 +72,7 @@ stock bool Entity_IsInSightRange(int client, int target, float angle = 90.0, flo
 	max[0] = max[1] = max[2] =  MELEE_HULL;
 	src[2] += HEIGHT_SIZE;
 	dst[2] += HEIGHT_SIZE;	
-	Handle trace = TR_TraceHullFilterEx(src, dst, min, max, MASK_SHOT, FilterToOne, client);
+	Handle trace = TR_TraceHullFilterEx(src, dst, min, max, MASK_SHOT, FilterHostage, client);
 	if( TR_DidHit(trace) ) {
 		if( TR_GetEntityIndex(trace) != target ) {
 			delete trace;
@@ -92,6 +100,18 @@ stock bool Entity_IsInSightRange(int client, int target, float angle = 90.0, flo
 			resultdistance = GetVectorDistance(src, dst);
 		return distance >= resultdistance;
 	}
+	
+	return false;
+}
+stock bool Entity_IsAttackAble(int entity) {
+	static char classname[128];
+	
+	if( entity > 0 && entity <= MaxClients )
+		return true;
+	
+	GetEdictClassname(entity, classname, sizeof(classname));
+	if( StrEqual(classname, "func_breakable_surf") || StrEqual(classname, "func_breakable") )
+		return true;
 	
 	return false;
 }

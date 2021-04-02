@@ -191,13 +191,11 @@ public float OnAttack_BOW(NPCInstance entity, int attack_id) {
 		case 0: {
 			entity.Melee(10, NPC_RANGE_MELEE, 10 / 50.0);
 			time = entity.Gesture(NPC_ANIM_ATTACK);
-			break;
 		}
 		case 1: {
 			entity.Projectile(g_szModel2, 15 / 35.0, 2.5, 1024.0, 1.0, OnProjectileCreate, OnProjectileHit);
 			time = entity.Gesture(NPC_ANIM_ATTACK2);
 			entity.Freeze = GetGameTime() + time;
-			break;
 		}
 	}
 	return time;
@@ -208,13 +206,11 @@ public float OnAttack_AXE(NPCInstance entity, int attack_id) {
 		case 0: {
 			entity.Melee(20, NPC_RANGE_MELEE, 10 / 35.0);
 			time = entity.Gesture(NPC_ANIM_ATTACK);
-			break;
 		}
 		case 1: {
 			entity.Melee(50, NPC_RANGE_MELEE, 10 / 35.0);
 			time = entity.Gesture(NPC_ANIM_ATTACK2);
 			entity.Freeze = GetGameTime() + time;
-			break;
 		}
 	}
 	return time;

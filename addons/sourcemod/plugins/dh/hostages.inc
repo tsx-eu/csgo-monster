@@ -313,7 +313,7 @@ public void fctAttack(int id, int entity, int animator, float time) {
 				src[2] += HEIGHT_SIZE;
 				target = Entity_TraceMeleeHull(entity, src, hit);
 				
-				if( target > 0 && GetVectorDistance(src, hit) < g_atClass[id][attackId].range ) {
+				if( Entity_IsAttackAble(target) && GetVectorDistance(src, hit) < g_atClass[id][attackId].range ) {
 					can = true;
 				}
 			}
