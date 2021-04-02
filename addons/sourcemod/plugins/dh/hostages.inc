@@ -45,6 +45,12 @@ public Action DH_OnUpdateFollowingPre(int entity, float delta) {
 		Entity_GetAbsOrigin(entity, src);
 		Entity_GetAbsOrigin(g_iInstance[entity][NPC_iLeader], dst);
 		
+		// if we are freeze, just face our leader.
+		if( view_as<float>(g_flInstance[entity][NPC_flFreezeTime]) > GetGameTime() ) {
+			path.FaceToward(dst, delta);
+			return Plugin_Handled;
+		}
+		
 		// if leader has moved, repath
 		if( path.IsValid() ) {
 			path.GetEndpoint(end);

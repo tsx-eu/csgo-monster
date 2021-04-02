@@ -67,6 +67,8 @@ enum NPCData_Float {
 	NPC_flNextAnim,
 	NPC_flAnimScale,
 	
+	NPC_flFreezeTime,
+	
 	NPCData_max_Float
 };
 enum NPCData_String {
@@ -285,6 +287,10 @@ methodmap NPCInstance {
 	property float Gravity {
 		public get() { 	return 			DH_GetInstanceFloat(this, NPC_flGravity); }
 		public set(const float value) { DH_SetInstanceFloat(this, NPC_flGravity, value); }
+	}
+	property float Freeze {
+		public get() { 	return 			DH_GetInstanceFloat(this, NPC_flFreezeTime); }
+		public set(const float value) { DH_SetInstanceFloat(this, NPC_flFreezeTime, value); }
 	}
 	// -- bool
 	property bool IsWaiting {

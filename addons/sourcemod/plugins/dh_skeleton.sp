@@ -186,30 +186,38 @@ public void OnLibraryAdded(const char[] sLibrary) {
 	}
 }
 public float OnAttack_BOW(NPCInstance entity, int attack_id) {
+	float time = 0.0;
 	switch(attack_id) {
 		case 0: {
 			entity.Melee(10, NPC_RANGE_MELEE, 10 / 50.0);
-			return entity.Gesture(NPC_ANIM_ATTACK);
+			time = entity.Gesture(NPC_ANIM_ATTACK);
+			break;
 		}
 		case 1: {
 			entity.Projectile(g_szModel2, 15 / 35.0, 2.5, 1024.0, 1.0, OnProjectileCreate, OnProjectileHit);
-			return entity.Gesture(NPC_ANIM_ATTACK2);
+			time = entity.Gesture(NPC_ANIM_ATTACK2);
+			entity.Freeze = GetGameTime() + time;
+			break;
 		}
 	}
-	return 0.0;
+	return time;
 }
 public float OnAttack_AXE(NPCInstance entity, int attack_id) {
+	float time = 0.0;
 	switch(attack_id) {
 		case 0: {
 			entity.Melee(20, NPC_RANGE_MELEE, 10 / 35.0);
-			return entity.Gesture(NPC_ANIM_ATTACK);
+			time = entity.Gesture(NPC_ANIM_ATTACK);
+			break;
 		}
 		case 1: {
 			entity.Melee(50, NPC_RANGE_MELEE, 10 / 35.0);
-			return entity.Gesture(NPC_ANIM_ATTACK2);
+			time = entity.Gesture(NPC_ANIM_ATTACK2);
+			entity.Freeze = GetGameTime() + time;
+			break;
 		}
 	}
-	return 0.0;
+	return time;
 }
 public float OnAttack_SHIELD(NPCInstance entity, int attack_id) {
 	entity.Melee(10, NPC_RANGE_MELEE, 10 / 35.0);
