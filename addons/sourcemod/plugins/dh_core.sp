@@ -102,7 +102,6 @@ public Action block(int client, int args) {
 		break;
 	}
 	
-	//CS_SwitchTeam(client, CS_TEAM_CT);
 	return Plugin_Handled;
 }
 

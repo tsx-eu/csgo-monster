@@ -218,6 +218,14 @@ methodmap NPCClass {
 		public get() { 	return 			DH_GetClassFloat(this, NPC_flNearRange); }
 		public set(const float value) { DH_SetClassFloat(this, NPC_flNearRange, value); }
 	}
+	
+	// -- bool
+	property bool IsMelee {
+		public get() { return (DH_GetClassFloat(this, NPC_flNearRange) > 0.0 && DH_GetClassFloat(this, NPC_flNearRange) <= NPC_RANGE_MELEE * 2.0); } 
+	}
+	property bool IsDistant {
+		public get() { return (DH_GetClassFloat(this, NPC_flNearRange) > NPC_RANGE_MELEE * 2.0 && DH_GetClassFloat(this, NPC_flNearRange) <= 99999999.9); } 
+	}
 }
 methodmap NPCInstance {
 	public NPCInstance(NPCClass id, float pos[3], float ang[3]=NULL_VECTOR) {
