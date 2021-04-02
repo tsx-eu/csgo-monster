@@ -7,6 +7,7 @@
 #include <smlib>
 #include <dh>
 #include <cstrike>
+#include <collisionhook>
 
 #pragma newdecls required
 
@@ -67,9 +68,14 @@ public void OnMapStart() {
 	
 	Memory_Patch();
 }
+
 public void OnEntityCreated(int entity, const char[] classname) {
 	if( StrEqual(classname, "hostage_entity") ) {
 		DH_OnEntityCreated(entity);
+	}
+	
+	if( StrEqual(classname, "hegrenade_projectile") ) {
+		
 	}
 }
 public void OnEntityDestroyed(int entity) {
@@ -82,6 +88,13 @@ public void OnEntityDestroyed(int entity) {
 		if( HasEntProp(entity, Prop_Send, "m_nHostageState") )
 			Director.Unregister(view_as<NPCInstance>(entity));
 	}
+}
+public Action CH_PassFilter(int hostage, int target, bool& result) {
+	if( g_hProjectile[target] != null && HasEntProp(hostage, Prop_Send, "m_nHostageState") ) {
+		result = false;
+		return Plugin_Changed;
+	}
+	return Plugin_Continue;
 }
 public Action block(int client, int args) {
 	char arg[32];

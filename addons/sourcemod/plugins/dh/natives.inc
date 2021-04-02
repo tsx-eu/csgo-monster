@@ -43,6 +43,8 @@ public int Native_DH_Create(Handle plugin, int numParams) {
 	GetNativeString(2, g_szClass[id][NPC_szName], sizeof(g_szClass[][]));
 	GetNativeString(3, g_szClass[id][NPC_szModel], sizeof(g_szClass[][]));
 	
+	PrecacheModel(g_szClass[id][NPC_szModel]);
+	
 	view_as<PrivateForward>(g_hClass[id][NPC_EVENT_SPAWN]) = CreateForward(ET_Hook, Param_Cell);					// void(NPCInstance entity)
 	view_as<PrivateForward>(g_hClass[id][NPC_EVENT_ATTACK]) = CreateForward(ET_Hook, Param_Cell, Param_Cell);		// void(NPCInstance entity, int attack_id)
 	view_as<PrivateForward>(g_hClass[id][NPC_EVENT_DEAD]) = CreateForward(ET_Hook, Param_Cell);						// void(NPCInstance entity)
@@ -474,7 +476,7 @@ public Action Touch_DH_Projectile(int ent, int target) {
 		Call_PushCell(target);
 		Call_Finish();
 	}
-	
+
 	AcceptEntityInput(ent, "KillHierarchy");
 }
 public Action Think_DH_Projectile(Handle timer, any ref) {
