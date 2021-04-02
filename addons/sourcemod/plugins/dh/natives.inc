@@ -363,6 +363,8 @@ public any Native_DH_Projectile(Handle plugin, int numParams) {
 public Action Task_DH_Projectile(Handle timer, DataPack pack) {
 	static char model[PLATFORM_MAX_PATH];
 	pack.Reset();
+	
+	bool wellAimed = false;
 	int entity = EntRefToEntIndex(pack.ReadCell());
 	
 	if( entity > 0 ) {
@@ -413,6 +415,7 @@ public Action Task_DH_Projectile(Handle timer, DataPack pack) {
 			GetVectorAngles(vecDir, vecAngles);
 			
 			vecAngles[0] = GetProjectileAngle(vecDir, speed, gravity);
+			wellAimed = true;
 		}
 		else {
 			Entity_GetAbsAngles(entity, vecAngles);
@@ -424,7 +427,7 @@ public Action Task_DH_Projectile(Handle timer, DataPack pack) {
 		
 		// first shot will always miss.
 		if( g_iInstance[entity][NPC_iAttackRangeCount] == 0 && false )
-			ScaleVector(vecDir, (spreadAngle < 2.5 ? 2.5 : spreadAngle) * 2.0);
+			ScaleVector(vecDir, (spreadAngle < 2.5 ? 2.5 : spreadAngle) * 3.0);
 		else
 			ScaleVector(vecDir, GetRandomFloat(0.0, spreadAngle));
 		
@@ -452,7 +455,8 @@ public Action Task_DH_Projectile(Handle timer, DataPack pack) {
 		}
 	}
 	
-	g_iInstance[entity][NPC_iAttackRangeCount]++;
+	if( wellAimed )
+		g_iInstance[entity][NPC_iAttackRangeCount]++;
 	
 	return Plugin_Stop;
 }
@@ -488,23 +492,44 @@ public Action Think_DH_Projectile(Handle timer, any ref) {
 public any Native_DH_Damage(Handle plugin, int numParams) {
 	int entity = GetNativeCell(1);
 	int target = GetNativeCell(2);
-	int damage = GetNativeCell(3);
+	float damage = float(GetNativeCell(3)) * Director.DifficultyDamage;
 	int inflictor = GetNativeCell(4);
 	int id = g_iInstance[entity][NPC_iClass];
 	
+	int maxHealth = Entity_GetMaxHealth(entity);
 	int health = Entity_GetHealth(target);
+	
 	if( inflictor == 0 )
 		inflictor = entity;
-
-	// less damage from behind
+	
+	// PreCalculation in float
+	// --------------------------------------------------------------------------
+	// Less damage from behind
 	if( Entity_IsInSightRange(target, entity) )
-		damage /= 2;
-
-	// first attack cannot kill
-	if( g_iInstance[entity][NPC_iAttackSucceded] == 0 && damage > health )
-		damage = health - 1;
-		
-	Entity_Hurt(target, damage, entity, GetNativeCell(5), g_szClass[id][NPC_szName]);
+		damage *= 0.5;
+	
+	// Damage reduction depending on health
+	float fraction = SquareRoot(float(health)/float(maxHealth+1));
+	if( fraction != fraction )
+		fraction = 1.0;
+	if( fraction > 1.0 )
+		fraction = 1.0;
+	if( fraction < 0.0 )
+		fraction = 0.0;
+	damage *= fraction;
+	
+	// PostCalculation in int
+	// --------------------------------------------------------------------------
+	int iDamage = RoundToCeil(damage);
+	// First attack cannot kill
+	if( g_iInstance[entity][NPC_iAttackSucceded] == 0 && iDamage > health )
+		iDamage = health - 1;
+	
+	// Minimal damage.
+	if( iDamage < 1 )
+		iDamage = 1;
+	
+	Entity_Hurt(target, iDamage, entity, GetNativeCell(5), g_szClass[id][NPC_szName]);
 	if( IsValidClient(target) )
 		g_iInstance[entity][NPC_iAttackSucceded]++;
 }

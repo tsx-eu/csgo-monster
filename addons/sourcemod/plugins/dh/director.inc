@@ -9,13 +9,12 @@ enum struct SDirector {
 	ArrayList Distant;	
 	int maxDistant;
 	
-	
-	int DifficultyDamage;
+	float DifficultyDamage;
 }
 SDirector Director_Data;
 
 methodmap CDirector < Handle {
-	public CDirector(int melee, int distant, int damage) {
+	public CDirector(int melee, int distant, float damage) {
 		Director_Data.NPC = new ArrayList();
 		
 		Director_Data.Melee = new ArrayList();
@@ -83,17 +82,13 @@ methodmap CDirector < Handle {
 	property int maxDistant {
 		public get() { return Director_Data.maxDistant; }
 	}
-	property int DifficultyDamage {
+	property float DifficultyDamage {
 		public get() { return Director_Data.DifficultyDamage; } 
-		public set(const int value) { Director_Data.DifficultyDamage = value; } 
-		
+		public set(const float value) { Director_Data.DifficultyDamage = value; } 
 	}
 	
 
 	public void Update() {
-		// TODO place this.NPC as "uncategorized"
-		// TODO this.WaitingMelee / WaitingDistant
-		
 		// Place inactive NPC to active state.
 		if( this.NPC.Length > 0 ) {
 			if( this.maxMelee > this.Melee.Length && Director_Data.WaitingMelee.Length > 0 ) {
@@ -118,7 +113,7 @@ methodmap CDirector < Handle {
 
 CDirector Director;
 void INIT_Director() {
-	Director = new CDirector(3, 6, 1);
+	Director = new CDirector(3, 6, 1.0);
 	CreateTimer(0.25, FRAME_Director, 0, TIMER_REPEAT);
 }
 public Action FRAME_Director(Handle timer, any none) {
