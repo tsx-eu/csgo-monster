@@ -1,0 +1,5 @@
+"MonitorScreen"
+{
+	"$basetexture" "dh/hud/HP/80"
+	"$translucent" 1
+}

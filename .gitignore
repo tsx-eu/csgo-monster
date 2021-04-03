@@ -7,3 +7,4 @@
 *.o
 **/.ambuild2/**
 **/dh.ext.2.csgo.so/**
+**/.idea/**
