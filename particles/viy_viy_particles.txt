@@ -1,0 +1,2 @@
+materials\sprites\bomb_explosion_glow_512.vmt
+materials\effects\energysplash.vmt

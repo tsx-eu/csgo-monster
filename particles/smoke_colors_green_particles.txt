@@ -1,0 +1,6 @@
+materials\particle\vistasmokev1\vistasmokev1_emods_impactdust.vmt
+materials\particle\vistasmokev1\vistasmokev1_fire.vmt
+materials\particle\vistasmokev1\vistasmokev1_emods.vmt
+materials\particle\warp5_explosion.vmt
+materials\particle\particle_glow_01.vmt
+materials\particle\vistasmokev1\vistasmokev1_smokegrenade.vmt

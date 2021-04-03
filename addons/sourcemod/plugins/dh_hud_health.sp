@@ -3,12 +3,16 @@
 #include <sourcemod>
 #include <sdkhooks>
 #include <smlib>
+#include <phun>
 
 #define HIDEHUD_HEALTH_AND_WEAPON 	(1<<4)
 #define HIDEHUD_THE_CHAT			(1<<7)
 #define HIDEHUD_RADAR	 			(1<<12)
 
 #define HIDEHUD_MOD					(HIDEHUD_HEALTH_AND_WEAPON|HIDEHUD_THE_CHAT|HIDEHUD_RADAR)
+
+
+int g_iLowLifeParticle[65];
 
 public Plugin myinfo = {
 	name = "DH: HUD",
@@ -23,17 +27,47 @@ public void OnPluginStart() {
 		if( IsClientInGame(i) )
 			OnClientPutInServer(i);
 	}
+	
+	RegAdminCmd("sm_effect_particles", Effect_Particle, 	ADMFLAG_BAN, 	"sm_effect_particles [player] [name] [delay]");
+}
+
+public Action Effect_Particle(int client, int args) {
+	int target = GetCmdArgInt(1);
+	char arg2[32], arg4[32];
+	GetCmdArg(2, arg2, sizeof(arg2));
+	float delay = GetCmdArgFloat(3);
+	
+	if( IsValidEdict(target) && IsValidEntity(target) ) {
+		int particles = AttachParticle(target, arg2, delay);
+		
+		if( args == 4 ) {
+			GetCmdArg(4, arg4, sizeof(arg4));
+			SetVariantString(arg4);
+			AcceptEntityInput(particles, "SetParentAttachment", particles, particles, 0);
+		}
+	}
+	
+	return Plugin_Handled;
+}
+public void OnMapStart() {
+	PrecacheGeneric("particles/blood_impact_gore.pcf", true);
+	PrecacheGeneric("particles/3j.pcf", true);
 }
 public void OnConfigsExecuted() {
 	ServerCommand("mp_playercashawards 0");
 	ServerCommand("mp_teamcashawards 0");
 }
 public void OnClientPutInServer(int client) {
+	g_iLowLifeParticle[client] = INVALID_ENT_REFERENCE;
+
 	SDKHook(client, SDKHook_OnTakeDamagePost, OnDamage);
-	CreateTimer(1.0, Task_Client, GetClientUserId(client), TIMER_REPEAT);
+	CreateTimer(1.0, Task_Client, GetClientUserId(client), TIMER_REPEAT);	
 	HUD_Update(client);
 }
-
+public void OnClientDisconnect(int client) {
+	if( EntRefToEntIndex(g_iLowLifeParticle[client]) != INVALID_ENT_REFERENCE )
+		AcceptEntityInput(g_iLowLifeParticle[client], "Kill");
+}
 public Action OnDamage(int victim, int& attacker, int& inflictor, float& damage, int& damageType) {
 	HUD_Update(victim);
 	CreateTimer(0.1, Task_UpdateHUD, victim);
@@ -66,7 +100,17 @@ void HUD_Update(int client) {
 	int hud1 = GetEntProp(client, Prop_Send, "m_iHideHUD");
 	int hud2 = hud1;
 	hud1 |= HIDEHUD_MOD;
-	
+
 	if( hud1 != hud2 )
 		SetEntProp(client, Prop_Send, "m_iHideHUD", hud1);
+	
+	
+	if( img <= 25 )
+		AttachParticle(client, "blood_pool", 0.1);
+	
+	if( img <= 10 && EntRefToEntIndex(g_iLowLifeParticle[client]) == INVALID_ENT_REFERENCE )
+		g_iLowLifeParticle[client] = EntIndexToEntRef(AttachParticle(client, "danger_in_zone", 99999.9));
+	if( img > 10 && EntRefToEntIndex(g_iLowLifeParticle[client]) != INVALID_ENT_REFERENCE )
+		AcceptEntityInput(g_iLowLifeParticle[client], "Kill");
+	
 }

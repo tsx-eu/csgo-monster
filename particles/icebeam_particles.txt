@@ -1,0 +1,7 @@
+materials\effects\sc_softglow.vmt
+materials\effects\smoke\smokelit_nofade_add.vmt
+materials\effects\tp_sparkle2.vmt
+materials\particle\logan_mccloud\snowflake_crystals.vmt
+materials\particle\other_m\mom_icechunks.vmt
+materials\effects\healsign.vmt
+materials\effects\medicbeam_curl.vmt

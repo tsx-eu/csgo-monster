@@ -1,0 +1,1 @@
+materials\particle\2joints_2pack\star.vmt

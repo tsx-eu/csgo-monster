@@ -1,0 +1,7 @@
+materials\effects\rocketrailsmoke.vmt
+materials\effects\brightglow_y_nomodel.vmt
+materials\effects\circle2.vmt
+materials\effects\sc_brightglow_y_nomodel.vmt
+materials\effects\sc_softglow.vmt
+materials\effects\sc_softglow_translucent.vmt
+materials\effects\circle.vmt

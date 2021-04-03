@@ -1,0 +1,1 @@
+materials\particle\2joints_trail\beam001_white_dx80.vmt
