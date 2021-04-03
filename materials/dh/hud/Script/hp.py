@@ -1,6 +1,6 @@
 from PIL import Image, ImageOps, ImageDraw
 
-img = Image.new(mode="RGBA", size=(1024*4, 1024*2))
+img = Image.new(mode="RGBA", size=(1024*4 + 1024*2, 1024*2 + 1024*1))
 
 front = Image.open("../UI_parts/Right_ampoule.png")
 front_mask = Image.new(mode="RGB", size=img.size)
@@ -34,4 +34,7 @@ for HP in range(0, 100, S):
 
     img.paste(blend, (0, 0), mask.convert("L"))
     img.alpha_composite(front, (0, img.height-front.height))
-    img.resize((img.width//2, img.height//2)).save("../HP/" + str(HP) + ".png")
+
+    exp = Image.new(mode="RGBA", size=(1024 * 4, 1024 * 2))
+    exp.alpha_composite(img.resize((img.width//4*3, img.height//4*3)), (0, 256), (0, 512))
+    exp.resize((exp.width//2, exp.height//2)).save("../HP/" + str(HP) + ".png")
