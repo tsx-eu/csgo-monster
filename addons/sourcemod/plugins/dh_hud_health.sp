@@ -24,7 +24,7 @@ public Plugin myinfo = {
 
 public void OnPluginStart() {
 	for(int i=1; i<=MaxClients; i++) {
-		if( IsClientInGame(i) )
+		if( IsValidClient(i) )
 			OnClientPutInServer(i);
 	}
 	
@@ -65,8 +65,9 @@ public void OnClientPutInServer(int client) {
 	HUD_Update(client);
 }
 public void OnClientDisconnect(int client) {
-	if( EntRefToEntIndex(g_iLowLifeParticle[client]) != INVALID_ENT_REFERENCE )
-		AcceptEntityInput(g_iLowLifeParticle[client], "Kill");
+	int ref = EntRefToEntIndex(g_iLowLifeParticle[client]);
+	if( ref > 0 )
+		AcceptEntityInput(ref, "Kill");
 }
 public Action OnDamage(int victim, int& attacker, int& inflictor, float& damage, int& damageType) {
 	HUD_Update(victim);
@@ -104,13 +105,14 @@ void HUD_Update(int client) {
 	if( hud1 != hud2 )
 		SetEntProp(client, Prop_Send, "m_iHideHUD", hud1);
 	
-	
 	if( img <= 25 )
 		AttachParticle(client, "blood_pool", 0.1);
 	
-	if( img <= 10 && EntRefToEntIndex(g_iLowLifeParticle[client]) == INVALID_ENT_REFERENCE )
+	int ref = EntRefToEntIndex(g_iLowLifeParticle[client]);
+	
+	if( img <= 10 && ref <= 0 )
 		g_iLowLifeParticle[client] = EntIndexToEntRef(AttachParticle(client, "danger_in_zone", 99999.9));
-	if( img > 10 && EntRefToEntIndex(g_iLowLifeParticle[client]) != INVALID_ENT_REFERENCE )
-		AcceptEntityInput(g_iLowLifeParticle[client], "Kill");
+	if( img > 10 && ref > 0 )
+		AcceptEntityInput(ref, "Kill");
 	
 }
