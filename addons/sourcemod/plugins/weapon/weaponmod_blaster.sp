@@ -20,6 +20,12 @@ int g_cModel;
 char g_szMaterials[][PLATFORM_MAX_PATH] = {
 };
 char g_szSounds[][PLATFORM_MAX_PATH] = {
+	"dh/weapons/combustor_attack1.mp3",
+	"dh/weapons/combustor_attack2.mp3",
+	
+	"weapons/hegrenade/explode3.wav",
+	"weapons/hegrenade/explode4.wav",
+	"weapons/hegrenade/explode5.wav"
 };
 
 public void OnLibraryAdded(const char[] sLibrary) {
@@ -61,7 +67,11 @@ public void OnReload(int client, int entity) {
 	CWM_RunAnimation(entity, WAA_Reload);
 }
 public Action OnAttack(int client, int entity) {
+	static char sound[PLATFORM_MAX_PATH];
 	CWM_RunAnimation(entity, WAA_Attack, 10/30.0);
+	
+	Format(sound, sizeof(sound), "dh/weapons/combustor_attack%d.mp3", GetRandomInt(1, 2));
+	EmitAmbientSound(sound, NULL_VECTOR, entity, SNDLEVEL_GUNFIRE, SND_NOFLAGS, 1.0, GetRandomInt(90, 110));
 	
 	int ent = CWM_ShootProjectile(client, entity, NULL_MODEL, "rocket", 0.0, 1024.0, OnProjectileHit);
 	SetEntityMoveType(ent, MOVETYPE_FLY);
@@ -75,8 +85,12 @@ public Action OnAttack(int client, int entity) {
 }
 
 public Action OnProjectileHit(int client, int wpnid, int entity, int target) {
+	static char sound[PLATFORM_MAX_PATH];
 	float pos[3];
 	Entity_GetAbsOrigin(entity, pos);
+	
+	Format(sound, sizeof(sound), "weapons/hegrenade/explode%d.wav", GetRandomInt(3, 5));
+	EmitAmbientSound(sound, NULL_VECTOR, entity, SNDLEVEL_ROCKET, SND_NOFLAGS, 1.0, GetRandomInt(150, 175));
 	
 	ShowParticle(pos, "combustor_explode", 5.0);
 	return Plugin_Handled;
@@ -88,11 +102,12 @@ public void OnMapStart() {
 	
 	g_cModel = PrecacheModel("materials/sprites/laserbeam.vmt");
 	
-	/*
 	for (int i = 0; i < sizeof(g_szSounds); i++) {
 		AddSoundToDownloadsTable(g_szSounds[i]);
 		PrecacheSound(g_szSounds[i]);
 	}
+	
+	/*
 	for (int i = 0; i < sizeof(g_szMaterials); i++) {
 		AddFileToDownloadsTable(g_szMaterials[i]);
 	}
