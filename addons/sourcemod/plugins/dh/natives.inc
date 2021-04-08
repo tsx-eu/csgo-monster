@@ -34,6 +34,7 @@ APLRes Native_REGISTER() {
 	CreateNative("DH_Damage", 				Native_DH_Damage);
 	
 	CreateNative("DH_UTIL_GetAttachment", 	Native_DH_UTIL_GetAttachment);
+	CreateNative("DH_UTIL_IsInSightRange", 	Native_DH_UTIL_IsInSightRange);
 	
 	RegPluginLibrary("DH-CORE");
 	return APLRes_Success;
@@ -554,3 +555,6 @@ public int Native_DH_UTIL_GetAttachment(Handle plugin, int numParams) {
 	return ret;
 }
 
+public any Native_DH_UTIL_IsInSightRange(Handle plugin, int numParams) {
+	return Entity_IsInSightRange(GetNativeCell(1), GetNativeCell(2), GetNativeCell(3), GetNativeCell(4));
+}

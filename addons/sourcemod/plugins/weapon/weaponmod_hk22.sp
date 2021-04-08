@@ -9,23 +9,21 @@
 #include <dh>
 #include <custom_weapon_mod>
 
-char g_szFullName[PLATFORM_MAX_PATH] =	"Combustor";
-char g_szName[PLATFORM_MAX_PATH] 	 =	"combustor";
+char g_szFullName[PLATFORM_MAX_PATH] =	"HK22";
+char g_szName[PLATFORM_MAX_PATH] 	 =	"HK22";
 char g_szReplace[PLATFORM_MAX_PATH]  =	"weapon_tec9";
 
 char g_szVModel[PLATFORM_MAX_PATH] =	"models/weapons/v_pist_tec9.mdl";
 char g_szWModel[PLATFORM_MAX_PATH] =	"models/weapons/w_pist_tec9.mdl";
+char g_szTModel[PLATFORM_MAX_PATH] =	"models/dh/weapons/p_hk22.mdl";
 int g_cModel;
 
 char g_szMaterials[][PLATFORM_MAX_PATH] = {
 };
-char g_szSounds[][PLATFORM_MAX_PATH] = {	
+char g_szSounds[][PLATFORM_MAX_PATH] = {
 	"weapons/hegrenade/explode3.wav",
 	"weapons/hegrenade/explode4.wav",
-	"weapons/hegrenade/explode5.wav",
-	
-	"dh/weapons/combustor_attack1.mp3",
-	"dh/weapons/combustor_attack2.mp3"
+	"weapons/hegrenade/explode5.wav"
 };
 
 public void OnLibraryAdded(const char[] sLibrary) {
@@ -70,20 +68,84 @@ public Action OnAttack(int client, int entity) {
 	static char sound[PLATFORM_MAX_PATH];
 	CWM_RunAnimation(entity, WAA_Attack, 10/30.0);
 	
-	Format(sound, sizeof(sound), "dh/weapons/combustor_attack%d.mp3", GetRandomInt(1, 2));
-	EmitAmbientSound(sound, NULL_VECTOR, entity, SNDLEVEL_GUNFIRE, SND_NOFLAGS, 1.0, GetRandomInt(90, 110));
-	
-	int ent = CWM_ShootProjectile(client, entity, NULL_MODEL, "rocket", 0.0, 1024.0, OnProjectileHit);
+	int ent = CWM_ShootProjectile(client, entity, g_szTModel, "rocket", 0.0, 400.0, OnProjectileHit);
 	SetEntityMoveType(ent, MOVETYPE_FLY);
 	
-	TE_SetupBeamFollow(ent, g_cModel, g_cModel, 0.25, 1.0, 0.0, 0, {255, 128, 0, 64});
-	TE_SendToAll();
-	
-	AttachParticle(ent, "combustor", 5.0);
-	
+	CreateTimer(0.1, OnProjectileThink, EntIndexToEntRef(ent), TIMER_REPEAT);
 	return Plugin_Continue;
 }
 
+int findNearestEnemy(int entity, float dist=128.0) {
+	int best = 0;
+	
+	for(int i=1; i<=2048; i++) {
+		if( !IsValidEdict(i) || !IsValidEntity(i) )
+			continue;
+		if( HasEntProp(i, Prop_Send, "m_nHostageState") == false )
+			continue;
+		
+		float tmp = Entity_GetDistance(entity, i);
+		if( tmp < dist && DH_UTIL_IsInSightRange(entity, i, 180.0, dist) ) {
+			dist = tmp;
+			best = i;
+		}
+	}
+	
+	return best;
+}
+public Action OnProjectileThink(Handle timer, any ref) {
+	int ent = EntRefToEntIndex(ref);
+	if( ent <= 0 )
+		return Plugin_Stop;
+	
+	int best = findNearestEnemy(ent, 128.0);
+	if( best > 0 ) {
+		float src[3], dst[3];
+		Entity_GetAbsOrigin(ent, src);
+		Entity_GetAbsOrigin(best, dst);
+		dst[2] += 16.0;
+		
+		SubtractVectors(dst, src, src);
+		GetVectorAngles(src, dst);
+		NormalizeVector(src, src);
+		ScaleVector(src, -256.0);
+		
+		TeleportEntity(ent, NULL_VECTOR, dst, src);
+		CreateTimer(0.1, OnProjectileThink2, EntIndexToEntRef(ent));
+		CreateTimer(0.30, OnProjectileThink3, EntIndexToEntRef(ent));
+		
+		return Plugin_Stop;
+	}
+	
+	return Plugin_Continue;
+}
+public Action OnProjectileThink2(Handle timer, any ref) {
+	int ent = EntRefToEntIndex(ref);
+	if( ent <= 0 )
+		return Plugin_Stop;
+	
+	float vel[3];
+	Entity_GetAbsVelocity(ent, vel);
+	NormalizeVector(vel, vel);
+	ScaleVector(vel, 64.0);
+	Entity_SetAbsVelocity(ent, vel);
+
+	return Plugin_Continue;
+}
+
+public Action OnProjectileThink3(Handle timer, any ref) {
+	int ent = EntRefToEntIndex(ref);
+	if( ent <= 0 )
+		return Plugin_Stop;
+	
+	float vel[3];
+	Entity_GetAbsVelocity(ent, vel);
+	NormalizeVector(vel, vel);
+	ScaleVector(vel, -2048.0);
+	Entity_SetAbsVelocity(ent, vel);
+
+	return Plugin_Continue;
+}
 public Action OnProjectileHit(int client, int wpnid, int entity, int target) {
 	static char sound[PLATFORM_MAX_PATH];
 	float pos[3];

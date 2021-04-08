@@ -163,6 +163,7 @@ native int 			DH_Projectile(NPCInstance id, const char[] model, float time=0.0, 
 native void 		DH_Damage(NPCInstance id, int victim, int damage, int inflictor=0, int type = DMG_GENERIC);
 
 native void 		DH_UTIL_GetAttachment(int entity, const char[] name, float pos[3], float ang[3]);
+native bool 		DH_UTIL_IsInSightRange(int entity, int target, float angle = 90.0, float distance = 99999.9);
 
 methodmap NPCClass {
 	public NPCClass(const char[] fullname, const char[] name, const char[] model) {
