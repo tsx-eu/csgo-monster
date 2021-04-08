@@ -70,6 +70,10 @@ public Action OnAttack(int client, int entity) {
 	
 	int ent = CWM_ShootProjectile(client, entity, g_szTModel, "rocket", 0.0, 400.0, OnProjectileHit);
 	SetEntityMoveType(ent, MOVETYPE_FLY);
+	SetEntPropEnt(ent, Prop_Send, "m_hEffectEntity", AttachParticle(ent, "hk22_seek", 30.0));
+	
+	TE_SetupBeamFollow(ent, g_cModel, g_cModel, 0.25, 1.0, 0.0, 0, {0, 128, 255, 64});
+	TE_SendToAll();
 	
 	CreateTimer(0.1, OnProjectileThink, EntIndexToEntRef(ent), TIMER_REPEAT);
 	return Plugin_Continue;
@@ -130,6 +134,11 @@ public Action OnProjectileThink2(Handle timer, any ref) {
 	ScaleVector(vel, 64.0);
 	Entity_SetAbsVelocity(ent, vel);
 
+	int child = GetEntPropEnt(ent, Prop_Send, "m_hEffectEntity");
+	if( IsValidEdict(child) && IsValidEntity(child) )
+		AcceptEntityInput(child, "Kill");
+	SetEntPropEnt(ent, Prop_Send, "m_hEffectEntity", AttachParticle(ent, "hk22_attack", 5.0));
+
 	return Plugin_Continue;
 }
 
@@ -143,6 +152,8 @@ public Action OnProjectileThink3(Handle timer, any ref) {
 	NormalizeVector(vel, vel);
 	ScaleVector(vel, -2048.0);
 	Entity_SetAbsVelocity(ent, vel);
+	TE_SetupBeamFollow(ent, g_cModel, g_cModel, 0.25, 1.0, 0.0, 0, {255, 0, 0, 64});
+	TE_SendToAll();
 
 	return Plugin_Continue;
 }

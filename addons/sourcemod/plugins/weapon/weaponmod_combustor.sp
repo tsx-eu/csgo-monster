@@ -75,11 +75,10 @@ public Action OnAttack(int client, int entity) {
 	
 	int ent = CWM_ShootProjectile(client, entity, NULL_MODEL, "rocket", 0.0, 1024.0, OnProjectileHit);
 	SetEntityMoveType(ent, MOVETYPE_FLY);
+	SetEntPropEnt(ent, Prop_Send, "m_hEffectEntity", AttachParticle(ent, "combustor", 5.0));
 	
 	TE_SetupBeamFollow(ent, g_cModel, g_cModel, 0.25, 1.0, 0.0, 0, {255, 128, 0, 64});
 	TE_SendToAll();
-	
-	AttachParticle(ent, "combustor", 5.0);
 	
 	return Plugin_Continue;
 }

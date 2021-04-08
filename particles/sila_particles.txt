@@ -1,1 +1,0 @@
-materials\particle\2joints_trail\bluespark.vmt

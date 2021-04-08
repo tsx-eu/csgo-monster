@@ -1,7 +1,0 @@
-materials\effects\starflash01.vmt
-materials\effects\brightglow_y_nomodel.vmt
-materials\effects\softglow_translucent.vmt
-materials\effects\smoke\smokelit.vmt
-materials\effects\softglow.vmt
-materials\effects\wispy_smoke.vmt
-materials\effects\sc_electric1.vmt
