@@ -162,6 +162,8 @@ native void 		DH_Melee(NPCInstance id, int damage, float range=NPC_RANGE_MELEE, 
 native int 			DH_Projectile(NPCInstance id, const char[] model, float time=0.0, float spreadAngle=0.0, float speed = 8192.0, float gravity = 0.0, DH_ProjectileCreate create = INVALID_FUNCTION, DH_ProjectileHit hit = INVALID_FUNCTION);
 native void 		DH_Damage(NPCInstance id, int victim, int damage, int inflictor=0, int type = DMG_GENERIC);
 
+native void 		DH_UTIL_GetAttachment(int entity, const char[] name, float pos[3], float ang[3]);
+
 methodmap NPCClass {
 	public NPCClass(const char[] fullname, const char[] name, const char[] model) {
 		return DH_Create(fullname, name, model);

@@ -33,7 +33,9 @@ APLRes Native_REGISTER() {
 	CreateNative("DH_Projectile", 			Native_DH_Projectile);
 	CreateNative("DH_Damage", 				Native_DH_Damage);
 	
-	RegPluginLibrary("DH-CORE"); 
+	CreateNative("DH_UTIL_GetAttachment", 	Native_DH_UTIL_GetAttachment);
+	
+	RegPluginLibrary("DH-CORE");
 	return APLRes_Success;
 }
 public int Native_DH_Create(Handle plugin, int numParams) {
@@ -535,3 +537,20 @@ public any Native_DH_Damage(Handle plugin, int numParams) {
 	if( IsValidClient(target) )
 		g_iInstance[entity][NPC_iAttackSucceded]++;
 }
+
+public int Native_DH_UTIL_GetAttachment(Handle plugin, int numParams) {
+	static char name[PLATFORM_MAX_PATH];
+	float pos[3], ang[3];
+	
+	int entity = GetNativeCell(1);
+	GetNativeString(2, name, sizeof(name));
+	GetNativeArray(3, pos, sizeof(pos));
+	GetNativeArray(4, ang, sizeof(ang));
+	
+	int ret = Entity_GetAttachment(entity, name, pos, ang);
+	SetNativeArray(3, pos, sizeof(pos));
+	SetNativeArray(4, ang, sizeof(ang));
+	
+	return ret;
+}
+

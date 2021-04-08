@@ -4,12 +4,15 @@
 #include <sdkhooks>
 #include <smlib>
 #include <phun>
+#include <sendproxy>
+#include <cstrike>
 
 #define HIDEHUD_HEALTH_AND_WEAPON 	(1<<4)
 #define HIDEHUD_THE_CHAT			(1<<7)
 #define HIDEHUD_RADAR	 			(1<<12)
 
-#define HIDEHUD_MOD					(HIDEHUD_HEALTH_AND_WEAPON|HIDEHUD_THE_CHAT|HIDEHUD_RADAR)
+//#define HIDEHUD_MOD					(HIDEHUD_HEALTH_AND_WEAPON|HIDEHUD_THE_CHAT|HIDEHUD_RADAR)
+#define HIDEHUD_MOD					(1<<0)
 
 
 int g_iLowLifeParticle[65];
@@ -51,7 +54,10 @@ public Action Effect_Particle(int client, int args) {
 }
 public void OnMapStart() {
 	PrecacheGeneric("particles/blood_impact_gore.pcf", true);
-	PrecacheGeneric("particles/3j.pcf", true);
+	PrecacheGeneric("particles/kosso_1.pcf", true);
+	
+	PrecacheMaterial("dh/hud/WeaponSwitch/active.vmt");
+	PrecacheMaterial("dh/hud/WeaponSwitch/inactive.vmt");
 }
 public void OnConfigsExecuted() {
 	ServerCommand("mp_playercashawards 0");
@@ -90,7 +96,7 @@ public Action Task_UpdateHUD(Handle timer, any victim) {
 
 void HUD_Update(int client) {
 	float ratio = float(Entity_GetHealth(client)) / float(Entity_GetMaxHealth(client));
-	int img = RoundToCeil(ratio * 20.0) * 5;
+	int img = RoundToCeil(ratio * 19.0) * 5;
 	if( img > 95 )
 		img = 95;
 	if( img < 0 )
@@ -101,7 +107,7 @@ void HUD_Update(int client) {
 	int hud1 = GetEntProp(client, Prop_Send, "m_iHideHUD");
 	int hud2 = hud1;
 	hud1 |= HIDEHUD_MOD;
-
+	hud1 = 0;
 	if( hud1 != hud2 )
 		SetEntProp(client, Prop_Send, "m_iHideHUD", hud1);
 	
@@ -110,9 +116,8 @@ void HUD_Update(int client) {
 	
 	int ref = EntRefToEntIndex(g_iLowLifeParticle[client]);
 	
-	if( img <= 10 && ref <= 0 )
+	if( img <= 10 && ref <= 0 && IsPlayerAlive(client) )
 		g_iLowLifeParticle[client] = EntIndexToEntRef(AttachParticle(client, "danger_in_zone", 99999.9));
 	if( img > 10 && ref > 0 )
 		AcceptEntityInput(ref, "Kill");
-	
 }

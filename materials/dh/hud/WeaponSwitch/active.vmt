@@ -1,0 +1,7 @@
+"Sprite"
+{
+	"$basetexture" 			"dh/hud/WeaponSwitch/active"
+	"$nocull" 				"1"
+	"$spriteorientation" 	"oriented"
+	"$ignorez"     			"1"
+}
