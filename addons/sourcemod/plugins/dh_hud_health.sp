@@ -53,8 +53,17 @@ public Action Effect_Particle(int client, int args) {
 	return Plugin_Handled;
 }
 public void OnMapStart() {
+	char tmp[PLATFORM_MAX_PATH];
 	PrecacheGeneric("particles/blood_impact_gore.pcf", true);
 	PrecacheGeneric("particles/kosso_1.pcf", true);
+	
+	AddFileToDownloadsTable("particles/kosso_1.pcf");
+	for(int i=0; i<20; i++) {
+		Format(tmp, sizeof(tmp), "materials/dh/hud/HP/%d.vmt", i * 5);
+		AddFileToDownloadsTable(tmp);
+		Format(tmp, sizeof(tmp), "materials/dh/hud/HP/%d.vtf", i * 5);
+		AddFileToDownloadsTable(tmp);
+	}
 	
 	PrecacheMaterial("dh/hud/WeaponSwitch/active.vmt");
 	PrecacheMaterial("dh/hud/WeaponSwitch/inactive.vmt");

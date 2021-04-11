@@ -17,19 +17,31 @@ char g_szVModel[PLATFORM_MAX_PATH] =	"models/weapons/v_pist_tec9.mdl";
 char g_szWModel[PLATFORM_MAX_PATH] =	"models/weapons/w_pist_tec9.mdl";
 int g_cModel;
 
+enum struct PlayerData {
+	Handle timer;
+	int view;
+	int world;
+}
+
+PlayerData g_pData[65];
+
 char g_szMaterials[][PLATFORM_MAX_PATH] = {
 };
+
 char g_szSounds[][PLATFORM_MAX_PATH] = {
 	"weapons/hegrenade/explode3.wav",
 	"weapons/hegrenade/explode4.wav",
 	"weapons/hegrenade/explode5.wav"
 };
 
+public void OnClientPostAdminCheck(int client) {
+	g_pData[client].timer = null;
+}
 public void OnLibraryAdded(const char[] sLibrary) {
 	if( StrEqual(sLibrary, "CWM-CORE") ) {
 		int id = CWM_Create(g_szFullName, g_szName, g_szReplace, g_szVModel, g_szWModel);
 	
-		CWM_SetInt(id, WSI_AttackType,		view_as<int>(WSA_Automatic));
+		CWM_SetInt(id, WSI_AttackType,		view_as<int>(WSA_LockAndLoad));
 		CWM_SetInt(id, WSI_ReloadType,		view_as<int>(WSR_Automatic));
 		CWM_SetInt(id, WSI_AttackDamage, 	25);
 		CWM_SetInt(id, WSI_AttackBullet, 	1);
@@ -38,7 +50,7 @@ public void OnLibraryAdded(const char[] sLibrary) {
 		
 		CWM_SetFloat(id, WSF_Speed,			250.0);
 		CWM_SetFloat(id, WSF_ReloadSpeed,	77/30.0);
-		CWM_SetFloat(id, WSF_AttackSpeed,	8/30.0);
+		CWM_SetFloat(id, WSF_AttackSpeed,	0.1);
 		CWM_SetFloat(id, WSF_AttackRange,	2048.0);
 		CWM_SetFloat(id, WSF_Spread, 		0.0);
 		
@@ -50,6 +62,7 @@ public void OnLibraryAdded(const char[] sLibrary) {
 		
 		CWM_RegHook(id, WSH_Draw,			OnDraw);
 		CWM_RegHook(id, WSH_Attack,			OnAttack);
+		CWM_RegHook(id, WSH_AttackPost,		OnAttackPost);
 		CWM_RegHook(id, WSH_Idle,			OnIdle);
 		CWM_RegHook(id, WSH_Reload,			OnReload);
 	}
@@ -64,41 +77,41 @@ public void OnReload(int client, int entity) {
 	CWM_RunAnimation(entity, WAA_Reload);
 }
 public Action OnAttack(int client, int entity) {
-	CWM_RunAnimation(entity, WAA_Attack, 10/30.0);
+	g_pData[client].view = createParticle(client);
+	return Plugin_Continue;
+}
+public Action OnAttackPost(int client, int entity) {
+	AcceptEntityInput(GetEntPropEnt(g_pData[client].view, Prop_Data, "m_hEffectEntity"), "FireUser1");
+	
+	AcceptEntityInput(g_pData[client].view, "DestroyImmediately");
+	AcceptEntityInput(g_pData[client].view, "FireUser1");
+	return Plugin_Continue;
+}
+int createParticle(int client) {
+	static char tmp[128];
 	
 	int view = GetEntPropEnt(client, Prop_Send, "m_hViewModel");
-	int world = GetEntPropEnt(entity, Prop_Send, "m_hWeaponWorldModel");
-	float vecSrc[3], vecDst[3], vecAngles[3];
-	char tmp1[128], tmp2[128];
-	
-	GetClientEyePosition(client, vecSrc);
-	GetClientEyeAngles(client, vecAngles);
-	GetAngleVectors(vecAngles, vecDst, NULL_VECTOR, NULL_VECTOR);
-	ScaleVector(vecDst, 1024.0);
-	AddVectors(vecSrc, vecDst, vecDst);
 	
 	int dst = CreateEntityByName("info_particle_system");
-	Format(tmp1, sizeof(tmp1), "target1_%d", GetRandomInt(-99999, 99999));
-	Format(tmp2, sizeof(tmp2), "target2_%d", GetRandomInt(-99999, 99999));
+	Format(tmp, sizeof(tmp), "target_%d_%d", dst, GetRandomInt(-99999, 99999));
 
-	DispatchKeyValue(dst, "OnUser1", "!self,KillHierarchy,,1.0,-1");
-	DispatchKeyValue(dst, "targetname", tmp1);
+	DispatchKeyValue(dst, "OnUser1", "!self,KillHierarchy,,0.1,-1");
+	DispatchKeyValue(dst, "targetname", tmp);
 	DispatchSpawn(dst);
 	ActivateEntity(dst);
-	AcceptEntityInput(dst, "FireUser1");
 	
 	SetVariantString("!activator");
 	AcceptEntityInput(dst, "SetParent", view);
 	
-	TeleportEntity(dst, view_as<float>({1024.0, 0.0, 0.0}), NULL_VECTOR, NULL_VECTOR);
+	TeleportEntity(dst, view_as<float>({256.0, 0.0, 0.0}), NULL_VECTOR, NULL_VECTOR);
 	
 	int src = CreateEntityByName("info_particle_system");
-	DispatchKeyValue(src, "OnUser1", "!self,KillHierarchy,,1.0,-1");
-	DispatchKeyValue(src, "cpoint1", tmp1);
-	DispatchKeyValue(src, "effect_name", "smoker_tongue");
+	DispatchKeyValue(src, "OnUser1", "!self,KillHierarchy,,0.1,-1");
+	DispatchKeyValue(src, "cpoint1", tmp);
+	DispatchKeyValue(src, "effect_name", "linkgun");
 	DispatchSpawn(src);
 	ActivateEntity(src); 
-	AcceptEntityInput(src, "FireUser1");
+
 	AcceptEntityInput(src, "start");
 	
 	SetVariantString("!activator");
@@ -106,14 +119,15 @@ public Action OnAttack(int client, int entity) {
 	
 	SetVariantString("1");
 	AcceptEntityInput(src, "SetParentAttachment");
+	SetEntPropEnt(src, Prop_Data, "m_hEffectEntity", dst);
 	
-	return Plugin_Continue;
+	return src;
 }
 public void OnMapStart() {
 	AddModelToDownloadsTable(g_szVModel);
 	AddModelToDownloadsTable(g_szWModel);
 	
-	g_cModel = PrecacheModel("materials/sprites/laserbeam.vmt");
+	g_cModel = PrecacheModel("materials/particle/smoker_tongue_beam.vmt");
 	
 	for (int i = 0; i < sizeof(g_szSounds); i++) {
 		AddSoundToDownloadsTable(g_szSounds[i]);
