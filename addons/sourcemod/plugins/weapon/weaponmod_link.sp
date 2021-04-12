@@ -77,17 +77,79 @@ public void OnReload(int client, int entity) {
 	CWM_RunAnimation(entity, WAA_Reload);
 }
 public Action OnAttack(int client, int entity) {
-	g_pData[client].view = createParticle(client);
+	g_pData[client].view = createViewParticle(client);
+	g_pData[client].world = createWorldParticle(client);
+	
+	// https://forums.alliedmods.net/showthread.php?p=2483070#post2483070
+	SetFlags(g_pData[client].view);
+	Entity_SetOwner(g_pData[client].view, client);
+	SDKHook(g_pData[client].view, SDKHook_SetTransmit, OnSetTransmitView);
+	
+	SetFlags(g_pData[client].world);
+	Entity_SetOwner(g_pData[client].world, client);
+	SDKHook(g_pData[client].world, SDKHook_SetTransmit, OnSetTransmitWorld);
+	
+	
+	SDKHook(client, SDKHook_PreThink, OnPreThink);
 	return Plugin_Continue;
 }
 public Action OnAttackPost(int client, int entity) {
-	AcceptEntityInput(GetEntPropEnt(g_pData[client].view, Prop_Data, "m_hEffectEntity"), "FireUser1");
+	AcceptEntityInput(GetEntPropEnt(g_pData[client].world, Prop_Data, "m_hEffectEntity"), "FireUser1");
+	AcceptEntityInput(g_pData[client].world, "DestroyImmediately");
+	AcceptEntityInput(g_pData[client].world, "FireUser1");
 	
-	AcceptEntityInput(g_pData[client].view, "DestroyImmediately");
-	AcceptEntityInput(g_pData[client].view, "FireUser1");
+	AcceptEntityInput(GetEntPropEnt(g_pData[client].view,  Prop_Data, "m_hEffectEntity"), "FireUser1");
+	AcceptEntityInput(g_pData[client].view,  "DestroyImmediately");
+	AcceptEntityInput(g_pData[client].view,  "FireUser1");
+	
+	SDKUnhook(client, SDKHook_PreThink, OnPreThink);
 	return Plugin_Continue;
 }
-int createParticle(int client) {
+public void OnPreThink(int client) {
+	float pos[3], ang[3], dir[3];
+	GetClientEyePosition(client, pos);
+	GetClientEyeAngles(client, ang);
+	GetAngleVectors(ang, dir, NULL_VECTOR, NULL_VECTOR);
+	ScaleVector(dir, 256.0);
+	AddVectors(pos, dir, dir);
+	
+	int dst = GetEntPropEnt(g_pData[client].world, Prop_Data, "m_hEffectEntity");
+	TeleportEntity(dst, dir, NULL_VECTOR, NULL_VECTOR);
+}
+int createWorldParticle(int client) {
+	static char tmp[128];
+	
+	int entity = GetEntPropEnt(client, Prop_Data, "m_hActiveWeapon");
+	int world = GetEntPropEnt(entity, Prop_Send, "m_hWeaponWorldModel");
+	
+	int dst = CreateEntityByName("info_particle_system");
+	Format(tmp, sizeof(tmp), "target_%d_%d", dst, GetRandomInt(-99999, 99999));
+
+	DispatchKeyValue(dst, "OnUser1", "!self,KillHierarchy,,0.1,-1");
+	DispatchKeyValue(dst, "targetname", tmp);
+	DispatchSpawn(dst);
+	ActivateEntity(dst);
+	
+	int src = CreateEntityByName("info_particle_system");
+	DispatchKeyValue(src, "OnUser1", "!self,KillHierarchy,,0.1,-1");
+	DispatchKeyValue(src, "cpoint1", tmp);
+	DispatchKeyValue(src, "effect_name", "linkgun");
+	DispatchSpawn(src);
+	ActivateEntity(src); 
+
+	AcceptEntityInput(src, "start");
+	
+	SetVariantString("!activator");
+	AcceptEntityInput(src, "SetParent", world);
+	
+	SetVariantString("muzzle_flash");
+	AcceptEntityInput(src, "SetParentAttachment");
+	SetEntPropEnt(src, Prop_Data, "m_hEffectEntity", dst);
+	
+	return src;
+	
+}
+int createViewParticle(int client) {
 	static char tmp[128];
 	
 	int view = GetEntPropEnt(client, Prop_Send, "m_hViewModel");
@@ -123,6 +185,25 @@ int createParticle(int client) {
 	
 	return src;
 }
+public Action OnSetTransmitView(int entity, int client) {
+	SetFlags(entity);
+	
+	if( Entity_GetOwner(entity) == client )
+		return Plugin_Continue;
+	return Plugin_Stop;
+}
+public Action OnSetTransmitWorld(int entity, int client) {
+	SetFlags(entity);
+	
+	if( Entity_GetOwner(entity) != client )
+		return Plugin_Continue;
+	return Plugin_Stop;
+}
+
+public void SetFlags(int ent) {
+    if( GetEdictFlags(ent) & FL_EDICT_ALWAYS )
+    	SetEdictFlags(ent, (GetEdictFlags(ent) ^ FL_EDICT_ALWAYS)); 
+} 
 public void OnMapStart() {
 	AddModelToDownloadsTable(g_szVModel);
 	AddModelToDownloadsTable(g_szWModel);
