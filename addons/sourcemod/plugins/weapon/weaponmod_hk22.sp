@@ -20,13 +20,10 @@ int g_cModel;
 
 char g_szMaterials[][PLATFORM_MAX_PATH] = {
 };
-char g_szSounds[][PLATFORM_MAX_PATH] = {
-	"weapons/hegrenade/explode3.wav",
-	"weapons/hegrenade/explode4.wav",
-	"weapons/hegrenade/explode5.wav",
-	
-	"dh/weapons/hk22_attack.wav",
-	"dh/weapons/hk22_firing.wav"
+char g_szSounds[][PLATFORM_MAX_PATH] = {	
+	"dh/weapons/hk22_attack.mp3",
+	"dh/weapons/hk22_flying.mp3",
+	"dh/weapons/hk22_explod.mp3"
 };
 
 public void OnLibraryAdded(const char[] sLibrary) {
@@ -69,7 +66,7 @@ public void OnReload(int client, int entity) {
 }
 public Action OnAttack(int client, int entity) {
 	
-	EmitAmbientSound("dh/weapons/hk22_attack.wav", NULL_VECTOR, entity, SNDLEVEL_GUNFIRE, SND_NOFLAGS, 0.5, GetRandomInt(90, 110));
+	EmitAmbientSound("dh/weapons/hk22_attack.mp3", NULL_VECTOR, entity, SNDLEVEL_GUNFIRE, SND_NOFLAGS, 0.5, GetRandomInt(90, 110));
 	CWM_RunAnimation(entity, WAA_Attack, 10/30.0);
 	
 	int ent = CWM_ShootProjectile(client, entity, g_szTModel, "rocket", 0.0, 400.0, OnProjectileHit);
@@ -79,18 +76,19 @@ public Action OnAttack(int client, int entity) {
 	TE_SetupBeamFollow(ent, g_cModel, g_cModel, 0.25, 1.0, 0.0, 0, {0, 128, 255, 64});
 	TE_SendToAll();
 	
-	EmitSoundToAll("dh/weapons/hk22_firing.wav", ent, SNDCHAN_WEAPON, SNDLEVEL_ROCKET, SND_NOFLAGS, 1.0, GetRandomInt(90, 110), ent, _, _, true);
+	
+	EmitAmbientSound("dh/weapons/hk22_flying.mp3", NULL_VECTOR, entity, SNDLEVEL_GUNFIRE, SND_NOFLAGS, 0.5, GetRandomInt(90, 110));
 	CreateTimer(0.1, OnProjectileThink, EntIndexToEntRef(ent), TIMER_REPEAT);
 	CreateTimer(1.5, OnProjectileFlying, EntIndexToEntRef(ent), TIMER_REPEAT);
 	
 	return Plugin_Continue;
 }
 public Action OnProjectileFlying(Handle timer, any ref) {
-	int ent = EntRefToEntIndex(ref);
-	if( ent <= 0 )
+	int entity = EntRefToEntIndex(ref);
+	if( entity <= 0 )
 		return Plugin_Stop;
 	
-	EmitSoundToAll("dh/weapons/hk22_firing.wav", ent, SNDCHAN_WEAPON, SNDLEVEL_ROCKET, SND_NOFLAGS, 1.0, GetRandomInt(90, 110), ent, _, _, true);
+	EmitAmbientSound("dh/weapons/hk22_flying.mp3", NULL_VECTOR, entity, SNDLEVEL_GUNFIRE, SND_NOFLAGS, 0.2, GetRandomInt(90, 110));
 	return Plugin_Continue;
 }
 int findNearestEnemy(int entity, float dist=128.0) {
@@ -172,12 +170,10 @@ public Action OnProjectileThink3(Handle timer, any ref) {
 	return Plugin_Continue;
 }
 public Action OnProjectileHit(int client, int wpnid, int entity, int target) {
-	static char sound[PLATFORM_MAX_PATH];
 	float pos[3];
 	Entity_GetAbsOrigin(entity, pos);
 	
-	Format(sound, sizeof(sound), "weapons/hegrenade/explode%d.wav", GetRandomInt(3, 5));
-	EmitAmbientSound(sound, NULL_VECTOR, entity, SNDLEVEL_ROCKET, SND_NOFLAGS, 1.0, GetRandomInt(150, 175));
+	EmitAmbientSound("dh/weapons/hk22_explod.mp3", pos, SOUND_FROM_WORLD, SNDLEVEL_GUNFIRE, SND_NOFLAGS, 0.5, GetRandomInt(90, 110));
 	
 	ShowParticle(pos, "combustor_explode", 5.0);
 	return Plugin_Handled;
