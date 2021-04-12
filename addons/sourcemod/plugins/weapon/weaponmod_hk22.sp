@@ -23,7 +23,10 @@ char g_szMaterials[][PLATFORM_MAX_PATH] = {
 char g_szSounds[][PLATFORM_MAX_PATH] = {
 	"weapons/hegrenade/explode3.wav",
 	"weapons/hegrenade/explode4.wav",
-	"weapons/hegrenade/explode5.wav"
+	"weapons/hegrenade/explode5.wav",
+	
+	"dh/weapons/hk22_attack.wav",
+	"dh/weapons/hk22_firing.wav"
 };
 
 public void OnLibraryAdded(const char[] sLibrary) {
@@ -65,7 +68,8 @@ public void OnReload(int client, int entity) {
 	CWM_RunAnimation(entity, WAA_Reload);
 }
 public Action OnAttack(int client, int entity) {
-	static char sound[PLATFORM_MAX_PATH];
+	
+	EmitAmbientSound("dh/weapons/hk22_attack.wav", NULL_VECTOR, entity, SNDLEVEL_GUNFIRE, SND_NOFLAGS, 0.5, GetRandomInt(90, 110));
 	CWM_RunAnimation(entity, WAA_Attack, 10/30.0);
 	
 	int ent = CWM_ShootProjectile(client, entity, g_szTModel, "rocket", 0.0, 400.0, OnProjectileHit);
@@ -75,10 +79,20 @@ public Action OnAttack(int client, int entity) {
 	TE_SetupBeamFollow(ent, g_cModel, g_cModel, 0.25, 1.0, 0.0, 0, {0, 128, 255, 64});
 	TE_SendToAll();
 	
+	EmitSoundToAll("dh/weapons/hk22_firing.wav", ent, SNDCHAN_WEAPON, SNDLEVEL_ROCKET, SND_NOFLAGS, 1.0, GetRandomInt(90, 110), ent, _, _, true);
 	CreateTimer(0.1, OnProjectileThink, EntIndexToEntRef(ent), TIMER_REPEAT);
+	CreateTimer(1.5, OnProjectileFlying, EntIndexToEntRef(ent), TIMER_REPEAT);
+	
 	return Plugin_Continue;
 }
-
+public Action OnProjectileFlying(Handle timer, any ref) {
+	int ent = EntRefToEntIndex(ref);
+	if( ent <= 0 )
+		return Plugin_Stop;
+	
+	EmitSoundToAll("dh/weapons/hk22_firing.wav", ent, SNDCHAN_WEAPON, SNDLEVEL_ROCKET, SND_NOFLAGS, 1.0, GetRandomInt(90, 110), ent, _, _, true);
+	return Plugin_Continue;
+}
 int findNearestEnemy(int entity, float dist=128.0) {
 	int best = 0;
 	
