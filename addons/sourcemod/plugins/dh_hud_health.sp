@@ -93,6 +93,11 @@ public Action Task_Client(Handle timer, any userid) {
 	if( client <= 0 )
 		return Plugin_Stop;
 	
+	if( GetClientTeam(client) != CS_TEAM_T )
+		CS_SwitchTeam(client, CS_TEAM_T);
+	if( !IsPlayerAlive(client) )
+		CS_RespawnPlayer(client);
+	
 	HUD_Update(client);
 	return Plugin_Continue;
 }
@@ -125,8 +130,22 @@ void HUD_Update(int client) {
 	
 	int ref = EntRefToEntIndex(g_iLowLifeParticle[client]);
 	
-	if( img <= 10 && ref <= 0 && IsPlayerAlive(client) )
-		g_iLowLifeParticle[client] = EntIndexToEntRef(AttachParticle(client, "danger_in_zone", 99999.9));
+	if( img <= 10 && ref <= 0 && IsPlayerAlive(client) ) {
+		int ent = AttachParticle(client, "danger_in_zone", 99999.9);
+		
+		g_iLowLifeParticle[client] = EntIndexToEntRef(ent);
+		
+		SetFlags(ent);
+		Entity_SetOwner(ent, client);
+		SDKHook(ent, SDKHook_SetTransmit, OnSetTransmitView);
+	}
 	if( img > 10 && ref > 0 )
 		AcceptEntityInput(ref, "Kill");
+}
+public Action OnSetTransmitView(int entity, int client) {
+	SetFlags(entity);
+	
+	if( Entity_GetOwner(entity) == client )
+		return Plugin_Continue;
+	return Plugin_Stop;
 }
