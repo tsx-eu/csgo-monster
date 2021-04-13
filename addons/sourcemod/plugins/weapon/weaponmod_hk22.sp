@@ -182,6 +182,7 @@ public Action OnProjectileHit(int client, int wpnid, int entity, int target) {
 public void OnMapStart() {
 	AddModelToDownloadsTable(g_szVModel);
 	AddModelToDownloadsTable(g_szWModel);
+	AddModelToDownloadsTable(g_szTModel);
 	
 	g_cModel = PrecacheModel("materials/sprites/laserbeam.vmt");
 	
