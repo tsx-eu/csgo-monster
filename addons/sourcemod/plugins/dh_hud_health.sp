@@ -135,7 +135,7 @@ void HUD_Update(int client) {
 		
 		g_iLowLifeParticle[client] = EntIndexToEntRef(ent);
 		
-		SetFlags(ent);
+		SetTransmitFlags(ent);
 		Entity_SetOwner(ent, client);
 		SDKHook(ent, SDKHook_SetTransmit, OnSetTransmitView);
 	}
@@ -143,9 +143,13 @@ void HUD_Update(int client) {
 		AcceptEntityInput(ref, "Kill");
 }
 public Action OnSetTransmitView(int entity, int client) {
-	SetFlags(entity);
+	SetTransmitFlags(entity);
 	
 	if( Entity_GetOwner(entity) == client )
 		return Plugin_Continue;
 	return Plugin_Stop;
+}
+public void SetTransmitFlags(int ent) {
+    if( GetEdictFlags(ent) & FL_EDICT_ALWAYS )
+    	SetEdictFlags(ent, (GetEdictFlags(ent) ^ FL_EDICT_ALWAYS)); 
 }

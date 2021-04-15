@@ -18,7 +18,6 @@ char g_szWModel[PLATFORM_MAX_PATH] =	"models/weapons/w_pist_tec9.mdl";
 int g_cModel;
 
 enum struct PlayerData {
-	Handle timer;
 	int view;
 	int world;
 }
@@ -34,9 +33,6 @@ char g_szSounds[][PLATFORM_MAX_PATH] = {
 	"weapons/hegrenade/explode5.wav"
 };
 
-public void OnClientPostAdminCheck(int client) {
-	g_pData[client].timer = null;
-}
 public void OnLibraryAdded(const char[] sLibrary) {
 	if( StrEqual(sLibrary, "CWM-CORE") ) {
 		int id = CWM_Create(g_szFullName, g_szName, g_szReplace, g_szVModel, g_szWModel);
@@ -77,10 +73,10 @@ public void OnReload(int client, int entity) {
 	CWM_RunAnimation(entity, WAA_Reload);
 }
 public Action OnAttack(int client, int entity) {
-	g_pData[client].view = CWM_CreateClientParticle(client, true, "linkgun", view_as<float>({ 256.0, 0.0, 0.0 }));
-	g_pData[client].world = CWM_CreateClientParticle(client, false, "linkgun");
-
-	SDKHook(client, SDKHook_PreThink, OnPreThink);
+	g_pData[client].view = CWM_CreateClientParticle(client, true, "linkgun", true, view_as<float>({ 256.0, 0.0, 0.0 }));
+	g_pData[client].world = CWM_CreateClientParticle(client, false, "linkgun", false, NULL_VECTOR);
+	
+	SDKUnhook(client, SDKHook_PreThink, OnPreThink);
 	return Plugin_Continue;
 }
 public Action OnAttackPost(int client, int entity) {
