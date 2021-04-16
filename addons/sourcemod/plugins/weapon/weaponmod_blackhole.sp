@@ -112,9 +112,9 @@ public Action OnAttack(int client, int entity) {
 	SetVariantString("!activator");
 	AcceptEntityInput(src, "SetParent", ent);
 	
-	float size[3] = { 0.25, 0.0, 0.0 };
+	float size[3] = { 0.25, 0.0, 8.0 };
 	TeleportEntity(dst, size, NULL_VECTOR, NULL_VECTOR);
-	TeleportEntity(src, view_as<float>({ 0.0, 0.0, 0.0 }), NULL_VECTOR, NULL_VECTOR);
+	TeleportEntity(src, view_as<float>({ 0.0, 0.0, 8.0 }), NULL_VECTOR, NULL_VECTOR);
 	
 	AcceptEntityInput(src, "start");
 	AcceptEntityInput(src, "FireUser1");
@@ -142,14 +142,18 @@ public Action OnThink(Handle timer, any ref) {
 		if( i == ent )
 			continue;
 		
-		if( g_hData[i].time > g_hData[ent].time && Entity_GetDistance(i, ent) < 8.0 ) {
-			DispatchKeyValue(ent, "OnUser1", "!self,KillHierarchy,,0.1,-1");
+		if( g_hData[i].time > g_hData[ent].time && Entity_GetDistance(i, ent) < 16.0 ) {
 			AcceptEntityInput(g_hData[ent].src, "DestroyImmediately");
+			DispatchKeyValue(ent, "classname", "removing");
+			DispatchKeyValue(ent, "OnUser1", "!self,KillHierarchy,,0.1,-1");
 			AcceptEntityInput(ent, "FireUser1");
+			g_hPtr.Erase(g_hPtr.FindValue(ent));
 			
 			g_hData[i].size += g_hData[ent].size;
 			size[0] = g_hData[i].size;
-			TeleportEntity(g_hData[i].dst, size, NULL_VECTOR, view_as<float>({ 0.0, 0.0, 0.0}));
+			size[2] = 8.0;
+			TeleportEntity(g_hData[i].dst, size, NULL_VECTOR, NULL_VECTOR);
+			TeleportEntity(i, NULL_VECTOR, NULL_VECTOR, view_as<float>({ 0.0, 0.0, 0.0 }));
 			return Plugin_Stop;
 		}
 	}
@@ -186,9 +190,6 @@ public void OnGameFrame() {
 				delta = GetVectorDistance(src, dst);
 				
 				if( delta < dist ) {
-					GetEdictClassname(i, classname, sizeof(classname));
-					PrintToChatAll(classname);
-					
 					SubtractVectors(dst, src, dst);
 					NormalizeVector(dst, dst);
 					ScaleVector(dst, (1.0 - (delta/ dist)) * 32.0);
