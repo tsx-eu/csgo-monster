@@ -76,7 +76,7 @@ public Action OnAttack(int client, int entity) {
 	g_pData[client].view = CWM_CreateClientParticle(client, true, "linkgun", true, view_as<float>({ 256.0, 0.0, 0.0 }));
 	g_pData[client].world = CWM_CreateClientParticle(client, false, "linkgun", false, NULL_VECTOR);
 	
-	SDKUnhook(client, SDKHook_PreThink, OnPreThink);
+	SDKHook(client, SDKHook_PreThink, OnPreThink);
 	return Plugin_Continue;
 }
 public Action OnAttackPost(int client, int entity) {
