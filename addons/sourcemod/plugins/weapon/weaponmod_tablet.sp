@@ -14,7 +14,7 @@ char g_szName[PLATFORM_MAX_PATH] 	 =	"tablet";
 char g_szReplace[PLATFORM_MAX_PATH]  =	"weapon_tec9";
 
 char g_szVModel[PLATFORM_MAX_PATH] =	"models/dh/weapons/v_tablet.mdl";
-char g_szWModel[PLATFORM_MAX_PATH] =	"models/dh/weapons/w_tablet.mdl";
+char g_szWModel[PLATFORM_MAX_PATH] =	"models/dh/weapons/v_tablet.mdl";
 int g_cModel;
 
 
