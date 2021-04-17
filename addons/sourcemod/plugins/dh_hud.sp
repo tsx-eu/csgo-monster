@@ -14,8 +14,8 @@
 #define HIDEHUD_RADAR	 			(1<<12)
 
 //#define HIDEHUD_MOD					(HIDEHUD_HEALTH_AND_WEAPON|HIDEHUD_THE_CHAT|HIDEHUD_RADAR)
+#define HIDEHUD_MOD					(HIDEHUD_HEALTH_AND_WEAPON|HIDEHUD_RADAR)
 #define HIDEHUD_MOD					0
-
 
 int g_iLowLifeParticle[65];
 
@@ -65,12 +65,16 @@ public void OnClientDisconnect(int client) {
 }
 public Action OnPlayerRunCmd(int client, int& buttons, int& impulse, float vel[3], float ang[3], int& weapon, int& subtype, int& cmd, int&tick, int& seed, int mouse[2]) {
 	static int oldButton[65];
+	static int tablet[65][16];
 	
 	if( !(oldButton[client] & IN_USE) && (buttons & IN_USE) ) {
-		CWM_Spawn(CWM_GetId("tablet"), client, NULL_VECTOR, NULL_VECTOR);
-		
+		tablet[client][0] = CWM_Spawn(CWM_GetId("tablet"), client, NULL_VECTOR, NULL_VECTOR);
 	}
 	if( (oldButton[client] & IN_USE) && !(buttons & IN_USE) ) {
+		if( tablet[client][0] > 0 ) {
+			RemovePlayerItem(client, tablet[client][0]);
+			AcceptEntityInput(tablet[client][0], "Kill");
+		}
 	}
 	
 	oldButton[client] = buttons;	
@@ -111,7 +115,7 @@ void HUD_Update(int client) {
 	
 	int hud1 = GetEntProp(client, Prop_Send, "m_iHideHUD");
 	int hud2 = hud1;
-	hud1 = HIDEHUD_MOD;
+	hud1 |= HIDEHUD_MOD;
 	if( hud1 != hud2 )
 		SetEntProp(client, Prop_Send, "m_iHideHUD", hud1);
 	

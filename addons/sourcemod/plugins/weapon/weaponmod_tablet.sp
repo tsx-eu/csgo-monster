@@ -42,15 +42,25 @@ public void OnLibraryAdded(const char[] sLibrary) {
 		CWM_SetFloat(id, WSF_Spread, 		0.0);
 		
 		CWM_AddAnimation(id, WAA_Draw, 		0,	16, 30);
+		CWM_AddAnimation(id, WAA_Pull, 		1,	16, 30);
 		CWM_AddAnimation(id, WAA_Idle, 		2,	1, 30);
 		
 		CWM_RegHook(id, WSH_Draw,			OnDraw);
+		CWM_RegHook(id, WSH_Pull,			OnPull);
 		CWM_RegHook(id, WSH_Attack,			OnAttack);
 		CWM_RegHook(id, WSH_Idle,			OnIdle);
 	}
 }
-public void OnDraw(int client, int entity) {
+public Action OnDraw(int client, int entity) {
 	CWM_RunAnimation(entity, WAA_Draw);
+	SetEntProp(client, Prop_Send, "m_iHideHUD", GetEntProp(client, Prop_Send, "m_iHideHUD")|HIDEHUD_CROSSHAIR);
+	SDKHook(client, SDKHook_PreThink, OnThink);
+	return Plugin_Handled;
+}
+public Action OnPull(int client , int entity) {
+	SetEntProp(client, Prop_Send, "m_iHideHUD", GetEntProp(client, Prop_Send, "m_iHideHUD")&~HIDEHUD_CROSSHAIR);
+	SDKUnhook(client, SDKHook_PreThink, OnThink);
+	return Plugin_Continue;
 }
 public void OnIdle(int client, int entity) {
 	CWM_RunAnimation(entity, WAA_Idle);
@@ -58,13 +68,26 @@ public void OnIdle(int client, int entity) {
 public void OnReload(int client, int entity) {
 	CWM_RunAnimation(entity, WAA_Reload);
 }
-public Action OnAttack(int client, int entity) {
+public void OnThink(int client) {
+	static int buttons[65][16];
+	
+	buttons[client][3] = 1;
+	buttons[client][4] = 1;
+	buttons[client][5] = 1;
+	buttons[client][6] = 1;
+	buttons[client][7] = 1;
+	buttons[client][8] = 2;
+	buttons[client][9] = 1;
+	
+	
 	int view = GetEntPropEnt(client, Prop_Send, "m_hViewModel");
 	int val = 0;
 	for(int i=0; i<15; i++)
-		val += RoundFloat(Pow(3.0, float(i)) * GetRandomInt(0, 2));
+		val += RoundFloat(Pow(3.0, float(i)) * buttons[client][i]);
 	
 	SetEntProp(view, Prop_Send, "m_nBody", val);
+}
+public Action OnAttack(int client, int entity) {
 	return Plugin_Continue;
 }
 public void OnMapStart() {
