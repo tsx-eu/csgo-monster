@@ -3,16 +3,18 @@
 #include <sourcemod>
 #include <sdkhooks>
 #include <smlib>
-#include <phun>
-#include <sendproxy>
 #include <cstrike>
+
+#include <dh>
+#include <phun>
+#include <custom_weapon_mod.inc>
 
 #define HIDEHUD_HEALTH_AND_WEAPON 	(1<<4)
 #define HIDEHUD_THE_CHAT			(1<<7)
 #define HIDEHUD_RADAR	 			(1<<12)
 
 //#define HIDEHUD_MOD					(HIDEHUD_HEALTH_AND_WEAPON|HIDEHUD_THE_CHAT|HIDEHUD_RADAR)
-#define HIDEHUD_MOD					(1<<0)
+#define HIDEHUD_MOD					0
 
 
 int g_iLowLifeParticle[65];
@@ -30,27 +32,6 @@ public void OnPluginStart() {
 		if( IsValidClient(i) )
 			OnClientPutInServer(i);
 	}
-	
-	RegAdminCmd("sm_effect_particles", Effect_Particle, 	ADMFLAG_BAN, 	"sm_effect_particles [player] [name] [delay]");
-}
-
-public Action Effect_Particle(int client, int args) {
-	int target = GetCmdArgInt(1);
-	char arg2[32], arg4[32];
-	GetCmdArg(2, arg2, sizeof(arg2));
-	float delay = GetCmdArgFloat(3);
-	
-	if( IsValidEdict(target) && IsValidEntity(target) ) {
-		int particles = AttachParticle(target, arg2, delay);
-		
-		if( args == 4 ) {
-			GetCmdArg(4, arg4, sizeof(arg4));
-			SetVariantString(arg4);
-			AcceptEntityInput(particles, "SetParentAttachment", particles, particles, 0);
-		}
-	}
-	
-	return Plugin_Handled;
 }
 public void OnMapStart() {
 	char tmp[PLATFORM_MAX_PATH];
@@ -64,19 +45,17 @@ public void OnMapStart() {
 		Format(tmp, sizeof(tmp), "materials/dh/hud/HP/%d.vtf", i * 5);
 		AddFileToDownloadsTable(tmp);
 	}
-	
-	PrecacheMaterial("dh/hud/WeaponSwitch/active.vmt");
-	PrecacheMaterial("dh/hud/WeaponSwitch/inactive.vmt");
 }
 public void OnConfigsExecuted() {
 	ServerCommand("mp_playercashawards 0");
 	ServerCommand("mp_teamcashawards 0");
 }
+// -----------------------------------------------------------------------
 public void OnClientPutInServer(int client) {
 	g_iLowLifeParticle[client] = INVALID_ENT_REFERENCE;
 
 	SDKHook(client, SDKHook_OnTakeDamagePost, OnDamage);
-	CreateTimer(1.0, Task_Client, GetClientUserId(client), TIMER_REPEAT);	
+	CreateTimer(1.0, OnClientSecond, GetClientUserId(client), TIMER_REPEAT);	
 	HUD_Update(client);
 }
 public void OnClientDisconnect(int client) {
@@ -84,11 +63,25 @@ public void OnClientDisconnect(int client) {
 	if( ref > 0 )
 		AcceptEntityInput(ref, "Kill");
 }
+public Action OnPlayerRunCmd(int client, int& buttons, int& impulse, float vel[3], float ang[3], int& weapon, int& subtype, int& cmd, int&tick, int& seed, int mouse[2]) {
+	static int oldButton[65];
+	
+	if( !(oldButton[client] & IN_USE) && (buttons & IN_USE) ) {
+		CWM_Spawn(CWM_GetId("tablet"), client, NULL_VECTOR, NULL_VECTOR);
+		
+	}
+	if( (oldButton[client] & IN_USE) && !(buttons & IN_USE) ) {
+	}
+	
+	oldButton[client] = buttons;	
+	return Plugin_Continue;
+}
+// -----------------------------------------------------------------------
 public Action OnDamage(int victim, int& attacker, int& inflictor, float& damage, int& damageType) {
 	HUD_Update(victim);
 	CreateTimer(0.1, Task_UpdateHUD, victim);
 }
-public Action Task_Client(Handle timer, any userid) {
+public Action OnClientSecond(Handle timer, any userid) {
 	int client = GetClientOfUserId(userid);
 	if( client <= 0 )
 		return Plugin_Stop;
@@ -101,13 +94,11 @@ public Action Task_Client(Handle timer, any userid) {
 	HUD_Update(client);
 	return Plugin_Continue;
 }
-
+// -----------------------------------------------------------------------
 public Action Task_UpdateHUD(Handle timer, any victim) {
 	HUD_Update(victim);
 	return Plugin_Continue;
 }
-
-
 void HUD_Update(int client) {
 	float ratio = float(Entity_GetHealth(client)) / float(Entity_GetMaxHealth(client));
 	int img = RoundToCeil(ratio * 19.0) * 5;
@@ -120,8 +111,7 @@ void HUD_Update(int client) {
 	
 	int hud1 = GetEntProp(client, Prop_Send, "m_iHideHUD");
 	int hud2 = hud1;
-	hud1 |= HIDEHUD_MOD;
-	hud1 = 0;
+	hud1 = HIDEHUD_MOD;
 	if( hud1 != hud2 )
 		SetEntProp(client, Prop_Send, "m_iHideHUD", hud1);
 	
@@ -142,6 +132,7 @@ void HUD_Update(int client) {
 	if( img > 10 && ref > 0 )
 		AcceptEntityInput(ref, "Kill");
 }
+// -----------------------------------------------------------------------
 public Action OnSetTransmitView(int entity, int client) {
 	SetTransmitFlags(entity);
 	
