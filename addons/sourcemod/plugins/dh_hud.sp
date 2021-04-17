@@ -18,6 +18,7 @@
 #define HIDEHUD_MOD					0
 
 int g_iLowLifeParticle[65];
+int g_iPosition[65][5][3];
 
 public Plugin myinfo = {
 	name = "DH: HUD",
@@ -65,20 +66,60 @@ public void OnClientDisconnect(int client) {
 }
 public Action OnPlayerRunCmd(int client, int& buttons, int& impulse, float vel[3], float ang[3], int& weapon, int& subtype, int& cmd, int&tick, int& seed, int mouse[2]) {
 	static int oldButton[65];
-	static int tablet[65][16];
+	static int tablet[65];
 	
 	if( !(oldButton[client] & IN_SCORE) && (buttons & IN_SCORE) ) {
-		tablet[client][0] = CWM_Spawn(CWM_GetId("tablet"), client, NULL_VECTOR, NULL_VECTOR);
+		tablet[client] = EntIndexToEntRef(CWM_Spawn(CWM_GetId("tablet"), client, NULL_VECTOR, NULL_VECTOR));
+		SDKHook(client, SDKHook_PreThink, OnThink);
 	}
 	if( (oldButton[client] & IN_SCORE) && !(buttons & IN_SCORE) ) {
-		if( tablet[client][0] > 0 ) {
-			RemovePlayerItem(client, tablet[client][0]);
-			AcceptEntityInput(tablet[client][0], "Kill");
+		int wep = EntRefToEntIndex(tablet[client]);
+		
+		if( wep > 0 ) {
+			RemovePlayerItem(client, wep);
+			AcceptEntityInput(wep, "Kill");
 		}
+		
+		// prevent unhook if not hooked:
+		SDKHook(client, SDKHook_PreThink, OnThink);
+		SDKUnhook(client, SDKHook_PreThink, OnThink);
+	}
+	
+	if( !(mouse[0] == 0 && mouse[1] == 0) ) {
+		for(int i=0; i<sizeof(g_iPosition[]); i++) {
+			for(int j=0; j<sizeof(g_iPosition[][]); j++) {
+				if( g_iPosition[client][i][j] == 2 )
+					g_iPosition[client][i][j] = 1;
+			}
+		}
+				
+		
+		if( mouse[0] > 0 )
+			mouse[0] = 1;
+		if( mouse[0] < 0 )
+			mouse[0] = -1;
+		
+		if( mouse[1] > 0 )
+			mouse[1] = 1;
+		if( mouse[1] < 0 )
+			mouse[1] = -1;
+		
+		g_iPosition[client][ mouse[0] + 1 ][ mouse[1] + 1 ] = 2;
 	}
 	
 	oldButton[client] = buttons;	
 	return Plugin_Continue;
+}
+
+public void OnThink(int client) {
+	int view = GetEntPropEnt(client, Prop_Send, "m_hViewModel");
+	
+	int val = 0;
+	for(int p=0; p<15; p++) {
+		val += RoundFloat(Pow(3.0, float(p)) * g_iPosition[client][p % 5][(p / 5 % 3)]);
+	}
+	
+	SetEntProp(view, Prop_Send, "m_nBody", val);
 }
 // -----------------------------------------------------------------------
 public Action OnDamage(int victim, int& attacker, int& inflictor, float& damage, int& damageType) {
