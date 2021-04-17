@@ -67,10 +67,10 @@ public Action OnPlayerRunCmd(int client, int& buttons, int& impulse, float vel[3
 	static int oldButton[65];
 	static int tablet[65][16];
 	
-	if( !(oldButton[client] & IN_USE) && (buttons & IN_USE) ) {
+	if( !(oldButton[client] & IN_SCORE) && (buttons & IN_SCORE) ) {
 		tablet[client][0] = CWM_Spawn(CWM_GetId("tablet"), client, NULL_VECTOR, NULL_VECTOR);
 	}
-	if( (oldButton[client] & IN_USE) && !(buttons & IN_USE) ) {
+	if( (oldButton[client] & IN_SCORE) && !(buttons & IN_SCORE) ) {
 		if( tablet[client][0] > 0 ) {
 			RemovePlayerItem(client, tablet[client][0]);
 			AcceptEntityInput(tablet[client][0], "Kill");
@@ -112,10 +112,11 @@ void HUD_Update(int client) {
 		img = 0;
 	
 	ClientCommand(client, "r_screenoverlay dh/hud/HP/%d", img);
+	SendConVarValue(client, FindConVar("game_type"), "6");
 	
 	int hud1 = GetEntProp(client, Prop_Send, "m_iHideHUD");
 	int hud2 = hud1;
-	hud1 |= HIDEHUD_MOD;
+	hud1 = HIDEHUD_MOD;
 	if( hud1 != hud2 )
 		SetEntProp(client, Prop_Send, "m_iHideHUD", hud1);
 	
@@ -123,7 +124,6 @@ void HUD_Update(int client) {
 		AttachParticle(client, "blood_pool", 0.1);
 	
 	int ref = EntRefToEntIndex(g_iLowLifeParticle[client]);
-	
 	if( img <= 10 && ref <= 0 && IsPlayerAlive(client) ) {
 		int ent = AttachParticle(client, "danger_in_zone", 99999.9);
 		

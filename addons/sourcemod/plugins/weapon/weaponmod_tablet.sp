@@ -11,12 +11,10 @@
 
 char g_szFullName[PLATFORM_MAX_PATH] =	"Tablet";
 char g_szName[PLATFORM_MAX_PATH] 	 =	"tablet";
-char g_szReplace[PLATFORM_MAX_PATH]  =	"weapon_tec9";
+char g_szReplace[PLATFORM_MAX_PATH]  =	"weapon_tablet";
 
 char g_szVModel[PLATFORM_MAX_PATH] =	"models/dh/weapons/v_tablet.mdl";
 char g_szWModel[PLATFORM_MAX_PATH] =	"models/dh/weapons/v_tablet.mdl";
-int g_cModel;
-
 
 char g_szMaterials[][PLATFORM_MAX_PATH] = {
 };
@@ -93,8 +91,6 @@ public Action OnAttack(int client, int entity) {
 public void OnMapStart() {
 	AddModelToDownloadsTable(g_szVModel);
 	AddModelToDownloadsTable(g_szWModel);
-	
-	g_cModel = PrecacheModel("materials/particle/smoker_tongue_beam.vmt");
 	
 	/*
 	for (int i = 0; i < sizeof(g_szSounds); i++) {
