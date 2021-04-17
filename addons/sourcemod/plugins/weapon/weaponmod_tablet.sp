@@ -16,6 +16,8 @@ char g_szReplace[PLATFORM_MAX_PATH]  =	"weapon_tablet";
 char g_szVModel[PLATFORM_MAX_PATH] =	"models/dh/weapons/v_tablet.mdl";
 char g_szWModel[PLATFORM_MAX_PATH] =	"models/dh/weapons/v_tablet.mdl";
 
+int g_iPosition[65][5][3];
+
 char g_szMaterials[][PLATFORM_MAX_PATH] = {
 };
 
@@ -52,13 +54,40 @@ public void OnLibraryAdded(const char[] sLibrary) {
 public Action OnDraw(int client, int entity) {
 	CWM_RunAnimation(entity, WAA_Draw);
 	SetEntProp(client, Prop_Send, "m_iHideHUD", GetEntProp(client, Prop_Send, "m_iHideHUD")|HIDEHUD_CROSSHAIR);
+	
+	Entity_AddFlags(client, FL_ATCONTROLS);
 	SDKHook(client, SDKHook_PreThink, OnThink);
 	return Plugin_Handled;
 }
 public Action OnPull(int client , int entity) {
 	SetEntProp(client, Prop_Send, "m_iHideHUD", GetEntProp(client, Prop_Send, "m_iHideHUD")&~HIDEHUD_CROSSHAIR);
+	Entity_RemoveFlags(client, FL_ATCONTROLS);
 	SDKUnhook(client, SDKHook_PreThink, OnThink);
 	return Plugin_Continue;
+}
+public Action OnPlayerRunCmd(int client, int& buttons, int& impulse, float vel[3], float ang[3], int& weapon, int& subtype, int& cmd, int&tick, int& seed, int mouse[2]) {
+	
+	if( !(mouse[0] == 0 && mouse[1] == 0) ) {
+		for(int i=0; i<sizeof(g_iPosition[]); i++) {
+			for(int j=0; j<sizeof(g_iPosition[][]); j++) {
+				if( g_iPosition[client][i][j] == 2 )
+					g_iPosition[client][i][j] = 1;
+			}
+		}
+				
+		
+		if( mouse[0] > 0 )
+			mouse[0] = 1;
+		if( mouse[0] < 0 )
+			mouse[0] = -1;
+		
+		if( mouse[1] > 0 )
+			mouse[1] = 1;
+		if( mouse[1] < 0 )
+			mouse[1] = -1;
+		
+		g_iPosition[client][ mouse[0] + 1 ][ mouse[1] + 1 ] = 2;
+	}
 }
 public void OnIdle(int client, int entity) {
 	CWM_RunAnimation(entity, WAA_Idle);
@@ -67,21 +96,14 @@ public void OnReload(int client, int entity) {
 	CWM_RunAnimation(entity, WAA_Reload);
 }
 public void OnThink(int client) {
-	static int buttons[65][16];
-	
-	buttons[client][3] = 1;
-	buttons[client][4] = 1;
-	buttons[client][5] = 1;
-	buttons[client][6] = 1;
-	buttons[client][7] = 1;
-	buttons[client][8] = 2;
-	buttons[client][9] = 1;
-	
-	
 	int view = GetEntPropEnt(client, Prop_Send, "m_hViewModel");
 	int val = 0;
-	for(int i=0; i<15; i++)
-		val += RoundFloat(Pow(3.0, float(i)) * buttons[client][i]);
+	for(int p=0; p<15; p++) {
+		int i = p % 5;
+		int j = (p / 5 % 3);
+		
+		val += RoundFloat(Pow(3.0, float(p)) * g_iPosition[client][i][j]);
+	}
 	
 	SetEntProp(view, Prop_Send, "m_nBody", val);
 }
