@@ -81,9 +81,9 @@ public void OnMapStart() {
 		AddSoundToDownloadsTable(g_szSounds[i]);
 		PrecacheSound(g_szSounds[i]);
 	}
-
+	*/
+	
 	for (int i = 0; i < sizeof(g_szMaterials); i++) {
 		AddFileToDownloadsTable(g_szMaterials[i]);
 	}
-	*/
 }

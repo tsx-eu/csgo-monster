@@ -15,7 +15,6 @@
 
 //#define HIDEHUD_MOD					(HIDEHUD_HEALTH_AND_WEAPON|HIDEHUD_THE_CHAT|HIDEHUD_RADAR)
 #define HIDEHUD_MOD					(HIDEHUD_HEALTH_AND_WEAPON|HIDEHUD_RADAR)
-#define HIDEHUD_MOD					0
 
 int g_iLowLifeParticle[65];
 int g_iPosition[65][5][3];
