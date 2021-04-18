@@ -2,7 +2,7 @@ versioninfo
 {
 	"editorversion" "400"
 	"editorbuild" "8456"
-	"mapversion" "39"
+	"mapversion" "41"
 	"formatversion" "100"
 	"prefab" "0"
 }
@@ -20,7 +20,7 @@ viewsettings
 world
 {
 	"id" "1"
-	"mapversion" "39"
+	"mapversion" "41"
 	"classname" "worldspawn"
 	"detailmaterial" "detail/detailsprites"
 	"detailvbsp" "detail.vbsp"
@@ -1833,9 +1833,9 @@ world
 		{
 			"id" "208"
 			"plane" "(0 232 448) (-0.000244141 756 320) (-54.0002 756 320)"
-			"material" "DEV/DEV_CORRUGATEDMETAL"
-			"uaxis" "[-1 0 0 -768] 0.25"
-			"vaxis" "[0 1 0 -720] 0.25"
+			"material" "DH/SCIFI/ORNEMENT/METAL_TRAPAZOIDPATTERN_512_D5"
+			"uaxis" "[1 0 0 251.163] 0.215"
+			"vaxis" "[0 0.971437 -0.237298 -445.746] 0.2"
 			"rotation" "0"
 			"lightmapscale" "16"
 			"smoothing_groups" "0"
@@ -1909,9 +1909,9 @@ world
 		{
 			"id" "214"
 			"plane" "(-54.0005 998 64) (-54.0002 756 320) (-0.000244141 756 320)"
-			"material" "DEV/DEV_CORRUGATEDMETAL"
-			"uaxis" "[-1 0 0 -188] 0.25"
-			"vaxis" "[0 0 -1 -768] 0.25"
+			"material" "DH/SCIFI/ORNEMENT/METAL_TRAPAZOIDPATTERN_512_D5"
+			"uaxis" "[1 0 0 251.163] 0.215"
+			"vaxis" "[0 0.686957 -0.726698 -123.369] 0.2"
 			"rotation" "0"
 			"lightmapscale" "16"
 			"smoothing_groups" "0"
@@ -1985,9 +1985,9 @@ world
 		{
 			"id" "220"
 			"plane" "(-0.000610352 998 64) (-0.000610352 1290 -448) (-54.0006 1290 -448)"
-			"material" "DEV/DEV_CORRUGATEDMETAL"
-			"uaxis" "[-1 0 0 -524] 0.25"
-			"vaxis" "[0 0 -1 -768] 0.25"
+			"material" "DH/SCIFI/ORNEMENT/METAL_TRAPAZOIDPATTERN_512_D5"
+			"uaxis" "[1 0 0 251.163] 0.215"
+			"vaxis" "[0 0 -1 -192] 0.2"
 			"rotation" "0"
 			"lightmapscale" "16"
 			"smoothing_groups" "0"
@@ -2126,9 +2126,9 @@ world
 		{
 			"id" "237"
 			"plane" "(-54 27.0005 440) (0 27.0005 440) (0 318 440)"
-			"material" "DEV/DEV_CORRUGATEDMETAL"
-			"uaxis" "[0 -1 0 364] 0.25"
-			"vaxis" "[-1 0 0 -828] 0.25"
+			"material" "DH/SCIFI/ORNEMENT/METAL_TRAPAZOIDPATTERN_512_D5"
+			"uaxis" "[1 0 0 251.163] 0.215"
+			"vaxis" "[0 1 0 -493.612] 0.2"
 			"rotation" "0"
 			"lightmapscale" "16"
 			"smoothing_groups" "0"
