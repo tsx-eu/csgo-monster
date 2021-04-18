@@ -1,0 +1,8 @@
+"VertexLitGeneric"
+{
+	"$baseTexture" "models\dh\weapons\shuriken\shuriken"
+	"$envmap" "env_cubemap"
+	"$envmapmask" "models\dh\weapons\shuriken\brass_mask"
+	"$envmapcontrast "1.0"
+	"$Model" "1"
+}
