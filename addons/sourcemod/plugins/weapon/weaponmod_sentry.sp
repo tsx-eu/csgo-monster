@@ -35,9 +35,8 @@ char g_szSounds[][PLATFORM_MAX_PATH] = {
 	"survival/turret_sawplayer_01.wav",
 	"survival/turret_lostplayer_03.wav",
 	
-	"weapons/m249/m249-1.wav"
+	"dh/weapons/sentry_attack.mp3"
 };
-
 
 public void OnLibraryAdded(const char[] sLibrary) {
 	if( StrEqual(sLibrary, "CWM-CORE") ) {
@@ -94,7 +93,10 @@ public Action OnProjectileHit(int client, int wpnid, int entity, int target) {
 	
 	ang[0] = ang[2] = 0.0;
 	
-	CreateSentry(client, pos, ang);
+	int sentry = CreateSentry(client, pos, ang);
+	DispatchKeyValue(sentry, "OnUser1", "!self,KillHierarchy,,30.0,-1");
+	AcceptEntityInput(sentry, "FireUser1");
+	
 	return Plugin_Handled;
 }
 // ------------------------------------------------------------------------------------------------
@@ -116,10 +118,21 @@ public void OnMapStart() {
 	}
 	*/
 }
+public void OnEntityDestroyed(int entity) {
+	static char classname[128];
+	if( entity > 0 ) {
+		GetEdictClassname(entity, classname, sizeof(classname));
+		if( StrEqual(classname, "sentry") ) {
+			float pos[3];
+			Entity_GetAbsOrigin(entity, pos);
+			ShowParticle(pos, "combustor_explode", 5.0);
+		}
+	}
+}
 // ------------------------------------------------------------------------------------------------
 int CreateSentry(int owner, float pos[3], float ang[3]) {	
 	int ent = CreateEntityByName("monster_generic");
-	DispatchKeyValue(ent, "classname", "rp_sentry");
+	DispatchKeyValue(ent, "classname", "sentry");
 	DispatchKeyValue(ent, "model", g_szPModel);
 	DispatchSpawn(ent);
 	ActivateEntity(ent);
@@ -128,9 +141,11 @@ int CreateSentry(int owner, float pos[3], float ang[3]) {
 	SetEntityFlags(ent, 262144);
 	SetEntityMoveType(ent, MOVETYPE_FLYGRAVITY);
 	SetEntProp(ent, Prop_Data, "m_lifeState", 0);
+	SetEntProp(ent, Prop_Data, "m_iHealth", 10);
+	Entity_SetMaxHealth(ent, Entity_GetHealth(ent));
 	
 	TeleportEntity(ent, pos, ang, NULL_VECTOR);
-	SDKHook(ent, SDKHook_Think, OnThink);
+	SDKHook(ent, SDKHook_Think, OnThink);	
 	return ent;
 }
 void getTargetAngle(int ent, int target, float& tilt, float& yaw) {
@@ -248,7 +263,14 @@ int getEnemy(int ent, float src[3], float ang[3], float& tilt, float threshold) 
 	
 	return nearest;
 }
-
+public Action CWM_ProjectileTouch(int ent, int target) {
+	int owner = GetEntPropEnt(ent, Prop_Data, "m_hThrower");
+	if( owner > 0 )
+		Entity_SetHealth(owner, Entity_GetHealth(owner) - 1);
+	AcceptEntityInput(ent, "KillHierarchy");
+	
+	return Plugin_Handled;
+}
 public void OnThink(int ent) {
 	float tilt = GetEntPropFloat(ent, Prop_Send, "m_flPoseParameter", 0);
 	float yaw = GetEntPropFloat(ent, Prop_Send, "m_flPoseParameter", 1);
@@ -256,10 +278,11 @@ public void OnThink(int ent) {
 	int state = GetEntProp(ent, Prop_Data, "m_iInteractionState");
 	int oldEnemy = GetEntPropEnt(ent, Prop_Data, "m_hInteractionPartner");
 	int owner = Entity_GetOwner(ent);
+	int heal = Entity_GetHealth(ent);
 
 	int damage = 10;
 	float push = 128.0;
-	float fire = 0.0125;
+	float fire = 0.125;
 	float speed = (5.0/360.0);
 	float threshold = (45.0/360.0)/2.0;
 
@@ -268,8 +291,8 @@ public void OnThink(int ent) {
 	Entity_GetAbsAngles(ent, ang);
 	src[2] += 43.0; 
 	
-	if( !IsValidClient(owner) ) {
-		SDKHooks_TakeDamage(ent, ent, ent, 1000.0, ent);
+	if( heal <= 0 || !IsValidClient(owner) ) {
+		AcceptEntityInput(ent, "Kill");
 		return;
 	}
 	
@@ -294,34 +317,33 @@ public void OnThink(int ent) {
 			EmitSoundToAll("survival/turret_sawplayer_01.wav", ent);
 		
 		moveToTarget(ent, newEnemy, speed, tilt, yaw);
-		
 		if( last+fire < GetGameTime() ) {
-			EmitSoundToAll("weapons/m249/m249-1.wav", ent, _, _, _, 0.5, SNDPITCH_HIGH);
 			SetEntPropFloat(ent, Prop_Data, "m_flLastAttackTime", GetGameTime());
 			
-			Handle trace = TR_TraceRayFilterEx(src, ang, MASK_SHOT, RayType_Infinite, TraceEntityFilterSentry, ent);
-			if( TR_DidHit(trace) ) {
-				TR_GetEndPosition(dst, trace);
-				int victim = TR_GetEntityIndex(trace);
-				
-				if( IsMoveAble(victim) ) {
-					SubtractVectors(dst, src, dir);
-					NormalizeVector(dir, dir);
-					ScaleVector(dir, push);
-					
-					Entity_GetAbsVelocity(victim, vel);
-					
-					AddVectors(vel, dir, dir);
-					TeleportEntity(victim, NULL_VECTOR, NULL_VECTOR, dir);
-					if( damage > 0 ) {
-						SDKHooks_TakeDamage(victim, ent, Entity_GetOwner(ent), float(damage), ent);
-					}
-				}
-				
-				TE_SetupBeamPoints(src, dst, g_cModel, 0, 0, 0, 0.1, 0.25, 0.25, 0, 0.0, { 64, 64, 64, 64 }, 0);
-				TE_SendToAll();
-			}
-			delete trace;
+			float vecOrigin[3], vecAngles[3], vecDir[3];
+			DH_UTIL_GetAttachment(ent, "muzzle", vecOrigin, vecAngles);
+			GetAngleVectors(vecAngles, vecDir, NULL_VECTOR, NULL_VECTOR);
+			ScaleVector(vecDir, 2048.0);
+			
+			int projectil = CreateEntityByName("hegrenade_projectile");
+			DispatchKeyValue(projectil, "classname", "sentry_gunfire");
+			DispatchSpawn(projectil);
+			
+			SetEntPropEnt(projectil, Prop_Send, "m_hOwnerEntity", owner);
+			SetEntPropEnt(projectil, Prop_Data, "m_hThrower", ent);
+			SetEntityMoveType(projectil, MOVETYPE_FLY);
+			
+			Entity_SetSolidType(projectil, SOLID_VPHYSICS);
+			Entity_SetSolidFlags(projectil, FSOLID_TRIGGER);
+			Entity_SetCollisionGroup(projectil, COLLISION_GROUP_PLAYER);
+			
+			SetEntityRenderMode(projectil, RENDER_NONE);
+			
+			TeleportEntity(projectil, vecOrigin, vecAngles, vecDir);
+			SDKHook(projectil, SDKHook_StartTouch, CWM_ProjectileTouch);
+			AttachParticle(projectil, "turret_gunfire", 5.0);
+			
+			EmitAmbientSound("dh/weapons/sentry_attack.mp3", NULL_VECTOR, projectil, SNDLEVEL_GUNFIRE, SND_NOFLAGS, 0.5, GetRandomInt(90, 110));
 		}
 	}
 	else {
@@ -347,26 +369,12 @@ public void OnThink(int ent) {
 			}
 		}
 		
-		int max = Entity_GetMaxHealth(ent);
-		int health = GetEntProp(ent, Prop_Data, "m_iHealth");
-		if( health < max && health > max*9/10 ) {
-			
-			if( GetRandomInt(0, 1) == 0 ) {
-				health += 1;
-				if( health > max )
-					health = max;
-			
-				SetEntProp(ent, Prop_Data, "m_iHealth", health);
-			}
-		}
-		
 		if( yaw+speed > 0.5 && yaw-speed < 0.5 )
 			yaw = 0.5;
 		else if( yaw > 0.5 )
 			yaw -= speed;
 		else if( yaw < 0.5 )
 			yaw += speed;
-		
 	}
 	
 	SetEntPropEnt(ent, Prop_Data, "m_hInteractionPartner", newEnemy);
@@ -375,12 +383,14 @@ public void OnThink(int ent) {
 	SetEntProp(ent, Prop_Data, "m_iInteractionState", state);
 }
 // ------------------------------------------------------------------------------------------------
-
 float AngleMod(float flAngle) { 
     flAngle = (360.0 / 65536) * (RoundToNearest(flAngle * (65536.0 / 360.0)) & 65535); 
     return flAngle; 
 }
 public bool TraceEntityFilterSelf(int entity, int contentsMask, any data) {
+	if( entity > 0 && HasEntProp(entity, Prop_Data, "m_hThrower") && GetEntPropEnt(entity, Prop_Data, "m_hThrower") == data )
+		return false;
+	
 	return entity != data;
 }
 public bool TraceEntityFilterSentry(int entity, int contentsMask, any data) {
