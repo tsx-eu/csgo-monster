@@ -1,5 +1,5 @@
 "LightmappedGeneric"
 {
 	"$basetexture" "dh/world/decal/crack_wall"
-	"$translucent" 1
+	"$decal" 1
 }
