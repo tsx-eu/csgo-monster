@@ -1,0 +1,395 @@
+#pragma semicolon 1
+
+#include <sourcemod>
+#include <sdktools>
+#include <sdkhooks>
+#include <smlib>
+#include <phun>
+
+#include <dh>
+#include <custom_weapon_mod>
+
+char g_szFullName[PLATFORM_MAX_PATH] =	"Sentry Gun";
+char g_szName[PLATFORM_MAX_PATH] 	 =	"link";
+char g_szReplace[PLATFORM_MAX_PATH]  =	"weapon_tec9";
+
+char g_szVModel[PLATFORM_MAX_PATH] =	"models/weapons/v_pist_tec9.mdl";
+char g_szWModel[PLATFORM_MAX_PATH] =	"models/weapons/w_pist_tec9.mdl";
+char g_szPModel[PLATFORM_MAX_PATH] =	"models/props_survival/dronegun/dronegun.mdl";
+
+#define SENTRY_ANGLE		0.5
+#define	SENTRY_DIST			1024.0
+
+enum {
+	STATE_TURN_LEFT,
+	STATE_TURN_RIGHT
+};
+
+int g_cModel;
+
+char g_szMaterials[][PLATFORM_MAX_PATH] = {
+};
+
+char g_szSounds[][PLATFORM_MAX_PATH] = {
+	"survival/turret_idle_01.wav",
+	"survival/turret_sawplayer_01.wav",
+	"survival/turret_lostplayer_03.wav",
+	
+	"weapons/m249/m249-1.wav"
+};
+
+
+public void OnLibraryAdded(const char[] sLibrary) {
+	if( StrEqual(sLibrary, "CWM-CORE") ) {
+		int id = CWM_Create(g_szFullName, g_szName, g_szReplace, g_szVModel, g_szWModel);
+	
+		CWM_SetInt(id, WSI_AttackType,		view_as<int>(WSA_Automatic));
+		CWM_SetInt(id, WSI_ReloadType,		view_as<int>(WSR_Automatic));
+		CWM_SetInt(id, WSI_AttackDamage, 	25);
+		CWM_SetInt(id, WSI_AttackBullet, 	1);
+		CWM_SetInt(id, WSI_MaxBullet, 		250);
+		CWM_SetInt(id, WSI_MaxAmmunition, 	500);
+		
+		CWM_SetFloat(id, WSF_Speed,			250.0);
+		CWM_SetFloat(id, WSF_ReloadSpeed,	77/30.0);
+		CWM_SetFloat(id, WSF_AttackSpeed,	8/30.0);
+		CWM_SetFloat(id, WSF_AttackRange,	2048.0);
+		CWM_SetFloat(id, WSF_Spread, 		0.0);
+		
+		CWM_AddAnimation(id, WAA_Idle, 		0,	1, 30);
+		CWM_AddAnimation(id, WAA_Attack, 	1,  12, 30);
+		CWM_AddAnimation(id, WAA_Attack, 	2,  12, 30);
+		CWM_AddAnimation(id, WAA_Reload, 	3,	77, 30);
+		CWM_AddAnimation(id, WAA_Draw, 		5,	30, 30);
+		
+		CWM_RegHook(id, WSH_Draw,			OnDraw);
+		CWM_RegHook(id, WSH_Attack,			OnAttack);
+		CWM_RegHook(id, WSH_Idle,			OnIdle);
+		CWM_RegHook(id, WSH_Reload,			OnReload);
+	}
+}
+public void OnDraw(int client, int entity) {
+	CWM_RunAnimation(entity, WAA_Draw);
+}
+public void OnIdle(int client, int entity) {
+	CWM_RunAnimation(entity, WAA_Idle);
+}
+public void OnReload(int client, int entity) {
+	CWM_RunAnimation(entity, WAA_Reload);
+}
+public Action OnAttack(int client, int entity) {
+	CWM_RunAnimation(entity, WAA_Attack, 10/30.0);
+	
+	int ent = CWM_ShootProjectile(client, entity, g_szPModel, "rocket", 1.0, 400.0, OnProjectileHit);
+	
+	TE_SetupBeamFollow(ent, g_cModel, g_cModel, 0.25, 1.0, 0.0, 0, {0, 128, 255, 64});
+	TE_SendToAll();
+	
+	return Plugin_Continue;
+}
+public Action OnProjectileHit(int client, int wpnid, int entity, int target) {
+	float pos[3], ang[3];
+	Entity_GetAbsOrigin(entity, pos);
+	Entity_GetAbsAngles(entity, ang);
+	
+	ang[0] = ang[2] = 0.0;
+	
+	CreateSentry(client, pos, ang);
+	return Plugin_Handled;
+}
+// ------------------------------------------------------------------------------------------------
+public void OnMapStart() {
+	AddModelToDownloadsTable(g_szVModel);
+	AddModelToDownloadsTable(g_szWModel);
+	AddModelToDownloadsTable(g_szPModel);
+	
+	g_cModel = PrecacheModel("materials/sprites/laserbeam.vmt");
+	
+	for (int i = 0; i < sizeof(g_szSounds); i++) {
+		AddSoundToDownloadsTable(g_szSounds[i]);
+		PrecacheSound(g_szSounds[i]);
+	}
+	
+	/*
+	for (int i = 0; i < sizeof(g_szMaterials); i++) {
+		AddFileToDownloadsTable(g_szMaterials[i]);
+	}
+	*/
+}
+// ------------------------------------------------------------------------------------------------
+int CreateSentry(int owner, float pos[3], float ang[3]) {	
+	int ent = CreateEntityByName("monster_generic");
+	DispatchKeyValue(ent, "classname", "rp_sentry");
+	DispatchKeyValue(ent, "model", g_szPModel);
+	DispatchSpawn(ent);
+	ActivateEntity(ent);
+	
+	Entity_SetOwner(ent, owner);
+	SetEntityFlags(ent, 262144);
+	SetEntityMoveType(ent, MOVETYPE_FLYGRAVITY);
+	SetEntProp(ent, Prop_Data, "m_lifeState", 0);
+	
+	TeleportEntity(ent, pos, ang, NULL_VECTOR);
+	SDKHook(ent, SDKHook_Think, OnThink);
+	return ent;
+}
+void getTargetAngle(int ent, int target, float& tilt, float& yaw) {
+	float src[3], dst[3], dir[3], ang[3];
+	Entity_GetAbsOrigin(ent, src);
+	Entity_GetAbsAngles(ent, ang);
+	Entity_GetAbsOrigin(target, dst);
+	
+	src[2] += 40.0;
+	dst[2] += 40.0;
+
+	MakeVectorFromPoints(dst, src, dir);
+	GetVectorAngles(dir, dst);
+	ang[0] = dst[0] - ang[0];
+	ang[1] = dst[1] - ang[1];
+	
+	ang[1] = AngleMod(ang[1]);
+	if( ang[0] < -180.0 )
+		ang[0] += 360.0;
+	if( ang[0] >  180.0 )
+		ang[0] -= 360.0;
+
+	if( ang[0] > 45.0 )
+		ang[0] = 45.0;
+	if( ang[0] < -45.0 )
+		ang[0] = -45.0;
+	
+	yaw  = 0.5 - (ang[0] / 90.0);
+	tilt = ang[1] / 360.0;
+}
+void moveToTarget(int ent, int enemy, float speed, float& tilt, float& yaw) {
+	float tilt2, yaw2;
+	getTargetAngle(ent, enemy, tilt2, yaw2);
+	
+	if( FloatAbs(tilt - tilt2) > speed ) {
+		if( tilt2 > tilt )
+			tilt += speed;
+		else if( tilt2 < tilt )
+			tilt -= speed;
+	}
+	else {
+		tilt = tilt2;
+	}
+	
+	if( FloatAbs(yaw - yaw2) > speed ) {
+		if( yaw2 > yaw )
+			yaw += speed;
+		else if( yaw2 < yaw )
+			yaw -= speed;
+	}
+	else {
+		yaw = yaw2;
+	}
+}
+int getEnemy(int ent, float src[3], float ang[3], float& tilt, float threshold) {
+	float dst[3];
+	
+	if( false ) {
+		Handle trace;
+		ang[1] += threshold * 360.0;
+		trace = TR_TraceRayFilterEx(src, ang, MASK_SHOT, RayType_Infinite, TraceEntityFilterSelf, ent);
+		if( TR_DidHit(trace) ) {
+			TR_GetEndPosition(dst, trace);
+			
+			TE_SetupBeamPoints(src, dst, g_cModel, 0, 0, 0, 1.0, 1.0, 1.0, 0, 0.0, { 0, 0, 250, 200 }, 0);
+			TE_SendToAll();
+		}
+		delete trace;
+		
+		ang[1] -= threshold * 360.0;
+		ang[1] -= threshold * 360.0;
+		trace = TR_TraceRayFilterEx(src, ang, MASK_SHOT, RayType_Infinite, TraceEntityFilterSelf, ent);
+		if( TR_DidHit(trace) ) {
+			TR_GetEndPosition(dst, trace);
+			
+			TE_SetupBeamPoints(src, dst, g_cModel, 0, 0, 0, 1.0, 1.0, 1.0, 0, 0.0, { 0, 0, 250, 200 }, 0);
+			TE_SendToAll();
+		}
+		delete trace;
+		ang[1] += threshold * 360.0;
+	}
+	
+	int nearest = 0;
+	float dist = SENTRY_DIST*SENTRY_DIST;
+	
+	for (int i = 1; i <= 2048; i++) {
+		if( !IsValidEdict(i) || !IsValidEntity(i) )
+			continue;
+		if( HasEntProp(i, Prop_Send, "m_nHostageState") == false )
+			continue;
+		
+		Entity_GetAbsOrigin(i, dst);
+		dst[2] += 40.0;
+		float tmp = GetVectorDistance(src, dst, true);
+					
+		if( tmp < dist ) {
+			float tilt2, yaw2;
+			getTargetAngle(ent, i, tilt2, yaw2);
+			if( tilt2 > 0.5 - SENTRY_ANGLE/2 && tilt2 < 0.5 + SENTRY_ANGLE/2 && FloatAbs(tilt-tilt2) <= threshold ) {
+				
+				Handle trace = TR_TraceRayFilterEx(src, dst, MASK_SHOT, RayType_EndPoint, TraceEntityFilterSelf, ent);
+
+				if( TR_DidHit(trace) ) {
+					int y = TR_GetEntityIndex(trace);
+					
+					if( y == i ) {
+						dist = tmp;
+						nearest = i;
+					}
+				}
+				delete trace;
+			}
+		}
+	}
+	
+	return nearest;
+}
+
+public void OnThink(int ent) {
+	float tilt = GetEntPropFloat(ent, Prop_Send, "m_flPoseParameter", 0);
+	float yaw = GetEntPropFloat(ent, Prop_Send, "m_flPoseParameter", 1);
+	float last = GetEntPropFloat(ent, Prop_Data, "m_flLastAttackTime");
+	int state = GetEntProp(ent, Prop_Data, "m_iInteractionState");
+	int oldEnemy = GetEntPropEnt(ent, Prop_Data, "m_hInteractionPartner");
+	int owner = Entity_GetOwner(ent);
+
+	int damage = 10;
+	float push = 128.0;
+	float fire = 0.0125;
+	float speed = (5.0/360.0);
+	float threshold = (45.0/360.0)/2.0;
+
+	float src[3], ang[3], dst[3], dir[3], vel[3];
+	Entity_GetAbsOrigin(ent, src);
+	Entity_GetAbsAngles(ent, ang);
+	src[2] += 43.0; 
+	
+	if( !IsValidClient(owner) ) {
+		SDKHooks_TakeDamage(ent, ent, ent, 1000.0, ent);
+		return;
+	}
+	
+	ang[0] = ang[0] + (yaw-0.5) * 90.0;
+	ang[1] = ang[1] + AngleMod(180.0 + (tilt * 360.0));
+	
+	if( false ) {
+		Handle trace = TR_TraceRayFilterEx(src, ang, MASK_SHOT, RayType_Infinite, TraceEntityFilterSelf, ent);
+		if( TR_DidHit(trace) ) {
+			TR_GetEndPosition(dst, trace);
+			
+			TE_SetupBeamPoints(src, dst, g_cModel, 0, 0, 0, 1.0, 1.0, 1.0, 0, 0.0, { 250, 0, 0, 200 }, 0);
+			TE_SendToAll();
+		}
+		delete trace;
+	}
+	
+	
+	int newEnemy = getEnemy(ent, src, ang, tilt, threshold);
+	if( newEnemy > 0 ) {
+		if( oldEnemy == 0 )
+			EmitSoundToAll("survival/turret_sawplayer_01.wav", ent);
+		
+		moveToTarget(ent, newEnemy, speed, tilt, yaw);
+		
+		if( last+fire < GetGameTime() ) {
+			EmitSoundToAll("weapons/m249/m249-1.wav", ent, _, _, _, 0.5, SNDPITCH_HIGH);
+			SetEntPropFloat(ent, Prop_Data, "m_flLastAttackTime", GetGameTime());
+			
+			Handle trace = TR_TraceRayFilterEx(src, ang, MASK_SHOT, RayType_Infinite, TraceEntityFilterSentry, ent);
+			if( TR_DidHit(trace) ) {
+				TR_GetEndPosition(dst, trace);
+				int victim = TR_GetEntityIndex(trace);
+				
+				if( IsMoveAble(victim) ) {
+					SubtractVectors(dst, src, dir);
+					NormalizeVector(dir, dir);
+					ScaleVector(dir, push);
+					
+					Entity_GetAbsVelocity(victim, vel);
+					
+					AddVectors(vel, dir, dir);
+					TeleportEntity(victim, NULL_VECTOR, NULL_VECTOR, dir);
+					if( damage > 0 ) {
+						SDKHooks_TakeDamage(victim, ent, Entity_GetOwner(ent), float(damage), ent);
+					}
+				}
+				
+				TE_SetupBeamPoints(src, dst, g_cModel, 0, 0, 0, 0.1, 0.25, 0.25, 0, 0.0, { 64, 64, 64, 64 }, 0);
+				TE_SendToAll();
+			}
+			delete trace;
+		}
+	}
+	else {
+		if( oldEnemy > 0 )
+			EmitSoundToAll("survival/turret_lostplayer_03.wav", ent);
+		
+		if( state == STATE_TURN_LEFT ) {
+			tilt += speed;
+			
+			if( tilt > 0.5 + SENTRY_ANGLE/2 ) {
+				tilt = 0.5 + SENTRY_ANGLE/2;
+				state = STATE_TURN_RIGHT;
+				EmitSoundToAll("survival/turret_idle_01.wav", ent);
+			}
+		}
+		else {
+			tilt -= speed;
+			
+			if( tilt < 0.5 - SENTRY_ANGLE/2 ) {
+				tilt = 0.5 - SENTRY_ANGLE/2;
+				state = STATE_TURN_LEFT;
+				EmitAmbientSound("survival/turret_idle_01.wav", NULL_VECTOR, ent);
+			}
+		}
+		
+		int max = Entity_GetMaxHealth(ent);
+		int health = GetEntProp(ent, Prop_Data, "m_iHealth");
+		if( health < max && health > max*9/10 ) {
+			
+			if( GetRandomInt(0, 1) == 0 ) {
+				health += 1;
+				if( health > max )
+					health = max;
+			
+				SetEntProp(ent, Prop_Data, "m_iHealth", health);
+			}
+		}
+		
+		if( yaw+speed > 0.5 && yaw-speed < 0.5 )
+			yaw = 0.5;
+		else if( yaw > 0.5 )
+			yaw -= speed;
+		else if( yaw < 0.5 )
+			yaw += speed;
+		
+	}
+	
+	SetEntPropEnt(ent, Prop_Data, "m_hInteractionPartner", newEnemy);
+	SetEntPropFloat(ent, Prop_Send, "m_flPoseParameter", tilt, 0);
+	SetEntPropFloat(ent, Prop_Send, "m_flPoseParameter", yaw, 1);
+	SetEntProp(ent, Prop_Data, "m_iInteractionState", state);
+}
+// ------------------------------------------------------------------------------------------------
+
+float AngleMod(float flAngle) { 
+    flAngle = (360.0 / 65536) * (RoundToNearest(flAngle * (65536.0 / 360.0)) & 65535); 
+    return flAngle; 
+}
+public bool TraceEntityFilterSelf(int entity, int contentsMask, any data) {
+	return entity != data;
+}
+public bool TraceEntityFilterSentry(int entity, int contentsMask, any data) {
+	if( entity == 0 )
+		return true;
+	if( entity == data )
+		return false;
+	if( IsMoveAble(entity) )
+		return true;
+	
+	return false;
+}
