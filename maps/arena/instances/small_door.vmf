@@ -2,7 +2,7 @@ versioninfo
 {
 	"editorversion" "400"
 	"editorbuild" "8456"
-	"mapversion" "53"
+	"mapversion" "56"
 	"formatversion" "100"
 	"prefab" "0"
 }
@@ -20,7 +20,7 @@ viewsettings
 world
 {
 	"id" "1"
-	"mapversion" "53"
+	"mapversion" "56"
 	"classname" "worldspawn"
 	"detailmaterial" "detail/detailsprites"
 	"detailvbsp" "detail.vbsp"
@@ -2609,31 +2609,6 @@ entity
 }
 entity
 {
-	"id" "3030"
-	"classname" "light"
-	"_constant_attn" "1"
-	"_distance" "0"
-	"_fifty_percent_distance" "84"
-	"_hardfalloff" "0"
-	"_light" "255 255 255 50"
-	"_lightHDR" "-1 -1 -1 1"
-	"_lightscaleHDR" "1"
-	"_linear_attn" "0"
-	"_quadratic_attn" "0"
-	"_zero_percent_distance" "96"
-	"spawnflags" "0"
-	"style" "0"
-	"origin" "0 0 -32"
-	editor
-	{
-		"color" "220 30 220"
-		"visgroupshown" "1"
-		"visgroupautoshown" "1"
-		"logicalpos" "[0 0]"
-	}
-}
-entity
-{
 	"id" "2816"
 	"classname" "func_button"
 	"disablereceiveshadows" "0"
@@ -5146,6 +5121,7 @@ entity
 {
 	"id" "23"
 	"classname" "func_door_rotating"
+	"_minlight" "1"
 	"angles" "0 90 0"
 	"disableflashlight" "0"
 	"disablereceiveshadows" "0"
@@ -5580,6 +5556,7 @@ entity
 {
 	"id" "790"
 	"classname" "func_rotating"
+	"_minlight" "1"
 	"angles" "0 0 0"
 	"disableflashlight" "0"
 	"disablereceiveshadows" "0"
