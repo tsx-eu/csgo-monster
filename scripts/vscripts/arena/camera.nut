@@ -13,22 +13,21 @@ function rad2deg(r) {
 
 function Think_XY() {
 	player <- Entities.FindByClassnameNearest( "player", self.GetOrigin(), 4096.0*4096.0)
-	vec <- player.EyePosition() - self.GetOrigin()
-	vec.Norm()
-	
-	self.SetForwardVector(Vector(vec.x, vec.y, 0))
+	if( player.IsValid() ) {
+		vec <- player.EyePosition() - self.GetOrigin()
+		vec.Norm()
+		self.SetForwardVector(Vector(vec.x, vec.y, 0))	
+	}
 }
 
 
 
-function Think()
-{
+function Think() {
 	origin <- self.GetOrigin()
 	
 	player <- Entities.FindByClassnameNearest( "player", origin, 4096.0*4096.0)
-	
-	
-	ang <- AngleBetween(origin, player.EyePosition())
-	
-	self.SetAngles(180 - (rad2deg(ang.x) + 90), 180, 0)
+	if( player.IsValid() ) {
+		ang <- AngleBetween(origin, player.EyePosition())
+		self.SetAngles(180 - (rad2deg(ang.x) + 90), 180, 0)
+	}
 }
