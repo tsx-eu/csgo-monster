@@ -10,7 +10,7 @@
 #include <custom_weapon_mod>
 
 char g_szFullName[PLATFORM_MAX_PATH] =	"Sentry Gun";
-char g_szName[PLATFORM_MAX_PATH] 	 =	"link";
+char g_szName[PLATFORM_MAX_PATH] 	 =	"sentry";
 char g_szReplace[PLATFORM_MAX_PATH]  =	"weapon_tec9";
 
 char g_szVModel[PLATFORM_MAX_PATH] =	"models/weapons/v_pist_tec9.mdl";
