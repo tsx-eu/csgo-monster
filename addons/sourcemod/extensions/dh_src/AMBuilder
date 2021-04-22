@@ -7,6 +7,7 @@ projectName = 'dh'
 sourceFiles = [
   'extension.cpp',
 
+  'physhandles.cpp',
   'physnatives.cpp',
   'navnatives.cpp',
 
