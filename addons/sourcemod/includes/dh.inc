@@ -22,6 +22,18 @@ native void Phys_SetMass(int entity,  float mass);
 native float Phys_GetMass(int entity);
 native void Phys_GetWorldSpaceCenter(int entity, float pos[3]);
 
+native void Phys_LocalToWorld(int iEntity, float[3] worldPosition, const float[3] localPosition);
+native void Phys_WorldToLocal(int iEntity, float[3] localPosition, const float[3] worldPosition);
+
+native Handle Phys_CreateSpring(int startObject, int endObject, const float[3] startPos, const float[3] endPos, bool useLocalPositions, float naturalLength, float constant, float damping, float relativeDamping, bool onlyStretch);
+
+native Handle Phys_CreateConstraintGroup(int additionalIterations = 0, int minErrorTicks = 15, float errorTolerance = 3.0);
+
+native Handle Phys_CreateFixedConstraint(int referenceObject, int attachedObject, Handle constraintGroup, float strength = 1.0, float forceLimit = 0.0, float torqueLimit = 0.0, float bodyMassScaleRef = 1.0, float bodyMassScaleAttached = 1.0, bool isActive = true);
+native Handle Phys_CreateLengthConstraint(int referenceObject, int attachedObject, Handle constraintGroup, const float[3] refPosition, const float[3] attachedPosition, float totalLength, float minLength = 0.0, float strength = 1.0, float forceLimit = 0.0, float torqueLimit = 0.0, float bodyMassScaleRef = 1.0, float bodyMassScaleAttached = 1.0, bool isActive = true);
+native Handle Phys_CreateHingeConstraint(int referenceObject, int attachedObject, Handle constraintGroup, const float[3] worldPosition, const float[3] worldAxisDirection, float minRotation = 0.0, float maxRotation = 0.0, float angularVelocity = 0.0, float torque = 0.0, float strength = 1.0, float forceLimit = 0.0, float torqueLimit = 0.0, float bodyMassScaleRef = 1.0, float bodyMassScaleAttached = 1.0, bool isActive = true);
+
+
 native bool Nav_Load();
 native int Nav_GetArea(float pos[3]);
 
