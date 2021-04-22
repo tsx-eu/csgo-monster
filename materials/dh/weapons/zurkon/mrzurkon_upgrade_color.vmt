@@ -1,0 +1,22 @@
+"VertexlitGeneric"
+{
+	"$basetexture" "dh/weapons/zurkon/mrzurkon_upgrade_color"
+	"$bumpmap" "dh/weapons/zurkon/mrzurkon_normal"
+	"$halflambert" 1
+	
+	"$selfillummask" "dh/weapons/zurkon/mrzurkon_light"
+	"$selfillum" "1"
+	"$selfillumtint" "[2 2 2]"
+
+	"$phong" "1"
+	"$phongexponent" "10"
+	"$phongboost" "10"
+	"$phongfresnelranges"	"[.2 1 50]"
+	"$phongexponenttexture"	"dh/weapons/zurkon/albedo"
+	"$phongalbedotint"		"1"
+
+	"$rimlight" "1"												// To enable rim lighting (requires phong)
+	"$rimlightexponent" "4"										// Exponent for phong component of rim lighting	
+	"$rimlightboost" "2"										// Boost for ambient cube component of rim lighting
+	"$rimmask" "1"
+}
