@@ -119,39 +119,129 @@ int CreateZurkon(int owner, float pos[3], float ang[3]) {
 	DispatchSpawn(ent);
 	ActivateEntity(ent);
 	
+	
+	SetEntProp(ent, Prop_Data, "m_iHealth", 100);
+	Entity_SetMaxHealth(ent, Entity_GetHealth(ent));
+	
 	SetEntityModel(ent, g_szPModel);
 	SetEntityMoveType(ent, MOVETYPE_FLY);
 	Entity_SetOwner(ent, owner);
+	Entity_SetSolidType(ent, SOLID_NONE);
+	Entity_SetSolidFlags(ent, FSOLID_NOT_SOLID);
+	Entity_SetCollisionGroup(ent, COLLISION_GROUP_NONE);
+	
 	AcceptEntityInput(ent, "FireUser1");
 	TeleportEntity(ent, pos, NULL_VECTOR, NULL_VECTOR);
 	
 	RequestFrame(OnThink, EntIndexToEntRef(ent));
+	CreateTimer(0.25, OnProjectileThink, EntIndexToEntRef(ent), TIMER_REPEAT);
 	
-	int part = AttachParticle(ent, "hk22_seek", 99999.0);
+	int part = AttachParticle(ent, "hk22_seek", 30.0);
 	SetVariantString("booster");
 	AcceptEntityInput(part, "SetParentAttachment");
 	
 	return ent;
 }
+
+public Action OnProjectileThink(Handle timer, any ref) {
+	int ent = EntRefToEntIndex(ref);
+	if( ent <= 0 )
+		return Plugin_Stop;
+	
+	int old = GetEntPropEnt(ent, Prop_Data, "m_hEffectEntity");
+	
+	if( old == -1 || DH_UTIL_IsInSightRange(ent, old, 512.0, 45.0) == false ) {
+		int proposal = findNearestEnemy(ent, 1024.0, 90.0);
+		
+		if( old > 0 && proposal > 0 ) {
+			float src[3][3], ang[3][3];
+			Entity_GetAbsAngles(ent, ang[0]);
+			
+			Entity_GetAbsOrigin(ent, src[0]);
+			Entity_GetAbsOrigin(old, src[1]);
+			Entity_GetAbsOrigin(proposal, src[2]);
+			
+			SubtractVectors(src[1], src[0], src[1]);
+			SubtractVectors(src[2], src[0], src[2]);
+			
+			GetVectorAngles(src[1], ang[1]);
+			GetVectorAngles(src[2], ang[2]);
+			
+			if( FloatAbs(Math_AngleDiff(ang[0][1], ang[2][1])) < FloatAbs(Math_AngleDiff(ang[0][1], ang[1][1])) ) {
+				old = proposal;
+			}
+		}
+		else {
+			old = proposal;
+		}
+		
+		SetEntPropEnt(ent, Prop_Data, "m_hEffectEntity", proposal);
+	}
+		
+	return Plugin_Continue;
+}
+
 public void OnThink(any ref) {
-	int entity = EntRefToEntIndex(ref);
-	if( entity <= 0 )
+	int ent = EntRefToEntIndex(ref);
+	if( ent <= 0 )
 		return;
 	
-	int client = Entity_GetOwner(entity);
-	if( !IsValidClient(client) ) {
-		AcceptEntityInput(entity, "Kill");
+	int owner = Entity_GetOwner(ent);
+	if( !IsValidClient(owner) || Entity_GetHealth(ent) <= 0 ) {
+		AcceptEntityInput(ent, "Kill");
 		return;
 	}
 	
-	float src[3], dst[3], ang[3], dir[3];
-	Entity_GetAbsOrigin(entity, src);
-	Entity_GetAbsOrigin(client, dst);
-	GetClientEyeAngles(client, ang);
+	float last = GetEntPropFloat(ent, Prop_Data, "m_flWarnAITime");
+	float fire = 0.5;
+	
+	float src[3], dst[3], ang[3], dir[3], tmp[3];
+	Entity_GetAbsOrigin(ent, src);
+	Entity_GetAbsOrigin(owner, dst);
+	
+	int enemy = GetEntPropEnt(ent, Prop_Data, "m_hEffectEntity");
+	if( enemy > 0 ) {
+		Entity_GetAbsOrigin(enemy, tmp);
+		SubtractVectors(tmp, src, tmp);
+		GetVectorAngles(tmp, ang);
+		
+		if( last+fire < GetGameTime() ) {
+			SetEntPropFloat(ent, Prop_Data, "m_flWarnAITime", GetGameTime());
+			
+			float vecOrigin[3], vecAngles[3], vecDir[3];
+			DH_UTIL_GetAttachment(ent, "weapon", vecOrigin, vecAngles);
+			
+			GetAngleVectors(vecAngles, vecDir, NULL_VECTOR, NULL_VECTOR);
+			ScaleVector(vecDir, -2048.0);
+			
+			int projectil = CreateEntityByName("hegrenade_projectile");
+			DispatchKeyValue(projectil, "classname", "zurkon_gunfire");
+			DispatchSpawn(projectil);
+			
+			SetEntPropEnt(projectil, Prop_Send, "m_hOwnerEntity", owner);
+			SetEntPropEnt(projectil, Prop_Data, "m_hThrower", ent);
+			SetEntityMoveType(projectil, MOVETYPE_FLY);
+			
+			Entity_SetSolidType(projectil, SOLID_VPHYSICS);
+			Entity_SetSolidFlags(projectil, FSOLID_TRIGGER);
+			Entity_SetCollisionGroup(projectil, COLLISION_GROUP_PLAYER);
+			
+			SetEntityRenderMode(projectil, RENDER_NONE);
+			
+			TeleportEntity(projectil, vecOrigin, vecAngles, vecDir);
+			SDKHook(projectil, SDKHook_StartTouch, CWM_ProjectileTouch);
+			AttachParticle(projectil, "turret_gunfire", 5.0);
+			
+			EmitAmbientSound("dh/weapons/sentry_attack.mp3", NULL_VECTOR, projectil, SNDLEVEL_GUNFIRE, SND_NOFLAGS, 0.25, GetRandomInt(90, 110));
+		}
+	}
+	else {
+		GetClientEyeAngles(owner, ang);
+	}
 	
 	{	// Velocity:
-		dir = view_as<float>({48.0, 48.0, 64.0});
-		Math_RotateVector(dir, ang, dir);
+		GetClientEyeAngles(owner, tmp);
+		Math_RotateVector(view_as<float>({48.0, 48.0, 64.0}), tmp, dir);
 		AddVectors(dir, dst, dst);
 		
 		SubtractVectors(dst, src, dst);
@@ -166,7 +256,7 @@ public void OnThink(any ref) {
 		ScaleVector(dst, speed * 256.0);
 	}
 	{ 	// Ang:
-		Entity_GetAbsAngles(entity, dir);
+		Entity_GetAbsAngles(ent, dir);
 		float interval = GetTickInterval();
 		
 		for(int i=0; i<2; i++) {
@@ -182,8 +272,15 @@ public void OnThink(any ref) {
 		}
 	}
 	
-	TeleportEntity(entity, NULL_VECTOR, dir, dst);
+	TeleportEntity(ent, NULL_VECTOR, dir, dst);
 	RequestFrame(OnThink, ref);
+}
+public Action CWM_ProjectileTouch(int ent, int target) {
+	int owner = GetEntPropEnt(ent, Prop_Data, "m_hThrower");
+	if( owner > 0 )
+		Entity_SetHealth(owner, Entity_GetHealth(owner) - 1);
+	AcceptEntityInput(ent, "KillHierarchy");
+	return Plugin_Handled;
 }
 // ------------------------------------------------------------------------------------------------
 stock float Math_Lerp(float a, float b, float n) {
@@ -204,4 +301,23 @@ stock float Math_AngleDiff(float destAngle, float srcAngle) {
 			delta += 360.0;
 	}
 	return delta;
+}
+
+int findNearestEnemy(int entity, float dist=128.0, float ang=180.0) {
+	int best = -1;
+	
+	for(int i=1; i<=2048; i++) {
+		if( !IsValidEdict(i) || !IsValidEntity(i) )
+			continue;
+		if( HasEntProp(i, Prop_Send, "m_nHostageState") == false )
+			continue;
+		
+		float tmp = Entity_GetDistance(entity, i);
+		if( tmp < dist && DH_UTIL_IsInSightRange(entity, i, ang, dist) ) {
+			dist = tmp;
+			best = i;
+		}
+	}
+	
+	return best;
 }
