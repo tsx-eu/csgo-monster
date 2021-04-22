@@ -1,0 +1,17 @@
+"VertexlitGeneric"
+{
+	"$basetexture" 	"dh/crate/ammo/ammobox"
+	"$bumpmap" 		"dh/crate/ammo/ammobox_n"
+	"$halflambert" 1
+	"$nocull" "1" 
+
+	"$phong" "1"
+	"$phongexponent" "30"
+	"$phongboost" "1"	
+
+	// Rim lighting parameters
+	"$rimlight" "1"												// To enable rim lighting (requires phong)
+	"$rimlightexponent" "4"										// Exponent for phong component of rim lighting	
+	"$rimlightboost" "1"	
+
+}

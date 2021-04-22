@@ -1,0 +1,21 @@
+"VertexlitGeneric"
+{
+	"$basetexture" "dh/crate/nanotech/Nano_glass"
+	"$bumpmap" "dh/crate/nanotech/Nano_glass_n"
+	"$translucent" 1
+	"$halflambert" 1
+                "$nocull" "1" 
+
+	"$phong" "1"
+	"$phongexponent" "30"
+	"$phongboost" "1"	
+
+	// Rim lighting parameters
+	"$rimlight" "1"												// To enable rim lighting (requires phong)
+	"$rimlightexponent" "4"										// Exponent for phong component of rim lighting	
+	"$rimlightboost" "1"	
+
+
+
+}
+
