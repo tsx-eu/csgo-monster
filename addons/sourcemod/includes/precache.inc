@@ -91,7 +91,7 @@ stock bool Precache_ParticleEffect(char[] sModel) {
 stock bool Precache_Texture(char[] sPath) {
 	static char sTexture[PLATFORM_MAX_PATH];
 	if( !hasLength(sPath) ) {
-		return 0;
+		return false;
 	}
 	
 	strcopy(sTexture, sizeof(sTexture), sPath);
@@ -165,7 +165,7 @@ stock bool Precache_Sound(char[] sFile) {
 	static char fullPath[PLATFORM_MAX_PATH], shortPath[PLATFORM_MAX_PATH];
 	
 	if( !hasLength(sFile) ) {
-		return 0;
+		return false;
 	}
 	
 	if( String_StartsWith(sFile, "sound/") ) {

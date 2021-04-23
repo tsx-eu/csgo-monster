@@ -10,6 +10,10 @@
 #include <custom_weapon_mod.inc>
 #include <precache.inc>
 
+#define BOLT_DIST	256.0
+#define BOLD_SPEED	2048.0
+
+
 public Plugin myinfo = {
 	name = "DH: Bolt",
 	author = "KoSSoLaX`",
@@ -33,42 +37,42 @@ char g_szModels[][PLATFORM_MAX_PATH] = {
 //	"models/dh/crate/nanotech.mdl"	
 };
 char g_szSounds[][PLATFORM_MAX_PATH] = {	
-	"sound/dh/ambiant/bolt1.mp3",
-	"sound/dh/ambiant/bolt2.mp3",
-	"sound/dh/ambiant/bolt3.mp3"	
+	"dh/ambiant/bolt1.mp3",
+	"dh/ambiant/bolt2.mp3",
+	"dh/ambiant/bolt3.mp3"	
 };
-
-
 public void OnPluginStart() {
 	CreateTimer(1.0, Spawn);
 }
 public Action Spawn(Handle timer, any none) {
-	float pos[3];
-	Entity_GetAbsOrigin(1, pos);
-	
-	
 	SpawnCrate(view_as<float>({ -256.0, 0.0, 64.0 }));
 }
 void SpawnCrate(float pos[3]) {
 	int ent = CreateEntityByName("prop_physics");
-	DispatchKeyValue(ent, "classname", "crate");
+	DispatchKeyValue(ent, "classname", "crate_bolt");
 	DispatchKeyValue(ent, "model", "models/dh/crate/bolt.mdl");
+	DispatchKeyValue(ent, "overridescript", "mass,10");
 	DispatchSpawn(ent);
 	
+	Entity_SetTakeDamage(ent, DAMAGE_YES);
+	Entity_SetHealth(ent, 10);
+	Entity_SetMaxHealth(ent, 10);
 	TeleportEntity(ent, pos, NULL_VECTOR, NULL_VECTOR);
-	SDKHook(ent, SDKHook_OnTakeDamage, OnTakeDamage);
 }
-public Action OnTakeDamage(int victim, int& attacker, int& inflictor, float& damage, int& damagetype, int& weapon, float damageForce[3], float damagePosition[3]) {
-	if( attacker != 0 ) {
+public void OnEntityDestroyed(int entity) {
+	static char classname[PLATFORM_MAX_PATH];
+	
+	if( entity > 0 ) {
+		GetEdictClassname(entity, classname, sizeof(classname));
 		
-		float pos[3];
-		Entity_GetAbsOrigin(victim, pos);
-		pos[2] += 8.0;
-		
-		ShowParticle(pos, "crate", 2.0);
-		SpawnBolt(pos);
-		
-		AcceptEntityInput(victim, "Kill");
+		if( StrEqual(classname, "crate_bolt") ) {
+			float pos[3];
+			Entity_GetAbsOrigin(entity, pos);
+			pos[2] += 8.0;
+			
+			ShowParticle(pos, "crate", 2.0);
+			SpawnBolt(pos);
+		}
 	}
 }
 void SpawnBolt(float pos[3]) {
@@ -114,7 +118,7 @@ public Action OnProjectileThink(Handle timer, any ref) {
 	if( ent <= 0 )
 		return Plugin_Stop;
 
-	float dist = 256.0;
+	float dist = BOLT_DIST;
 	int nearest = -1;
 	
 	for(int i=1; i<MaxClients; i++) {
@@ -142,9 +146,16 @@ public Action OnProjectileThink(Handle timer, any ref) {
 		AcceptEntityInput(dst, "FireUser1");
 		AcceptEntityInput(ent, "Kill");
 		
+		CreateTimer(Entity_GetDistance(ent, nearest) / BOLD_SPEED, SendSound, nearest);
 		return Plugin_Stop;
 	}
 	return Plugin_Continue;
+}
+public Action SendSound(Handle timer, any client) {
+	static char sound[PLATFORM_MAX_PATH];
+	Format(sound, sizeof(sound), "dh/ambiant/bolt%d.mp3", GetRandomInt(1, 3));
+
+	EmitSoundToAll(sound, client, _, _, _, _, GetRandomInt(90, 110));
 }
 public void OnMapStart() {
 	for (int i = 0; i < sizeof(g_szModels); i++) {
