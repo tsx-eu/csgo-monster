@@ -90,6 +90,10 @@ stock bool Precache_ParticleEffect(char[] sModel) {
 
 stock bool Precache_Texture(char[] sPath) {
 	static char sTexture[PLATFORM_MAX_PATH];
+	if( !hasLength(sPath) ) {
+		return 0;
+	}
+	
 	strcopy(sTexture, sizeof(sTexture), sPath);
 	
 	if( !FileExists(sTexture) ) {
@@ -158,25 +162,39 @@ stock bool Precache_Texture(char[] sPath) {
 }
 
 stock bool Precache_Sound(char[] sFile) {
+	static char fullPath[PLATFORM_MAX_PATH], shortPath[PLATFORM_MAX_PATH];
 	
-	if( !FileExists(sFile) ) { // Try to find file in .vpk
-		if( FileExists(sFile, true) ) {
-			return PrecacheSound(sFile, true);
+	if( !hasLength(sFile) ) {
+		return 0;
+	}
+	
+	if( String_StartsWith(sFile, "sound/") ) {
+		strcopy(fullPath, sizeof(fullPath), sFile);
+		strcopy(shortPath, sizeof(shortPath), sFile[6]);
+	}
+	else {
+		Format(fullPath, sizeof(fullPath), "sound/%s", sFile);
+		strcopy(shortPath, sizeof(shortPath), sFile);
+	}
+	
+	if( !FileExists(fullPath) ) { // Try to find file in .vpk
+		if( FileExists(fullPath, true) ) {
+			return PrecacheSound(shortPath, true);
 		}
 		
 		PrintToServer("[PRECACHE] Invalid sound path. File not found: \"%s\"", sFile);
 		return false;
 	}
 	
-	AddFileToDownloadsTable(sFile);
-	PrecacheSound(sFile);
+	AddFileToDownloadsTable(fullPath);
+	PrecacheSound(shortPath);
 	
 	return true;
 }
 
 
 
-stock void Precache_ModelResources(char[] sModel) {
+stock void Precache_ModelResources(char[] sModel) {	
 	AddFileToDownloadsTable(sModel);
 
 	static char sResource[PLATFORM_MAX_PATH];
@@ -224,7 +242,6 @@ stock bool Precache_ModelSounds(char[] sModel) {
 		int iFormat = FindCharInString(sPath, '.', true);
 		if (iFormat != -1) {
 			if (!strcmp(sPath[iFormat], ".mp3", false) || !strcmp(sPath[iFormat], ".wav", false)) {
-				Format(sPath, sizeof(sPath), "sound/%s", sPath);
 				Precache_Sound(sPath);
 			}
 		}
@@ -235,7 +252,6 @@ stock bool Precache_ModelSounds(char[] sModel) {
 }
 
 stock bool Precache_ModelMaterials(char[] sModel) {
-
 	// Opens the file
 	File hFile = OpenFile(sModel, "rb");
 	if( hFile == null ) {
