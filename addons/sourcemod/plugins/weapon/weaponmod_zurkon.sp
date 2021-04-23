@@ -8,6 +8,7 @@
 
 #include <dh>
 #include <custom_weapon_mod>
+#include <precache>
 
 char g_szFullName[PLATFORM_MAX_PATH] =	"Mr. Zurkon";
 char g_szName[PLATFORM_MAX_PATH] 	 =	"zurkon";
@@ -18,13 +19,6 @@ char g_szWModel[PLATFORM_MAX_PATH] =	"models/weapons/w_pist_tec9.mdl";
 char g_szPModel[PLATFORM_MAX_PATH] =	"models/dh/weapons/zurkon.mdl";
 
 int g_cModel;
-
-char g_szMaterials[][PLATFORM_MAX_PATH] = {
-	"dh/weapons/zurkon/albedo.vtf",
-	"dh/weapons/zurkon/mrzurkon_color.vmt",
-	"dh/weapons/zurkon/mrzurkon_color.vtf",
-	"dh/weapons/zurkon/mrzurkon_light.vtf"
-};
 
 char g_szSounds[][PLATFORM_MAX_PATH] = {	
 	"dh/weapons/sentry_attack.mp3"
@@ -78,26 +72,6 @@ public Action OnAttack(int client, int entity) {
 	return Plugin_Continue;
 }
 // ------------------------------------------------------------------------------------------------
-public void OnMapStart() {
-	AddModelToDownloadsTable(g_szVModel);
-	AddModelToDownloadsTable(g_szWModel);
-	AddModelToDownloadsTable(g_szPModel);
-	
-	PrecacheModel(g_szPModel);
-	
-	g_cModel = PrecacheModel("materials/sprites/laserbeam.vmt");
-	
-	for (int i = 0; i < sizeof(g_szSounds); i++) {
-		AddSoundToDownloadsTable(g_szSounds[i]);
-		PrecacheSound(g_szSounds[i]);
-	}
-	
-	/*
-	for (int i = 0; i < sizeof(g_szMaterials); i++) {
-		AddFileToDownloadsTable(g_szMaterials[i]);
-	}
-	*/
-}
 public void OnEntityDestroyed(int entity) {
 	static char classname[128];
 	if( entity > 0 ) {
@@ -109,7 +83,6 @@ public void OnEntityDestroyed(int entity) {
 		}
 	}
 }
-Handle test;
 // ------------------------------------------------------------------------------------------------
 int CreateZurkon(int owner, float pos[3], float ang[3]) {
 	
@@ -321,3 +294,17 @@ int findNearestEnemy(int entity, float dist=128.0, float ang=180.0) {
 	
 	return best;
 }
+
+public void OnMapStart() {
+	Precache_Model(g_szVModel);
+	Precache_Model(g_szWModel);
+	Precache_Model(g_szPModel);
+	
+	g_cModel = Precache_Model("materials/sprites/laserbeam.vmt");
+	if( g_cModel ) { }
+	
+	for (int i = 0; i < sizeof(g_szSounds); i++) {
+		Precache_Sound(g_szSounds[i]);
+	}
+}
+

@@ -8,6 +8,7 @@
 
 #include <dh>
 #include <custom_weapon_mod>
+#include <precache>
 
 char g_szFullName[PLATFORM_MAX_PATH] =	"Combustor";
 char g_szName[PLATFORM_MAX_PATH] 	 =	"combustor";
@@ -17,8 +18,6 @@ char g_szVModel[PLATFORM_MAX_PATH] =	"models/weapons/v_pist_tec9.mdl";
 char g_szWModel[PLATFORM_MAX_PATH] =	"models/weapons/w_pist_tec9.mdl";
 int g_cModel;
 
-char g_szMaterials[][PLATFORM_MAX_PATH] = {
-};
 char g_szSounds[][PLATFORM_MAX_PATH] = {	
 	"weapons/hegrenade/explode3.wav",
 	"weapons/hegrenade/explode4.wav",
@@ -96,19 +95,13 @@ public Action OnProjectileHit(int client, int wpnid, int entity, int target) {
 }
 
 public void OnMapStart() {
-	AddModelToDownloadsTable(g_szVModel);
-	AddModelToDownloadsTable(g_szWModel);
+	Precache_Model(g_szVModel);
+	Precache_Model(g_szWModel);
 	
-	g_cModel = PrecacheModel("materials/sprites/laserbeam.vmt");
+	g_cModel = Precache_Model("materials/sprites/laserbeam.vmt");
+	if( g_cModel ) { }
 	
 	for (int i = 0; i < sizeof(g_szSounds); i++) {
-		AddSoundToDownloadsTable(g_szSounds[i]);
-		PrecacheSound(g_szSounds[i]);
+		Precache_Sound(g_szSounds[i]);
 	}
-	
-	/*
-	for (int i = 0; i < sizeof(g_szMaterials); i++) {
-		AddFileToDownloadsTable(g_szMaterials[i]);
-	}
-	*/
 }

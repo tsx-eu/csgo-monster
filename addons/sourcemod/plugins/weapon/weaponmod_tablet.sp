@@ -8,6 +8,7 @@
 
 #include <dh>
 #include <custom_weapon_mod>
+#include <precache>
 
 char g_szFullName[PLATFORM_MAX_PATH] =	"Tablet";
 char g_szName[PLATFORM_MAX_PATH] 	 =	"tablet";
@@ -16,9 +17,7 @@ char g_szReplace[PLATFORM_MAX_PATH]  =	"weapon_fists";
 char g_szVModel[PLATFORM_MAX_PATH] =	"models/dh/weapons/v_tablet.mdl";
 char g_szWModel[PLATFORM_MAX_PATH] =	"models/dh/weapons/v_tablet.mdl";
 
-
-char g_szMaterials[][PLATFORM_MAX_PATH] = {
-};
+int g_cModel;
 
 char g_szSounds[][PLATFORM_MAX_PATH] = {
 };
@@ -72,18 +71,16 @@ public void OnReload(int client, int entity) {
 public Action OnAttack(int client, int entity) {
 	return Plugin_Continue;
 }
+
 public void OnMapStart() {
-	AddModelToDownloadsTable(g_szVModel);
-	AddModelToDownloadsTable(g_szWModel);
+	Precache_Model(g_szVModel);
+	Precache_Model(g_szWModel);
 	
-	/*
+	g_cModel = Precache_Model("materials/sprites/laserbeam.vmt");
+	if( g_cModel ) { }
+	
 	for (int i = 0; i < sizeof(g_szSounds); i++) {
-		AddSoundToDownloadsTable(g_szSounds[i]);
-		PrecacheSound(g_szSounds[i]);
-	}
-	*/
-	
-	for (int i = 0; i < sizeof(g_szMaterials); i++) {
-		AddFileToDownloadsTable(g_szMaterials[i]);
+		Precache_Sound(g_szSounds[i]);
 	}
 }
+

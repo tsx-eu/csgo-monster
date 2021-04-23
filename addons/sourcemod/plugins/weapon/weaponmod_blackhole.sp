@@ -8,6 +8,7 @@
 
 #include <dh>
 #include <custom_weapon_mod>
+#include <precache>
 
 char g_szFullName[PLATFORM_MAX_PATH] =	"Black-Hole Thrower";
 char g_szName[PLATFORM_MAX_PATH] 	 =	"blackhole";
@@ -27,8 +28,6 @@ enum struct EntityData {
 EntityData g_hData[2049];
 ArrayList g_hPtr;
 
-char g_szMaterials[][PLATFORM_MAX_PATH] = {
-};
 char g_szSounds[][PLATFORM_MAX_PATH] = {	
 	"weapons/hegrenade/explode3.wav",
 	"weapons/hegrenade/explode4.wav",
@@ -166,7 +165,6 @@ public Action OnProjectileHit(int client, int wpnid, int entity, int target) {
 
 public void OnGameFrame() {
 	static float src[3], dst[3], vel[3];
-	static char classname[128];
 	float dist = 0.0, delta = 0.0;
 	bool changed = false;
 	int len = g_hPtr.Length;
@@ -210,19 +208,13 @@ public void OnGameFrame() {
 }
 
 public void OnMapStart() {
-	AddModelToDownloadsTable(g_szVModel);
-	AddModelToDownloadsTable(g_szWModel);
+	Precache_Model(g_szVModel);
+	Precache_Model(g_szWModel);
 	
-	g_cModel = PrecacheModel("materials/sprites/laserbeam.vmt");
+	g_cModel = Precache_Model("materials/sprites/laserbeam.vmt");
+	if( g_cModel ) { }
 	
 	for (int i = 0; i < sizeof(g_szSounds); i++) {
-		AddSoundToDownloadsTable(g_szSounds[i]);
-		PrecacheSound(g_szSounds[i]);
+		Precache_Sound(g_szSounds[i]);
 	}
-	
-	/*
-	for (int i = 0; i < sizeof(g_szMaterials); i++) {
-		AddFileToDownloadsTable(g_szMaterials[i]);
-	}
-	*/
 }

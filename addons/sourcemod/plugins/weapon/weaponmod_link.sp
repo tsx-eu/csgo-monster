@@ -8,6 +8,7 @@
 
 #include <dh>
 #include <custom_weapon_mod>
+#include <precache>
 
 char g_szFullName[PLATFORM_MAX_PATH] =	"Link Gun";
 char g_szName[PLATFORM_MAX_PATH] 	 =	"link";
@@ -23,9 +24,6 @@ enum struct PlayerData {
 }
 
 PlayerData g_pData[65];
-
-char g_szMaterials[][PLATFORM_MAX_PATH] = {
-};
 
 char g_szSounds[][PLATFORM_MAX_PATH] = {
 	"weapons/hegrenade/explode3.wav",
@@ -98,22 +96,14 @@ public void OnPreThink(int client) {
 	TeleportEntity(dst, dir, NULL_VECTOR, NULL_VECTOR);
 }
 
-
-
 public void OnMapStart() {
-	AddModelToDownloadsTable(g_szVModel);
-	AddModelToDownloadsTable(g_szWModel);
+	Precache_Model(g_szVModel);
+	Precache_Model(g_szWModel);
 	
-	g_cModel = PrecacheModel("materials/particle/smoker_tongue_beam.vmt");
+	g_cModel = Precache_Model("materials/sprites/laserbeam.vmt");
+	if( g_cModel ) { }
 	
 	for (int i = 0; i < sizeof(g_szSounds); i++) {
-		AddSoundToDownloadsTable(g_szSounds[i]);
-		PrecacheSound(g_szSounds[i]);
+		Precache_Sound(g_szSounds[i]);
 	}
-	
-	/*
-	for (int i = 0; i < sizeof(g_szMaterials); i++) {
-		AddFileToDownloadsTable(g_szMaterials[i]);
-	}
-	*/
 }

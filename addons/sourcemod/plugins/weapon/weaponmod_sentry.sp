@@ -8,6 +8,7 @@
 
 #include <dh>
 #include <custom_weapon_mod>
+#include <precache>
 
 char g_szFullName[PLATFORM_MAX_PATH] =	"Sentry Gun";
 char g_szName[PLATFORM_MAX_PATH] 	 =	"sentry";
@@ -26,9 +27,6 @@ enum {
 };
 
 int g_cModel;
-
-char g_szMaterials[][PLATFORM_MAX_PATH] = {
-};
 
 char g_szSounds[][PLATFORM_MAX_PATH] = {
 	"survival/turret_idle_01.wav",
@@ -100,24 +98,6 @@ public Action OnProjectileHit(int client, int wpnid, int entity, int target) {
 	return Plugin_Handled;
 }
 // ------------------------------------------------------------------------------------------------
-public void OnMapStart() {
-	AddModelToDownloadsTable(g_szVModel);
-	AddModelToDownloadsTable(g_szWModel);
-	AddModelToDownloadsTable(g_szPModel);
-	
-	g_cModel = PrecacheModel("materials/sprites/laserbeam.vmt");
-	
-	for (int i = 0; i < sizeof(g_szSounds); i++) {
-		AddSoundToDownloadsTable(g_szSounds[i]);
-		PrecacheSound(g_szSounds[i]);
-	}
-	
-	/*
-	for (int i = 0; i < sizeof(g_szMaterials); i++) {
-		AddFileToDownloadsTable(g_szMaterials[i]);
-	}
-	*/
-}
 public void OnEntityDestroyed(int entity) {
 	static char classname[128];
 	if( entity > 0 ) {
@@ -203,31 +183,6 @@ void moveToTarget(int ent, int enemy, float speed, float& tilt, float& yaw) {
 int getEnemy(int ent, float src[3], float ang[3], float& tilt, float threshold) {
 	float dst[3];
 	
-	if( false ) {
-		Handle trace;
-		ang[1] += threshold * 360.0;
-		trace = TR_TraceRayFilterEx(src, ang, MASK_SHOT, RayType_Infinite, TraceEntityFilterSelf, ent);
-		if( TR_DidHit(trace) ) {
-			TR_GetEndPosition(dst, trace);
-			
-			TE_SetupBeamPoints(src, dst, g_cModel, 0, 0, 0, 1.0, 1.0, 1.0, 0, 0.0, { 0, 0, 250, 200 }, 0);
-			TE_SendToAll();
-		}
-		delete trace;
-		
-		ang[1] -= threshold * 360.0;
-		ang[1] -= threshold * 360.0;
-		trace = TR_TraceRayFilterEx(src, ang, MASK_SHOT, RayType_Infinite, TraceEntityFilterSelf, ent);
-		if( TR_DidHit(trace) ) {
-			TR_GetEndPosition(dst, trace);
-			
-			TE_SetupBeamPoints(src, dst, g_cModel, 0, 0, 0, 1.0, 1.0, 1.0, 0, 0.0, { 0, 0, 250, 200 }, 0);
-			TE_SendToAll();
-		}
-		delete trace;
-		ang[1] += threshold * 360.0;
-	}
-	
 	int nearest = 0;
 	float dist = SENTRY_DIST*SENTRY_DIST;
 	
@@ -298,18 +253,6 @@ public void OnThink(int ent) {
 	
 	ang[0] = ang[0] + (yaw-0.5) * 90.0;
 	ang[1] = ang[1] + AngleMod(180.0 + (tilt * 360.0));
-	
-	if( false ) {
-		Handle trace = TR_TraceRayFilterEx(src, ang, MASK_SHOT, RayType_Infinite, TraceEntityFilterSelf, ent);
-		if( TR_DidHit(trace) ) {
-			TR_GetEndPosition(dst, trace);
-			
-			TE_SetupBeamPoints(src, dst, g_cModel, 0, 0, 0, 1.0, 1.0, 1.0, 0, 0.0, { 250, 0, 0, 200 }, 0);
-			TE_SendToAll();
-		}
-		delete trace;
-	}
-	
 	
 	int newEnemy = getEnemy(ent, src, ang, tilt, threshold);
 	if( newEnemy > 0 ) {
@@ -402,4 +345,18 @@ public bool TraceEntityFilterSentry(int entity, int contentsMask, any data) {
 		return true;
 	
 	return false;
+}
+
+
+public void OnMapStart() {
+	Precache_Model(g_szVModel);
+	Precache_Model(g_szWModel);
+	Precache_Model(g_szPModel);
+	
+	g_cModel = Precache_Model("materials/sprites/laserbeam.vmt");
+	if( g_cModel ) { }
+	
+	for (int i = 0; i < sizeof(g_szSounds); i++) {
+		Precache_Sound(g_szSounds[i]);
+	}
 }
