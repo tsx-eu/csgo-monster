@@ -5,12 +5,10 @@
 #include <smlib>
 
 #include <dh>
+#include <precache>
 
 char g_szModel[PLATFORM_MAX_PATH] =	"models/npc/tsx/zombie/zombie.mdl";
-char g_szMaterials[][PLATFORM_MAX_PATH] = {
-	"materials/models/npc/tsx/zombie/ZombieTexture_Basic.vtf",
-	"materials/models/npc/tsx/zombie/ZombieTexture_Basic.vmt",
-};
+
 char g_szSounds[][PLATFORM_MAX_PATH] = {
 	"weapons/knife/knife_hit1.wav",
 	"weapons/knife/knife_hit2.wav",
@@ -65,15 +63,9 @@ public void OnDamage(NPCInstance entity, int attacker, int damage) {
 }
 
 public void OnMapStart() {
-	PrecacheModel(g_szModel);
-	AddModelToDownloadsTable(g_szModel);
+	Precache_Model(g_szModel);
 	
 	for (int i = 0; i < sizeof(g_szSounds); i++) {
-		AddSoundToDownloadsTable(g_szSounds[i]);
-		PrecacheSound(g_szSounds[i]);
-	}
-	
-	for (int i = 0; i < sizeof(g_szMaterials); i++) {
-		AddFileToDownloadsTable(g_szMaterials[i]);
+		Precache_Sound(g_szSounds[i]);
 	}
 }

@@ -43,11 +43,12 @@ stock int Precache_Particles(char[] sModel) {
 		return 0;
 	}
 	
-	Precache_Effects(sModel);
+	Precache_ParticleEffect(sModel);
 	return PrecacheGeneric(sModel, true);
 }
 
-stock bool Precache_Effect(char[] sModel) {	
+stock bool Precache_ParticleEffect(char[] sModel) {
+	static char sPath[PLATFORM_MAX_PATH];
 	AddFileToDownloadsTable(sModel);
 	
 	File hFile = OpenFile(sModel, "rb");
@@ -78,7 +79,7 @@ stock bool Precache_Effect(char[] sModel) {
 		if (iFormat != -1) {
 			if (!strcmp(sPath[iFormat], ".vmt", false)) {
 				Format(sPath, sizeof(sPath), "materials\\%s", sPath);
-				Precache_Texture(sModel, sPath);
+				Precache_Texture(sPath);
 			}
 		}
 	}

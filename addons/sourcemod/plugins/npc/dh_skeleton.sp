@@ -5,16 +5,11 @@
 #include <smlib>
 
 #include <dh>
+#include <precache>
 
 char g_szModel1[PLATFORM_MAX_PATH] =	"models/npc/tsx/skeleton/skeleton.mdl";
 char g_szModel2[PLATFORM_MAX_PATH] =	"models/npc/tsx/skeleton/skeleton_arrow.mdl";
 
-char g_szMaterials[][PLATFORM_MAX_PATH] = {
-	"materials/models/npc/tsx/skeleton/DS_equipment_standard.vtf",
-	"materials/models/npc/tsx/skeleton/DS_equipment_standard.vmt",
-	"materials/models/npc/tsx/skeleton/DS_skeleton_standard.vtf",
-	"materials/models/npc/tsx/skeleton/DS_skeleton_standard.vmt"
-};
 char g_szSounds[][PLATFORM_MAX_PATH] = {
 	"weapons/knife/knife_hit1.wav",
 	"weapons/knife/knife_hit2.wav",
@@ -267,19 +262,12 @@ public void OnDamage(NPCInstance entity, int attacker, int damage) {
 }
 
 public void OnMapStart() {
-	g_cBeam = PrecacheModel("materials/sprites/laserbeam.vmt");
+	g_cBeam = Precache_Model("materials/sprites/laserbeam.vmt");
 	
-	PrecacheModel(g_szModel1);
-	PrecacheModel(g_szModel2);
-	AddModelToDownloadsTable(g_szModel1);
-	AddModelToDownloadsTable(g_szModel2);
+	Precache_Model(g_szModel1);
+	Precache_Model(g_szModel2);
 	
 	for (int i = 0; i < sizeof(g_szSounds); i++) {
-		AddSoundToDownloadsTable(g_szSounds[i]);
-		PrecacheSound(g_szSounds[i]);
-	}
-	
-	for (int i = 0; i < sizeof(g_szMaterials); i++) {
-		AddFileToDownloadsTable(g_szMaterials[i]);
+		Precache_Sound(g_szSounds[i]);
 	}
 }

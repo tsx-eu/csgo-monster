@@ -8,6 +8,7 @@
 #include <dh>
 #include <phun>
 #include <custom_weapon_mod.inc>
+#include <precache>
 
 #define HIDEHUD_HEALTH_AND_WEAPON 	(1<<4)
 #define HIDEHUD_THE_CHAT			(1<<7)
@@ -35,15 +36,11 @@ public void OnPluginStart() {
 }
 public void OnMapStart() {
 	char tmp[PLATFORM_MAX_PATH];
-	PrecacheGeneric("particles/blood_impact_gore.pcf", true);
-	PrecacheGeneric("particles/kosso_1.pcf", true);
+	Precache_Particles("particles/kosso_1.pcf");
 	
-	AddFileToDownloadsTable("particles/kosso_1.pcf");
 	for(int i=0; i<20; i++) {
 		Format(tmp, sizeof(tmp), "materials/dh/hud/HP/%d.vmt", i * 5);
-		AddFileToDownloadsTable(tmp);
-		Format(tmp, sizeof(tmp), "materials/dh/hud/HP/%d.vtf", i * 5);
-		AddFileToDownloadsTable(tmp);
+		Precache_Texture(tmp);
 	}
 }
 public void OnConfigsExecuted() {
