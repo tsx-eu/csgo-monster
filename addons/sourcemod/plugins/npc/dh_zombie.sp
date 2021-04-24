@@ -98,29 +98,29 @@ public void OnLibraryAdded(const char[] sLibrary) {
 public float OnAttack(NPCInstance entity, int attack_id) {
 	static char sound[PLATFORM_MAX_PATH];
 	
-	Format(sound, sizeof(sound), "dh/npc/zombie/Attack_%2d.mp3", GetRandomInt(1, 8));
-	EmitAmbientSound(sound, NULL_VECTOR, entity.Id, SNDLEVEL_WHISPER, SND_NOFLAGS, 0.5, GetRandomInt(90, 110));
-	
+	Format(sound, sizeof(sound), "dh/npc/zombie/Attack_%02d.mp3", GetRandomInt(1, 8));
+	EmitAmbientSound(sound, NULL_VECTOR, entity.Id, SNDLEVEL_SCREAMING, SND_NOFLAGS, 1.0, GetRandomInt(90, 110));
+
 	entity.Melee(10, NPC_RANGE_MELEE, 10 / 50.0);
 	return entity.Gesture(NPC_ANIM_ATTACK);
 }
 public void OnSpawn(NPCInstance entity) {
 	static char sound[PLATFORM_MAX_PATH];
 	
-	Format(sound, sizeof(sound), "dh/npc/zombie/Growl_%2d.mp3", GetRandomInt(1, 9));
-	EmitAmbientSound(sound, NULL_VECTOR, entity.Id, SNDLEVEL_WHISPER, SND_NOFLAGS, 0.5, GetRandomInt(90, 110));
+	Format(sound, sizeof(sound), "dh/npc/zombie/Growl_%02d.mp3", GetRandomInt(1, 9));
+	EmitAmbientSound(sound, NULL_VECTOR, entity.Id, SNDLEVEL_SCREAMING, SND_NOFLAGS, 1.0, GetRandomInt(90, 110));
 }
 public void OnDead(NPCInstance entity) {
 	static char sound[PLATFORM_MAX_PATH];
 	
-	Format(sound, sizeof(sound), "dh/npc/zombie/Death_%2d.mp3", GetRandomInt(1, 10));
-	EmitAmbientSound(sound, NULL_VECTOR, entity.Id, SNDLEVEL_WHISPER, SND_NOFLAGS, 0.5, GetRandomInt(90, 110));
+	Format(sound, sizeof(sound), "dh/npc/zombie/Death_%02d.mp3", GetRandomInt(1, 10));
+	EmitAmbientSound(sound, NULL_VECTOR, entity.Id, SNDLEVEL_SCREAMING, SND_NOFLAGS, 1.0, GetRandomInt(90, 110));
 }
 public void OnDamage(NPCInstance entity, int attacker, int damage) {
 	static char sound[PLATFORM_MAX_PATH];
 	
-	Format(sound, sizeof(sound), "dh/npc/zombie/Hit_%2d.mp3", GetRandomInt(1, 5));
-	EmitAmbientSound(sound, NULL_VECTOR, entity.Id, SNDLEVEL_WHISPER, SND_NOFLAGS, 0.5, GetRandomInt(90, 110));
+	Format(sound, sizeof(sound), "dh/npc/zombie/Hit_%02d.mp3", GetRandomInt(1, 5));
+	EmitAmbientSound(sound, NULL_VECTOR, entity.Id, SNDLEVEL_SCREAMING, SND_NOFLAGS, 1.0, GetRandomInt(90, 110));
 }
 
 public void OnMapStart() {
