@@ -13,17 +13,18 @@ char g_szSounds[][PLATFORM_MAX_PATH] = {
 	"dh/npc/zombie/Attack_01.mp3",
 	"dh/npc/zombie/Attack_02.mp3",
 	"dh/npc/zombie/Attack_03.mp3",
-	
-	"dh/npc/zombie/Bite_01.mp3",
-	"dh/npc/zombie/Bite_02.mp3",
-	"dh/npc/zombie/Bite_03.mp3",
-	"dh/npc/zombie/Bite_04.mp3",
-	"dh/npc/zombie/Bite_05.mp3",
+	"dh/npc/zombie/Attack_04.mp3",
+	"dh/npc/zombie/Attack_05.mp3",
+	"dh/npc/zombie/Attack_06.mp3",
+	"dh/npc/zombie/Attack_07.mp3",
+	"dh/npc/zombie/Attack_08.mp3",
 	
 	"dh/npc/zombie/Breathing_01.mp3",
 	"dh/npc/zombie/Breathing_02.mp3",
 	"dh/npc/zombie/Breathing_03.mp3",
 	"dh/npc/zombie/Breathing_04.mp3",
+	"dh/npc/zombie/Breathing_05.mp3",
+	"dh/npc/zombie/Breathing_06.mp3",
 	
 	"dh/npc/zombie/Death_01.mp3",
 	"dh/npc/zombie/Death_02.mp3",
@@ -36,20 +37,15 @@ char g_szSounds[][PLATFORM_MAX_PATH] = {
 	"dh/npc/zombie/Death_09.mp3",
 	"dh/npc/zombie/Death_10.mp3",
 	
-	"dh/npc/zombie/Funny_01.mp3",
-	"dh/npc/zombie/Funny_02.mp3",
-	
 	"dh/npc/zombie/Growl_01.mp3",
 	"dh/npc/zombie/Growl_02.mp3",
 	"dh/npc/zombie/Growl_03.mp3",
 	"dh/npc/zombie/Growl_04.mp3",
 	"dh/npc/zombie/Growl_05.mp3",
 	"dh/npc/zombie/Growl_06.mp3",
-	
-	"dh/npc/zombie/Grunt_01.mp3",
-	"dh/npc/zombie/Grunt_02.mp3",
-	
-	"dh/npc/zombie/Hissing_01.mp3",
+	"dh/npc/zombie/Growl_07.mp3",
+	"dh/npc/zombie/Growl_08.mp3",
+	"dh/npc/zombie/Growl_09.mp3",
 	
 	"dh/npc/zombie/Hit_01.mp3",
 	"dh/npc/zombie/Hit_02.mp3",
@@ -57,20 +53,14 @@ char g_szSounds[][PLATFORM_MAX_PATH] = {
 	"dh/npc/zombie/Hit_04.mp3",
 	"dh/npc/zombie/Hit_05.mp3",
 	
-	"dh/npc/zombie/Laugh_01.mp3",
-	
-	"dh/npc/zombie/Running_01.mp3",
-	"dh/npc/zombie/Running_02.mp3",
-	
-	"dh/npc/zombie/Spoken.mp3",
-	
-	"dh/npc/zombie/Sudden.mp3",
-	
 	"dh/npc/zombie/Talking_01.mp3",
 	"dh/npc/zombie/Talking_02.mp3",
 	"dh/npc/zombie/Talking_03.mp3",
 	"dh/npc/zombie/Talking_04.mp3",
-	"dh/npc/zombie/Talking_05.mp3"
+	"dh/npc/zombie/Talking_05.mp3",
+	"dh/npc/zombie/Talking_06.mp3",
+	"dh/npc/zombie/Talking_07.mp3",
+	"dh/npc/zombie/Talking_08.mp3"
 };
 
 public void OnLibraryAdded(const char[] sLibrary) {
@@ -106,17 +96,31 @@ public void OnLibraryAdded(const char[] sLibrary) {
 	}
 }
 public float OnAttack(NPCInstance entity, int attack_id) {
+	static char sound[PLATFORM_MAX_PATH];
+	
+	Format(sound, sizeof(sound), "dh/npc/zombie/Attack_%2d.mp3", GetRandomInt(1, 8));
+	EmitAmbientSound(sound, NULL_VECTOR, entity.Id, SNDLEVEL_WHISPER, SND_NOFLAGS, 0.5, GetRandomInt(90, 110));
+	
 	entity.Melee(10, NPC_RANGE_MELEE, 10 / 50.0);
 	return entity.Gesture(NPC_ANIM_ATTACK);
 }
 public void OnSpawn(NPCInstance entity) {
-	// No
+	static char sound[PLATFORM_MAX_PATH];
+	
+	Format(sound, sizeof(sound), "dh/npc/zombie/Growl_%2d.mp3", GetRandomInt(1, 9));
+	EmitAmbientSound(sound, NULL_VECTOR, entity.Id, SNDLEVEL_WHISPER, SND_NOFLAGS, 0.5, GetRandomInt(90, 110));
 }
 public void OnDead(NPCInstance entity) {
-	// No
+	static char sound[PLATFORM_MAX_PATH];
+	
+	Format(sound, sizeof(sound), "dh/npc/zombie/Death_%2d.mp3", GetRandomInt(1, 10));
+	EmitAmbientSound(sound, NULL_VECTOR, entity.Id, SNDLEVEL_WHISPER, SND_NOFLAGS, 0.5, GetRandomInt(90, 110));
 }
 public void OnDamage(NPCInstance entity, int attacker, int damage) {
-	// No
+	static char sound[PLATFORM_MAX_PATH];
+	
+	Format(sound, sizeof(sound), "dh/npc/zombie/Hit_%2d.mp3", GetRandomInt(1, 5));
+	EmitAmbientSound(sound, NULL_VECTOR, entity.Id, SNDLEVEL_WHISPER, SND_NOFLAGS, 0.5, GetRandomInt(90, 110));
 }
 
 public void OnMapStart() {
