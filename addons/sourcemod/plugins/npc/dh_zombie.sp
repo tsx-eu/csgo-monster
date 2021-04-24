@@ -10,10 +10,67 @@
 char g_szModel[PLATFORM_MAX_PATH] =	"models/npc/tsx/zombie/zombie.mdl";
 
 char g_szSounds[][PLATFORM_MAX_PATH] = {
-	"weapons/knife/knife_hit1.wav",
-	"weapons/knife/knife_hit2.wav",
-	"weapons/knife/knife_hit3.wav",
-	"weapons/knife/knife_hit4.wav"
+	"dh/npc/zombie/Attack_01.mp3",
+	"dh/npc/zombie/Attack_02.mp3",
+	"dh/npc/zombie/Attack_03.mp3",
+	
+	"dh/npc/zombie/Bite_01.mp3",
+	"dh/npc/zombie/Bite_02.mp3",
+	"dh/npc/zombie/Bite_03.mp3",
+	"dh/npc/zombie/Bite_04.mp3",
+	"dh/npc/zombie/Bite_05.mp3",
+	
+	"dh/npc/zombie/Breathing_01.mp3",
+	"dh/npc/zombie/Breathing_02.mp3",
+	"dh/npc/zombie/Breathing_03.mp3",
+	"dh/npc/zombie/Breathing_04.mp3",
+	
+	"dh/npc/zombie/Death_01.mp3",
+	"dh/npc/zombie/Death_02.mp3",
+	"dh/npc/zombie/Death_03.mp3",
+	"dh/npc/zombie/Death_04.mp3",
+	"dh/npc/zombie/Death_05.mp3",
+	"dh/npc/zombie/Death_06.mp3",
+	"dh/npc/zombie/Death_07.mp3",
+	"dh/npc/zombie/Death_08.mp3",
+	"dh/npc/zombie/Death_09.mp3",
+	"dh/npc/zombie/Death_10.mp3",
+	
+	"dh/npc/zombie/Funny_01.mp3",
+	"dh/npc/zombie/Funny_02.mp3",
+	
+	"dh/npc/zombie/Growl_01.mp3",
+	"dh/npc/zombie/Growl_02.mp3",
+	"dh/npc/zombie/Growl_03.mp3",
+	"dh/npc/zombie/Growl_04.mp3",
+	"dh/npc/zombie/Growl_05.mp3",
+	"dh/npc/zombie/Growl_06.mp3",
+	
+	"dh/npc/zombie/Grunt_01.mp3",
+	"dh/npc/zombie/Grunt_02.mp3",
+	
+	"dh/npc/zombie/Hissing_01.mp3",
+	
+	"dh/npc/zombie/Hit_01.mp3",
+	"dh/npc/zombie/Hit_02.mp3",
+	"dh/npc/zombie/Hit_03.mp3",
+	"dh/npc/zombie/Hit_04.mp3",
+	"dh/npc/zombie/Hit_05.mp3",
+	
+	"dh/npc/zombie/Laugh_01.mp3",
+	
+	"dh/npc/zombie/Running_01.mp3",
+	"dh/npc/zombie/Running_02.mp3",
+	
+	"dh/npc/zombie/Spoken.mp3",
+	
+	"dh/npc/zombie/Sudden.mp3",
+	
+	"dh/npc/zombie/Talking_01.mp3",
+	"dh/npc/zombie/Talking_02.mp3",
+	"dh/npc/zombie/Talking_03.mp3",
+	"dh/npc/zombie/Talking_04.mp3",
+	"dh/npc/zombie/Talking_05.mp3"
 };
 
 public void OnLibraryAdded(const char[] sLibrary) {
