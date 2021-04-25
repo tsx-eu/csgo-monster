@@ -19,7 +19,6 @@
 
 int g_iLowLifeParticle[65];
 int g_iPosition[65][5][3];
-
 int g_iPositionTablette[65][2];
 bool g_TabletteActive[65];
 
@@ -91,15 +90,8 @@ public Action OnPlayerRunCmd(int client, int& buttons, int& impulse, float vel[3
 	
 	
 	if( !( mouse[0] == 0 && mouse[1] == 0) && lastTest[client] < GetGameTime() && g_TabletteActive[client]) {
-			
-		PrintToChatAll("%d %d", mouse[0], mouse[1]);
 		
-		for(int i=0; i<sizeof(g_iPosition[]); i++) {
-			for(int j=0; j<sizeof(g_iPosition[][]); j++) {
-				if( g_iPosition[client][i][j] == 2 || g_iPosition[client][i][j] == 1 )
-					g_iPosition[client][i][j] = 0;
-			}
-		}
+		g_iPosition[client][ g_iPositionTablette[client][0] ][ g_iPositionTablette[client][1] ] = 0
 		
 		if(mouse[0] > 5 && g_iPositionTablette[client][0] < 4){
 			g_iPositionTablette[client][0] += 1;
