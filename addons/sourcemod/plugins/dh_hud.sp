@@ -20,6 +20,9 @@
 int g_iLowLifeParticle[65];
 int g_iPosition[65][5][3];
 
+int g_iPositionTablette[65][2];
+
+
 public Plugin myinfo = {
 	name = "DH: HUD",
 	author = "KoSSoLaX`",
@@ -63,6 +66,7 @@ public void OnClientDisconnect(int client) {
 public Action OnPlayerRunCmd(int client, int& buttons, int& impulse, float vel[3], float ang[3], int& weapon, int& subtype, int& cmd, int&tick, int& seed, int mouse[2]) {
 	static int oldButton[65];
 	static int tablet[65];
+	static float lastTest[65];
 	
 	if( !(oldButton[client] & IN_SCORE) && (buttons & IN_SCORE) ) {
 		tablet[client] = EntIndexToEntRef(CWM_Spawn(CWM_GetId("tablet"), client, NULL_VECTOR, NULL_VECTOR));
@@ -81,27 +85,40 @@ public Action OnPlayerRunCmd(int client, int& buttons, int& impulse, float vel[3
 		SDKUnhook(client, SDKHook_PreThink, OnThink);
 	}
 	
-	if( !(mouse[0] == 0 && mouse[1] == 0) ) {
+	
+	if( !( mouse[0] == 0 && mouse[1] == 0) && lastTest[client] < GetGameTime() ) {
+			
+		PrintToChatAll("%d %d", mouse[0], mouse[1]);
+		
 		for(int i=0; i<sizeof(g_iPosition[]); i++) {
 			for(int j=0; j<sizeof(g_iPosition[][]); j++) {
-				if( g_iPosition[client][i][j] == 2 )
-					g_iPosition[client][i][j] = 1;
+				if( g_iPosition[client][i][j] == 2 || g_iPosition[client][i][j] == 1 )
+					g_iPosition[client][i][j] = 0;
 			}
 		}
+		
+		
+		if(mouse[0] > 0 && g_iPositionTablette[client][0] < 4){
+			g_iPositionTablette[client][0] += 1;
+		}
 				
-		
-		if( mouse[0] > 0 )
-			mouse[0] = 1;
-		if( mouse[0] < 0 )
-			mouse[0] = -1;
-		
-		if( mouse[1] > 0 )
-			mouse[1] = 1;
-		if( mouse[1] < 0 )
-			mouse[1] = -1;
-		
-		g_iPosition[client][ mouse[0] + 1 ][ mouse[1] + 1 ] = 2;
-	}
+		if(mouse[0] < 0 && g_iPositionTablette[client][0] > 0){
+			g_iPositionTablette[client][0] -= 1;
+		}
+				
+			
+		if(mouse[1] > 0 && g_iPositionTablette[client][1] < 2){
+			g_iPositionTablette[client][1] += 1;
+		}
+			
+		if(mouse[1] < 0 && g_iPositionTablette[client][1] > 0){
+			g_iPositionTablette[client][1] -= 1;
+		}
+				
+		g_iPosition[client][ g_iPositionTablette[client][0] ][ g_iPositionTablette[client][1] ] = 2;
+			
+		lastTest[client] = GetGameTime() + 0.1;
+	}	
 	
 	oldButton[client] = buttons;	
 	return Plugin_Continue;
