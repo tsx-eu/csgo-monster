@@ -21,6 +21,7 @@ int g_iLowLifeParticle[65];
 int g_iPosition[65][5][3];
 
 int g_iPositionTablette[65][2];
+bool g_TabletteActive[65];
 
 
 public Plugin myinfo = {
@@ -71,9 +72,12 @@ public Action OnPlayerRunCmd(int client, int& buttons, int& impulse, float vel[3
 	if( !(oldButton[client] & IN_SCORE) && (buttons & IN_SCORE) ) {
 		tablet[client] = EntIndexToEntRef(CWM_Spawn(CWM_GetId("tablet"), client, NULL_VECTOR, NULL_VECTOR));
 		SDKHook(client, SDKHook_PreThink, OnThink);
+		g_TabletteActive[client] = true;
 	}
 	if( (oldButton[client] & IN_SCORE) && !(buttons & IN_SCORE) ) {
 		int wep = EntRefToEntIndex(tablet[client]);
+		
+		g_TabletteActive[client] = false;
 		
 		if( wep > 0 ) {
 			RemovePlayerItem(client, wep);
@@ -86,7 +90,7 @@ public Action OnPlayerRunCmd(int client, int& buttons, int& impulse, float vel[3
 	}
 	
 	
-	if( !( mouse[0] == 0 && mouse[1] == 0) && lastTest[client] < GetGameTime() ) {
+	if( !( mouse[0] == 0 && mouse[1] == 0) && lastTest[client] < GetGameTime() && g_TabletteActive[client]) {
 			
 		PrintToChatAll("%d %d", mouse[0], mouse[1]);
 		
@@ -97,22 +101,45 @@ public Action OnPlayerRunCmd(int client, int& buttons, int& impulse, float vel[3
 			}
 		}
 		
-		
-		if(mouse[0] > 0 && g_iPositionTablette[client][0] < 4){
+		if(mouse[0] > 5 && g_iPositionTablette[client][0] < 4){
 			g_iPositionTablette[client][0] += 1;
+			if(mouse[0] > 50 && g_iPositionTablette[client][0] < 4)
+				g_iPositionTablette[client][0] += 1;
+			if(mouse[0] > 100 && g_iPositionTablette[client][0] < 4)
+				g_iPositionTablette[client][0] += 1;
+			if(mouse[0] > 200 && g_iPositionTablette[client][0] < 4)
+				g_iPositionTablette[client][0] += 1;
 		}
 				
-		if(mouse[0] < 0 && g_iPositionTablette[client][0] > 0){
+		if(mouse[0] < -5 && g_iPositionTablette[client][0] > 0){
 			g_iPositionTablette[client][0] -= 1;
+			if(mouse[0] < -50 && g_iPositionTablette[client][0] > 0)
+				g_iPositionTablette[client][0] -= 1;
+			if(mouse[0] < -100 && g_iPositionTablette[client][0] > 0)
+				g_iPositionTablette[client][0] -= 1;
+			if(mouse[0] < -200 && g_iPositionTablette[client][0] > 0)
+				g_iPositionTablette[client][0] -= 1;
 		}
 				
-			
-		if(mouse[1] > 0 && g_iPositionTablette[client][1] < 2){
+						
+		if(mouse[1] > 5 && g_iPositionTablette[client][1] < 2){
 			g_iPositionTablette[client][1] += 1;
+			if(mouse[1] > 50 && g_iPositionTablette[client][1] < 2)
+				g_iPositionTablette[client][1] += 1;
+			if(mouse[1] > 100 && g_iPositionTablette[client][1] < 2)
+				g_iPositionTablette[client][1] += 1;
+			if(mouse[1] > 200 && g_iPositionTablette[client][1] < 2)
+				g_iPositionTablette[client][1] += 1;
 		}
 			
-		if(mouse[1] < 0 && g_iPositionTablette[client][1] > 0){
+		if(mouse[1] < -5 && g_iPositionTablette[client][1] > 0){
 			g_iPositionTablette[client][1] -= 1;
+			if(mouse[1] < -50 && g_iPositionTablette[client][1] > 0)
+				g_iPositionTablette[client][1] -= 1;
+			if(mouse[1] < -100 && g_iPositionTablette[client][1] > 0)
+				g_iPositionTablette[client][1] -= 1;
+			if(mouse[1] < -200 && g_iPositionTablette[client][1] > 0)
+				g_iPositionTablette[client][1] -= 1;
 		}
 				
 		g_iPosition[client][ g_iPositionTablette[client][0] ][ g_iPositionTablette[client][1] ] = 2;
