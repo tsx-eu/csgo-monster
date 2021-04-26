@@ -82,12 +82,10 @@ public void OnLibraryAdded(const char[] sLibrary) {
 		g_Class.AddAnimation(NPC_ANIM_WALK,     1, 		210, 	28.0);
 		g_Class.AddAnimation(NPC_ANIM_RUN, 		2, 		30, 	35.0);
 		
-		g_Class.AddAnimation(NPC_ANIM_SPEED, 	3, 		30, 	35.0);		
+		g_Class.AddAnimation(NPC_ANIM_ATTACK, 	3, 		40, 	50.0);
+		g_Class.AddAnimation(NPC_ANIM_ATTACK, 	4,		45, 	50.0);
 		
-		g_Class.AddAnimation(NPC_ANIM_ATTACK, 	4, 		40, 	50.0);
-		g_Class.AddAnimation(NPC_ANIM_ATTACK, 	5,		45, 	50.0);
-		
-		g_Class.AddAnimation(NPC_ANIM_DYING, 	6, 		55, 	25.0);
+		g_Class.AddAnimation(NPC_ANIM_DYING, 	5, 		55, 	25.0);
 		
 		g_Class.AddEvent(NPC_EVENT_SPAWN,	OnSpawn);
 		g_Class.AddEvent(NPC_EVENT_ATTACK,	OnAttack);
@@ -99,7 +97,7 @@ public float OnAttack(NPCInstance entity, int attack_id) {
 	static char sound[PLATFORM_MAX_PATH];
 	
 	Format(sound, sizeof(sound), "dh/npc/zombie/Attack_%02d.mp3", GetRandomInt(1, 8));
-	EmitAmbientSound(sound, NULL_VECTOR, entity.Id, SNDLEVEL_SCREAMING, SND_NOFLAGS, 1.0, GetRandomInt(90, 110));
+	EmitAmbientSound(sound, NULL_VECTOR, entity.Id, SNDLEVEL_CONVO, SND_NOFLAGS, 1.0, GetRandomInt(90, 110));
 
 	entity.Melee(10, NPC_RANGE_MELEE, 10 / 50.0);
 	return entity.Gesture(NPC_ANIM_ATTACK);
@@ -118,9 +116,15 @@ public void OnDead(NPCInstance entity) {
 }
 public void OnDamage(NPCInstance entity, int attacker, int damage) {
 	static char sound[PLATFORM_MAX_PATH];
+	static float next[2049];
 	
-	Format(sound, sizeof(sound), "dh/npc/zombie/Hit_%02d.mp3", GetRandomInt(1, 5));
-	EmitAmbientSound(sound, NULL_VECTOR, entity.Id, SNDLEVEL_SCREAMING, SND_NOFLAGS, 1.0, GetRandomInt(90, 110));
+	float time = GetGameTime();
+
+	if( next[entity] < time ) {
+		Format(sound, sizeof(sound), "dh/npc/zombie/Hit_%02d.mp3", GetRandomInt(1, 5));
+		EmitAmbientSound(sound, NULL_VECTOR, entity.Id, SNDLEVEL_CONVO, SND_NOFLAGS, 1.0, GetRandomInt(90, 110));
+		next[entity] = GetGameTime() + 1.0;
+	}
 }
 
 public void OnMapStart() {
