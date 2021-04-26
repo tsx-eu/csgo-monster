@@ -14,8 +14,8 @@ char g_szFullName[PLATFORM_MAX_PATH] =	"Combustor";
 char g_szName[PLATFORM_MAX_PATH] 	 =	"combustor";
 char g_szReplace[PLATFORM_MAX_PATH]  =	"weapon_tec9";
 
-char g_szVModel[PLATFORM_MAX_PATH] =	"models/weapons/v_pist_tec9.mdl";
-char g_szWModel[PLATFORM_MAX_PATH] =	"models/weapons/w_pist_tec9.mdl";
+char g_szVModel[PLATFORM_MAX_PATH] =	"models/dh/weapons/v_combustor.mdl";
+char g_szWModel[PLATFORM_MAX_PATH] =	"models/dh/weapons/w_combustor.mdl";
 int g_cModel;
 
 char g_szSounds[][PLATFORM_MAX_PATH] = {	
@@ -32,6 +32,7 @@ public void OnLibraryAdded(const char[] sLibrary) {
 		int id = CWM_Create(g_szFullName, g_szName, g_szReplace, g_szVModel, g_szWModel);
 	
 		CWM_SetInt(id, WSI_AttackType,		view_as<int>(WSA_Automatic));
+		CWM_SetInt(id, WSI_Attack2Type,		view_as<int>(WSA_SemiAutomatic));
 		CWM_SetInt(id, WSI_ReloadType,		view_as<int>(WSR_Automatic));
 		CWM_SetInt(id, WSI_AttackDamage, 	25);
 		CWM_SetInt(id, WSI_AttackBullet, 	1);
@@ -44,14 +45,15 @@ public void OnLibraryAdded(const char[] sLibrary) {
 		CWM_SetFloat(id, WSF_AttackRange,	2048.0);
 		CWM_SetFloat(id, WSF_Spread, 		0.0);
 		
-		CWM_AddAnimation(id, WAA_Idle, 		0,	1, 30);
-		CWM_AddAnimation(id, WAA_Attack, 	1,  12, 30);
-		CWM_AddAnimation(id, WAA_Attack, 	2,  12, 30);
-		CWM_AddAnimation(id, WAA_Reload, 	3,	77, 30);
-		CWM_AddAnimation(id, WAA_Draw, 		5,	30, 30);
+		CWM_AddAnimation(id, WAA_Idle, 		0,	188, 30);
+		CWM_AddAnimation(id, WAA_Draw, 		1,	44, 30);
+		CWM_AddAnimation(id, WAA_Pull, 		2,	44, 30);
+		CWM_AddAnimation(id, WAA_Attack, 	3,  38, 30);
+		CWM_AddAnimation(id, WAA_Attack2, 	4,  45, 40);
 		
 		CWM_RegHook(id, WSH_Draw,			OnDraw);
 		CWM_RegHook(id, WSH_Attack,			OnAttack);
+		CWM_RegHook(id, WSH_Attack2,		OnAttack2);
 		CWM_RegHook(id, WSH_Idle,			OnIdle);
 		CWM_RegHook(id, WSH_Reload,			OnReload);
 	}
@@ -67,7 +69,7 @@ public void OnReload(int client, int entity) {
 }
 public Action OnAttack(int client, int entity) {
 	static char sound[PLATFORM_MAX_PATH];
-	CWM_RunAnimation(entity, WAA_Attack, 10/30.0);
+	CWM_RunAnimation(entity, WAA_Attack, 0.5);
 	
 	Format(sound, sizeof(sound), "dh/weapons/combustor_attack%d.mp3", GetRandomInt(1, 2));
 	EmitAmbientSound(sound, NULL_VECTOR, entity, SNDLEVEL_GUNFIRE, SND_NOFLAGS, 1.0, GetRandomInt(90, 110));
@@ -81,7 +83,11 @@ public Action OnAttack(int client, int entity) {
 	
 	return Plugin_Continue;
 }
-
+public Action OnAttack2(int client, int entity) {
+	CWM_RunAnimation(entity, WAA_Attack2);
+	
+	return Plugin_Handled;
+}
 public Action OnProjectileHit(int client, int wpnid, int entity, int target) {
 	static char sound[PLATFORM_MAX_PATH];
 	float pos[3];
