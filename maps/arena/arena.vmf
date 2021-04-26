@@ -2,7 +2,7 @@ versioninfo
 {
 	"editorversion" "400"
 	"editorbuild" "8456"
-	"mapversion" "350"
+	"mapversion" "355"
 	"formatversion" "100"
 	"prefab" "0"
 }
@@ -38,7 +38,7 @@ viewsettings
 world
 {
 	"id" "1"
-	"mapversion" "350"
+	"mapversion" "355"
 	"classname" "worldspawn"
 	"detailmaterial" "detail/detailsprites"
 	"detailvbsp" "detail.vbsp"
@@ -8007,6 +8007,216 @@ world
 		}
 	}
 }
+entity
+{
+	"id" "42338"
+	"classname" "info_target"
+	"angles" "0 0 0"
+	"targetname" "spawn_npc"
+	"origin" "896 0 16"
+	editor
+	{
+		"color" "220 30 220"
+		"visgroupshown" "1"
+		"visgroupautoshown" "1"
+		"logicalpos" "[0 0]"
+	}
+}
+entity
+{
+	"id" "42374"
+	"classname" "info_target"
+	"angles" "0 0 0"
+	"targetname" "spawn_npc"
+	"origin" "896 32 16"
+	editor
+	{
+		"color" "220 30 220"
+		"visgroupshown" "1"
+		"visgroupautoshown" "1"
+		"logicalpos" "[0 0]"
+	}
+}
+entity
+{
+	"id" "42377"
+	"classname" "info_target"
+	"angles" "0 0 0"
+	"targetname" "spawn_npc"
+	"origin" "896 -32 16"
+	editor
+	{
+		"color" "220 30 220"
+		"visgroupshown" "1"
+		"visgroupautoshown" "1"
+		"logicalpos" "[0 0]"
+	}
+}
+entity
+{
+	"id" "42386"
+	"classname" "info_target"
+	"angles" "0 0 0"
+	"targetname" "spawn_npc"
+	"origin" "896 -64 16"
+	editor
+	{
+		"color" "220 30 220"
+		"visgroupshown" "1"
+		"visgroupautoshown" "1"
+		"logicalpos" "[0 0]"
+	}
+}
+entity
+{
+	"id" "42389"
+	"classname" "info_target"
+	"angles" "0 0 0"
+	"targetname" "spawn_npc"
+	"origin" "896 64 16"
+	editor
+	{
+		"color" "220 30 220"
+		"visgroupshown" "1"
+		"visgroupautoshown" "1"
+		"logicalpos" "[0 0]"
+	}
+}
+entity
+{
+	"id" "42392"
+	"classname" "info_target"
+	"angles" "0 0 0"
+	"targetname" "spawn_npc"
+	"origin" "0 992 48"
+	editor
+	{
+		"color" "220 30 220"
+		"visgroupshown" "1"
+		"visgroupautoshown" "1"
+		"logicalpos" "[0 0]"
+	}
+}
+entity
+{
+	"id" "42416"
+	"classname" "info_target"
+	"angles" "0 0 0"
+	"targetname" "spawn_npc"
+	"origin" "-32 992 48"
+	editor
+	{
+		"color" "220 30 220"
+		"visgroupshown" "1"
+		"visgroupautoshown" "1"
+		"logicalpos" "[0 0]"
+	}
+}
+entity
+{
+	"id" "42430"
+	"classname" "info_target"
+	"angles" "0 0 0"
+	"targetname" "spawn_npc"
+	"origin" "32 992 48"
+	editor
+	{
+		"color" "220 30 220"
+		"visgroupshown" "1"
+		"visgroupautoshown" "1"
+		"logicalpos" "[0 0]"
+	}
+}
+entity
+{
+	"id" "42433"
+	"classname" "info_target"
+	"angles" "0 0 0"
+	"targetname" "spawn_npc"
+	"origin" "32 -992 48"
+	editor
+	{
+		"color" "220 30 220"
+		"visgroupshown" "1"
+		"visgroupautoshown" "1"
+		"logicalpos" "[0 0]"
+	}
+}
+entity
+{
+	"id" "42436"
+	"classname" "info_target"
+	"angles" "0 0 0"
+	"targetname" "spawn_npc"
+	"origin" "0 -992 48"
+	editor
+	{
+		"color" "220 30 220"
+		"visgroupshown" "1"
+		"visgroupautoshown" "1"
+		"logicalpos" "[0 0]"
+	}
+}
+entity
+{
+	"id" "42439"
+	"classname" "info_target"
+	"angles" "0 0 0"
+	"targetname" "spawn_npc"
+	"origin" "-32 -992 48"
+	editor
+	{
+		"color" "220 30 220"
+		"visgroupshown" "1"
+		"visgroupautoshown" "1"
+		"logicalpos" "[0 0]"
+	}
+}
+entity
+{
+	"id" "42478"
+	"classname" "info_target"
+	"angles" "0 0 0"
+	"targetname" "spawn_npc"
+	"origin" "-936 0 40"
+	editor
+	{
+		"color" "220 30 220"
+		"visgroupshown" "1"
+		"visgroupautoshown" "1"
+		"logicalpos" "[0 0]"
+	}
+}
+entity
+{
+	"id" "42505"
+	"classname" "info_target"
+	"angles" "0 0 0"
+	"targetname" "spawn_npc"
+	"origin" "-936 32 40"
+	editor
+	{
+		"color" "220 30 220"
+		"visgroupshown" "1"
+		"visgroupautoshown" "1"
+		"logicalpos" "[0 0]"
+	}
+}
+entity
+{
+	"id" "42508"
+	"classname" "info_target"
+	"angles" "0 0 0"
+	"targetname" "spawn_npc"
+	"origin" "-936 -32 40"
+	editor
+	{
+		"color" "220 30 220"
+		"visgroupshown" "1"
+		"visgroupautoshown" "1"
+		"logicalpos" "[0 0]"
+	}
+}
 hidden
 {
 	entity
@@ -8032,7 +8242,7 @@ entity
 	"classname" "info_player_terrorist"
 	"angles" "0 180 0"
 	"enabled" "1"
-	"origin" "864 0 16"
+	"origin" "456 8 16"
 	editor
 	{
 		"color" "220 30 220"
@@ -8047,7 +8257,7 @@ entity
 	"classname" "info_player_terrorist"
 	"angles" "0 180 0"
 	"enabled" "1"
-	"origin" "864 40 16"
+	"origin" "456 48 16"
 	editor
 	{
 		"color" "220 30 220"
@@ -8062,7 +8272,7 @@ entity
 	"classname" "info_player_terrorist"
 	"angles" "0 180 0"
 	"enabled" "1"
-	"origin" "864 -40 16"
+	"origin" "456 -32 16"
 	editor
 	{
 		"color" "220 30 220"
