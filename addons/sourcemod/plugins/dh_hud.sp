@@ -19,6 +19,9 @@
 
 int g_iLowLifeParticle[65];
 int g_iPosition[65][5][3];
+int g_iPositionTablette[65][2];
+bool g_TabletteActive[65];
+
 
 public Plugin myinfo = {
 	name = "DH: HUD",
@@ -63,13 +66,18 @@ public void OnClientDisconnect(int client) {
 public Action OnPlayerRunCmd(int client, int& buttons, int& impulse, float vel[3], float ang[3], int& weapon, int& subtype, int& cmd, int&tick, int& seed, int mouse[2]) {
 	static int oldButton[65];
 	static int tablet[65];
+	static float lastTest[65];
+	static float dir[3];
 	
 	if( !(oldButton[client] & IN_SCORE) && (buttons & IN_SCORE) ) {
 		tablet[client] = EntIndexToEntRef(CWM_Spawn(CWM_GetId("tablet"), client, NULL_VECTOR, NULL_VECTOR));
 		SDKHook(client, SDKHook_PreThink, OnThink);
+		g_TabletteActive[client] = true;
 	}
 	if( (oldButton[client] & IN_SCORE) && !(buttons & IN_SCORE) ) {
 		int wep = EntRefToEntIndex(tablet[client]);
+		
+		g_TabletteActive[client] = false;
 		
 		if( wep > 0 ) {
 			RemovePlayerItem(client, wep);
@@ -81,31 +89,111 @@ public Action OnPlayerRunCmd(int client, int& buttons, int& impulse, float vel[3
 		SDKUnhook(client, SDKHook_PreThink, OnThink);
 	}
 	
-	if( !(mouse[0] == 0 && mouse[1] == 0) ) {
-		for(int i=0; i<sizeof(g_iPosition[]); i++) {
-			for(int j=0; j<sizeof(g_iPosition[][]); j++) {
-				if( g_iPosition[client][i][j] == 2 )
-					g_iPosition[client][i][j] = 1;
+
+	dir[0] += float(mouse[0]);
+	dir[1] += float(mouse[1]);		
+	
+	if( !( mouse[0] == 0 && mouse[1] == 0) && lastTest[client] < GetGameTime() && g_TabletteActive[client]) {
+		
+		float an2g[3];
+		float min = 361.0;
+		int angle;
+		
+		GetVectorAngles(dir, an2g);
+		
+		dir[0] = 0.0;
+		dir[1] = 0.0;
+		
+		//PrintToChatAll("%f %f %f", an2g[0], an2g[1], an2g[2]);
+		
+		g_iPosition[client][ g_iPositionTablette[client][0] ][ g_iPositionTablette[client][1] ] = 0;
+		
+		for(int i=0;i<=8;i++){
+			if(Math_Abs(an2g[1] - i*45.0) < min ){
+				min = Math_Abs(an2g[1] - i * 45.0);
+				angle = i * 45;
+				PrintToChatAll("%f %d", min, i);
 			}
 		}
-				
 		
-		if( mouse[0] > 0 )
-			mouse[0] = 1;
-		if( mouse[0] < 0 )
-			mouse[0] = -1;
+		switch(angle){
+			case 0,360:
+			{
+				PrintToChatAll("Droite");
+				if(g_iPositionTablette[client][0] < 4){
+					g_iPositionTablette[client][0] += 1;
+				}
+			}
+			case 45:
+			{ 
+				PrintToChatAll("Bas Droite");
+				if(g_iPositionTablette[client][0] < 4 ){
+					g_iPositionTablette[client][0] += 1;
+				}
+				if(g_iPositionTablette[client][1] < 2 ){
+					g_iPositionTablette[client][1] += 1;
+				}
+			}
+			case 90:
+			{
+				PrintToChatAll("Bas");
+				if(g_iPositionTablette[client][1] < 2 ){
+					g_iPositionTablette[client][1] += 1;
+				}
+			}
+			case 135:
+			{
+				PrintToChatAll("Gauche Bas");
+				if(g_iPositionTablette[client][0] > 0 ){
+					g_iPositionTablette[client][0] -= 1;
+				}
+				if(g_iPositionTablette[client][1] < 2 ){
+					g_iPositionTablette[client][1] += 1;
+				}
+			}
+			case 180:
+			{
+				PrintToChatAll("Gauche");
+				if(g_iPositionTablette[client][0] > 0){
+					g_iPositionTablette[client][0] -= 1;
+				}
+			}
+			case 225:
+			{
+				PrintToChatAll("Haut Gauche");
+				if(g_iPositionTablette[client][0] > 0){
+					g_iPositionTablette[client][0] -= 1;
+				}
+				if(g_iPositionTablette[client][1] > 0){
+					g_iPositionTablette[client][1] -= 1;
+				}
+			}
+			case 270:
+			{
+				PrintToChatAll("Haut");
+				if(g_iPositionTablette[client][1] > 0){
+					g_iPositionTablette[client][1] -= 1;
+				}
+			}
+			case 315:
+			{
+				PrintToChatAll("Droite Haut");
+				if(g_iPositionTablette[client][0] < 4 && g_iPositionTablette[client][1] > 0){
+					g_iPositionTablette[client][0] += 1;
+					g_iPositionTablette[client][1] -= 1;
+				}
+			}
+			
+		}
 		
-		if( mouse[1] > 0 )
-			mouse[1] = 1;
-		if( mouse[1] < 0 )
-			mouse[1] = -1;
-		
-		g_iPosition[client][ mouse[0] + 1 ][ mouse[1] + 1 ] = 2;
+		g_iPosition[client][ g_iPositionTablette[client][0] ][ g_iPositionTablette[client][1] ] = 2;
+		lastTest[client] = GetGameTime() + 0.1;
 	}
 	
 	oldButton[client] = buttons;	
 	return Plugin_Continue;
 }
+
 
 public void OnThink(int client) {
 	int view = GetEntPropEnt(client, Prop_Send, "m_hViewModel");
