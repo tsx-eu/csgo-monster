@@ -48,7 +48,7 @@ public void OnLibraryAdded(const char[] sLibrary) {
 		CWM_AddAnimation(id, WAA_Idle, 		0,	188, 30);
 		CWM_AddAnimation(id, WAA_Draw, 		1,	44, 30);
 		CWM_AddAnimation(id, WAA_Pull, 		2,	44, 30);
-		CWM_AddAnimation(id, WAA_Attack, 	3,  38, 30);
+		CWM_AddAnimation(id, WAA_Attack, 	3,  20, 30);
 		CWM_AddAnimation(id, WAA_Attack2, 	4,  45, 40);
 		
 		CWM_RegHook(id, WSH_Draw,			OnDraw);
@@ -60,6 +60,22 @@ public void OnLibraryAdded(const char[] sLibrary) {
 }
 public void OnDraw(int client, int entity) {
 	CWM_RunAnimation(entity, WAA_Draw);
+	
+	int lvl = CWM_GetEntityInt(entity, WSI_Level);
+	switch( lvl ) {
+		case 1: {
+		}
+		case 2: {
+		}
+		case 3: {
+		}
+		default: {
+			CWM_SetEntityInt(entity, WSI_Skin, 0);
+			CWM_SetEntityInt(entity, WSI_Body, GetRandomInt(0, 3));
+		}
+	}
+	
+	CWM_RefreshHUD(client, entity);
 }
 public void OnIdle(int client, int entity) {
 	CWM_RunAnimation(entity, WAA_Idle);
@@ -69,7 +85,7 @@ public void OnReload(int client, int entity) {
 }
 public Action OnAttack(int client, int entity) {
 	static char sound[PLATFORM_MAX_PATH];
-	CWM_RunAnimation(entity, WAA_Attack, 0.5);
+	CWM_RunAnimation(entity, WAA_Attack);
 	
 	Format(sound, sizeof(sound), "dh/weapons/combustor_attack%d.mp3", GetRandomInt(1, 2));
 	EmitAmbientSound(sound, NULL_VECTOR, entity, SNDLEVEL_GUNFIRE, SND_NOFLAGS, 1.0, GetRandomInt(90, 110));
