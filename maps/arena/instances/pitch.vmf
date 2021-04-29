@@ -2,7 +2,7 @@ versioninfo
 {
 	"editorversion" "400"
 	"editorbuild" "8456"
-	"mapversion" "195"
+	"mapversion" "200"
 	"formatversion" "100"
 	"prefab" "0"
 }
@@ -20,7 +20,7 @@ viewsettings
 world
 {
 	"id" "1"
-	"mapversion" "195"
+	"mapversion" "200"
 	"classname" "worldspawn"
 	"detailmaterial" "detail/detailsprites"
 	"detailvbsp" "detail.vbsp"
@@ -11016,7 +11016,7 @@ entity
 	"classname" "func_instance"
 	"angles" "-0 0 0"
 	"file" "arena/instances/ammo.vmf"
-	"fixup_style" "2"
+	"fixup_style" "0"
 	"origin" "-753 753 32"
 	editor
 	{
@@ -11032,7 +11032,7 @@ entity
 	"classname" "func_instance"
 	"angles" "-0 0 0"
 	"file" "arena/instances/ammo.vmf"
-	"fixup_style" "2"
+	"fixup_style" "0"
 	"origin" "-1024 640 32"
 	editor
 	{

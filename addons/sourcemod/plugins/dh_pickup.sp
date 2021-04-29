@@ -43,11 +43,40 @@ char g_szSounds[][PLATFORM_MAX_PATH] = {
 	"dh/ambiant/heal.mp3"	
 };
 public void OnPluginStart() {
-	CreateTimer(1.0, Spawn);
+	CreateTimer(1.0, Spawn, _, TIMER_REPEAT);
 }
 public Action Spawn(Handle timer, any none) {
-	SpawnCrate(view_as<float>({ -256.0, 0.0, 64.0 }), 1);
-	SpawnCrate(view_as<float>({ 256.0, 0.0, 64.0 }), 2);
+	static char name[PLATFORM_MAX_PATH];
+	
+	float pos[3];
+	int ent = 0;
+	int entities[64], count = 0;
+	
+	while( (ent=FindEntityByClassname(ent, "trigger_multiple")) != -1 ) {
+		DispatchKeyValue(ent, "spawnflag", "64");
+	}
+	ent = 0;
+	
+	while( (ent=FindEntityByClassname(ent, "info_target")) != -1 ) {
+		Entity_GetName(ent, name, sizeof(name));
+		
+		if( StrEqual(name, "@spawn_crate") ) {
+			Entity_GetAbsOrigin(ent, pos);
+			
+			Handle tr = TR_TraceHullEx(pos, pos, view_as<float>({ -4.0, -4.0, 0.0 }), view_as<float>({ 4.0, 4.0, 16.0 }), MASK_SHOT);
+			if( !TR_DidHit(tr) && !TR_StartSolid(tr) && TR_GetFraction(tr) > 0.9  )
+				entities[count++] = ent;
+			delete tr;
+		}		
+	}
+	
+	if( count > 0 ) {
+		ent = entities[GetRandomInt(0, count - 1)];
+		Entity_GetAbsOrigin(ent, pos);
+		
+		SpawnCrate(pos, GetRandomInt(1, 2));
+	}
+	return Plugin_Continue;
 }
 void SpawnCrate(float pos[3], int type) {
 	int ent = CreateEntityByName("prop_physics");
@@ -61,8 +90,9 @@ void SpawnCrate(float pos[3], int type) {
 			DispatchKeyValue(ent, "model", "models/dh/crate/nanotech.mdl");
 		}
 	}
-	DispatchKeyValue(ent, "overridescript", "mass,10");
+	
 	DispatchSpawn(ent);
+	ActivateEntity(ent);
 	
 	Entity_SetTakeDamage(ent, DAMAGE_YES);
 	Entity_SetHealth(ent, 10);
