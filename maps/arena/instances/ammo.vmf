@@ -2,7 +2,7 @@ versioninfo
 {
 	"editorversion" "400"
 	"editorbuild" "8456"
-	"mapversion" "34"
+	"mapversion" "37"
 	"formatversion" "100"
 	"prefab" "0"
 }
@@ -20,7 +20,7 @@ viewsettings
 world
 {
 	"id" "1"
-	"mapversion" "34"
+	"mapversion" "37"
 	"classname" "worldspawn"
 	"detailmaterial" "detail/detailsprites"
 	"detailvbsp" "detail.vbsp"
@@ -39,6 +39,22 @@ world
 }
 entity
 {
+	"id" "578"
+	"classname" "filter_activator_name"
+	"filtername" "box_iris"
+	"Negated" "1"
+	"targetname" "filter"
+	"origin" "16 0 8"
+	editor
+	{
+		"color" "220 30 220"
+		"visgroupshown" "1"
+		"visgroupautoshown" "1"
+		"logicalpos" "[0 0]"
+	}
+}
+entity
+{
 	"id" "567"
 	"classname" "logic_relay"
 	"spawnflags" "0"
@@ -49,7 +65,7 @@ entity
 		"OnTrigger" "box_irisClose1-1"
 		"OnTrigger" "box_botClose1-1"
 	}
-	"origin" "0 0 8"
+	"origin" "-16 0 8"
 	editor
 	{
 		"color" "220 30 220"
@@ -719,9 +735,10 @@ entity
 {
 	"id" "506"
 	"classname" "trigger_multiple"
+	"filtername" "filter"
 	"origin" "0 0 -36"
 	"parentname" "box_bot"
-	"spawnflags" "4111"
+	"spawnflags" "64"
 	"StartDisabled" "0"
 	"wait" "1"
 	connections

@@ -53,7 +53,7 @@ public Action Spawn(Handle timer, any none) {
 	int entities[64], count = 0;
 	
 	while( (ent=FindEntityByClassname(ent, "trigger_multiple")) != -1 ) {
-		DispatchKeyValue(ent, "spawnflag", "64");
+		SetEntProp(ent, Prop_Data, "m_spawnflags", 64); 
 	}
 	ent = 0;
 	
@@ -102,6 +102,9 @@ void SpawnCrate(float pos[3], int type) {
 	
 	if( type == 2 ) {
 		SpawnEffect(pos, "nanotech", ent);
+	}
+	else {
+		SpawnEffect(pos, "crate", ent);
 	}
 }
 public void OnEntityDestroyed(int entity) {
@@ -167,11 +170,23 @@ void SpawnEffect(float pos[3], const char[] name, int parent=-1) {
 		SetVariantString("!activator");
 		AcceptEntityInput(src, "SetParent", ent);
 		
+		if( GetEntPropEnt(parent, Prop_Data, "m_hEffectEntity") > 0 )
+			AcceptEntityInput(GetEntPropEnt(parent, Prop_Data, "m_hEffectEntity"), "Kill");
+			
+		
 		SetEntPropEnt(parent, Prop_Data, "m_hEffectEntity", ent);
 	}
 	
 	ActivateEntity(src); 
 	AcceptEntityInput(src, "Start");
+	
+	int prev = GetEntPropEnt(ent, Prop_Data, "m_hEffectEntity");
+	
+	if( prev > 0 ) {
+		if( GetEntPropEnt(prev, Prop_Data, "m_hEffectEntity") )
+			AcceptEntityInput(GetEntPropEnt(prev, Prop_Data, "m_hEffectEntity"), "Kill");
+		AcceptEntityInput(prev, "Kill");
+	}
 	
 	SetEntPropEnt(ent, Prop_Data, "m_hEffectEntity", src);
 	SetEntPropEnt(src, Prop_Data, "m_hEffectEntity", dst);
