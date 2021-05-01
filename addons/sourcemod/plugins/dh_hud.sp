@@ -93,30 +93,26 @@ public Action OnPlayerRunCmd(int client, int& buttons, int& impulse, float vel[3
 	dir[0] += float(mouse[0]);
 	dir[1] += float(mouse[1]);		
 	
-	if( !( mouse[0] == 0 && mouse[1] == 0) && lastTest[client] < GetGameTime() && g_TabletteActive[client]) {
+	if( !( mouse[0] == 0 && mouse[1] == 0) && lastTest[client] < GetGameTime() && g_TabletteActive[client] ) {
 		
 		float an2g[3];
-		float min = 361.0;
-		int angle;
+		float min = 999.0;
+		int DirectionFinale;
 		
 		GetVectorAngles(dir, an2g);
 		
-		dir[0] = 0.0;
-		dir[1] = 0.0;
 		
-		//PrintToChatAll("%f %f %f", an2g[0], an2g[1], an2g[2]);
 		
 		g_iPosition[client][ g_iPositionTablette[client][0] ][ g_iPositionTablette[client][1] ] = 0;
 		
-		for(int i=0;i<=8;i++){
-			if(Math_Abs(an2g[1] - i*45.0) < min ){
-				min = Math_Abs(an2g[1] - i * 45.0);
-				angle = i * 45;
-				PrintToChatAll("%f %d", min, i);
+		for(int i = 0; i<= 360 ; i += 45){
+			if(FloatAbs(an2g[1] - i) < min){
+				min = FloatAbs(an2g[1] - i);
+				DirectionFinale = i;
 			}
 		}
-		
-		switch(angle){
+	
+		switch(DirectionFinale){
 			case 0,360:
 			{
 				PrintToChatAll("Droite");
@@ -187,7 +183,12 @@ public Action OnPlayerRunCmd(int client, int& buttons, int& impulse, float vel[3
 		}
 		
 		g_iPosition[client][ g_iPositionTablette[client][0] ][ g_iPositionTablette[client][1] ] = 2;
+		
 		lastTest[client] = GetGameTime() + 0.1;
+		
+		dir[0] = 0.0;
+		dir[1] = 0.0;
+		
 	}
 	
 	oldButton[client] = buttons;	
