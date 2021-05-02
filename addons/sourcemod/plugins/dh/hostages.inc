@@ -115,7 +115,9 @@ public Action OnTouch(int entity, int target) {
 		GetEdictClassname(target, classname, sizeof(classname));
 		
 		if( view_as<float>(g_flInstance[entity][NPC_flNextDoor]) < GetGameTime() && (StrContains(classname, "func_door") == 0 || StrContains(classname, "prop_door") == 0) ) {
-			AcceptEntityInput(target, "Use", entity, entity);
+			if( GetEntProp(target, Prop_Data, "m_spawnflags") & (1<<8) ) {
+				AcceptEntityInput(target, "Use", entity, entity);
+			}
 			view_as<float>(g_flInstance[entity][NPC_flNextDoor]) = GetGameTime() + 3.0;
 		}
 		
@@ -163,7 +165,7 @@ void AvoidPhysicsProps(int entity) {
 		if( target != entity ) {
 			
 			float mass = Phys_IsPhysicsObject(target) ? Phys_GetMass(target) : 30.0;			
-			{
+			if( false ) {
 				float lerp = 0.0 + Math_Clamp(Math_InvLerp(10.0, 30.0, mass), 0.0, 1.0);
 				if( lerp > 0.0 ) {
 					Phys_GetWorldSpaceCenter(target, dst);

@@ -60,7 +60,7 @@ public Action Spawn(Handle timer, any none) {
 	while( (ent=FindEntityByClassname(ent, "info_target")) != -1 ) {
 		Entity_GetName(ent, name, sizeof(name));
 		
-		if( StrEqual(name, "@spawn_crate") ) {
+		if( StrEqual(name, "@spawn_crate") || StrEqual(name, "spawn_crate") ) {
 			Entity_GetAbsOrigin(ent, pos);
 			
 			Handle tr = TR_TraceHullEx(pos, pos, view_as<float>({ -4.0, -4.0, 0.0 }), view_as<float>({ 4.0, 4.0, 16.0 }), MASK_SHOT);
