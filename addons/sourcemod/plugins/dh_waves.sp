@@ -29,7 +29,7 @@ enum struct s_challenge {
 Database g_hDB;
 StringMap g_hChallenges;
 s_challenge g_hCurrent;
-int g_iCurrentWave, g_iCurrentMonster;
+int g_iCurrentWave, g_iCurrentMonster, g_iCurrentMonsterKilled;
 
 // ----------------------------------------------------------------------------------------------------------
 
@@ -50,11 +50,10 @@ public void OnClientPutInServer(int client) {
 public Action OnFrame(Handle timer, any none) {
 	static char name[PLATFORM_MAX_PATH], monster[64];
 	
-	ArrayList monsters = view_as<ArrayList>(g_hCurrent.waves.Get(g_iCurrentWave));
-	
-	if( g_hCurrent.waves == null )
+	if( g_hCurrent.waves == null || g_hCurrent.waves.Length < g_iCurrentWave )
 		return Plugin_Continue;
 	
+	ArrayList monsters = view_as<ArrayList>(g_hCurrent.waves.Get(g_iCurrentWave));
 	if( g_iCurrentMonster >= monsters.Length )
 		return Plugin_Continue;
 
@@ -87,6 +86,29 @@ public Action OnFrame(Handle timer, any none) {
 		NPCInstance bot = NPCInstance(DH_GetClass(monster), pos);
 		bot.Target = 1;
 		
+		CreateTimer(GetRandomFloat(0.5, 1.0), NPC_CheckKilled, EntIndexToEntRef(view_as<int>(bot)));		
+	}
+	
+	return Plugin_Continue;
+}
+public Action NPC_CheckKilled(Handle timer, any ref) {
+	int ent = EntRefToEntIndex(ref);
+	
+	if( g_hCurrent.waves == null )
+		return Plugin_Stop;
+	
+	
+	
+	if( ent <= 0 || view_as<NPCInstance>(ent).Health <= 0 ) {
+		g_iCurrentMonsterKilled++;
+		
+		ArrayList monsters = view_as<ArrayList>(g_hCurrent.waves.Get(g_iCurrentWave));
+		if( g_iCurrentMonsterKilled >= monsters.Length ) {
+			g_iCurrentMonster = g_iCurrentMonsterKilled = 0;
+			g_iCurrentWave++;
+		}
+		
+		return Plugin_Stop;
 	}
 	
 	return Plugin_Continue;
@@ -214,7 +236,7 @@ public int menu_Wave(Handle handler, MenuAction action, int client, int param) {
 		GetMenuItem(handler, param, key, sizeof(key));
 		
 		g_hChallenges.GetArray(key, g_hCurrent, sizeof(g_hCurrent));
-		g_iCurrentWave = g_iCurrentMonster = 0;
+		g_iCurrentWave = g_iCurrentMonster = g_iCurrentMonsterKilled = 0;
 	}
 	else if (action == MenuAction_End) {
 		CloseHandle(handler);
