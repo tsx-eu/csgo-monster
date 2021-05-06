@@ -1,0 +1,15 @@
+"VertexLitGeneric"
+{
+	"$basetexture" 		"models/dh/weapons/hk22/GrenadeLauncher_Dif_01"
+	"$bumpmap" 		"models/dh/weapons/hk22/GrenadeLauncher_Nor_01"
+
+	"$phong" 		"1"
+	"$phongalbedotint"		"1"
+	"$phongexponenttexture"	"models/dh/weapons/hk22/250"
+	"$phongboost" 		"6"
+	"$phongfresnelranges"	"[1 3 5]"
+
+	"$lightwarptexture"		"models/dh/weapons/hk22/251"
+
+	"$ambientocclusion" 	".66"
+}
