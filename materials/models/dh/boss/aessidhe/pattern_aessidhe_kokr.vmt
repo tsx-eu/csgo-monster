@@ -1,0 +1,10 @@
+"UnlitGeneric"
+{
+	"$basetexture" "VGUI/pattern/pattern_aessidhe_kokr"
+	"$translucent" 1
+	"$vertexcolor" "1"
+	"$vertexalpha" "1"
+	"$ignorez"     "1"
+	"$no_fullbright" "1"
+	"$use_in_fillrate_mode" "1"
+}

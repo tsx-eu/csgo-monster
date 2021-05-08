@@ -1,0 +1,39 @@
+"VertexLitGeneric"
+{
+	"$basetexture" "models\dh\boss\aessidhe\aessidhe_metal"
+	"$bumpmap" "models\dh\boss\aessidhe\aessidhe_metal_normal"
+
+	 "$envmap" "env_cubemap"
+        "$envmapcontrast" 1
+        "$envmaptint" "[0.8 0.8 0.8]" 
+ 
+        "$halflambert" 0
+        "$nocull" 0
+        "$nodecal" 1
+        "$alphatest" 1
+        "$translucent" 0
+ 
+        "$rimlight_enable"   0
+        "$rimlight_exp"      5
+        "$rimlight_boost"    1
+ 
+        "$metallic" 0.8
+        "$smoothness" 0.8
+        "$dielectric" 0.2
+ 
+        "$surface" "metal"
+		
+		 "$pbrmap" "models\dh\boss\aessidhe\aessidhe_metal_pbr"
+ 
+}
+
+
+
+
+
+
+
+
+
+
+

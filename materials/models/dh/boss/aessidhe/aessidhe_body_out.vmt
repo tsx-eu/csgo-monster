@@ -1,0 +1,31 @@
+"VertexLitGeneric"
+{
+	"$basetexture" "models\dh\boss\aessidhe\aessidhe_body_out"
+	"$bumpmap" "models\dh\boss\aessidhe\aessidhe_body_normal"
+
+	
+		
+
+	"$nocull"		1
+	"$nodecal" 		0
+	"$alphatest" 		0
+	"$translucent" 		0
+	"$halflambert"		0
+
+	"$envmapmask"		""
+
+	"$phong_enable"		1
+	"$phongexponent" 	5
+	"$phongboost" 		1
+
+	"$rimlight_enable"	1
+	"$rimlight_exp"		3
+	"$rimlight_boost"	55
+
+
+	"$sss_enable"		0
+	"$sss_color"		"[1 0 0 0.3]"
+}
+
+
+

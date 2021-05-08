@@ -1,0 +1,37 @@
+"VertexLitGeneric"
+{
+	"$basetexture" "models\weapon\_monster\spear\spear_aessidhe"
+	"$bumpmap" "models\weapon\_monster\spear\spear_aessidhe_normal" 
+
+		"$envmap" "env_cubemap"
+	"$envmapcontrast" 1
+	"$envmaptint" "[1 1 1]" 
+
+	"$halflambert" 0
+	"$nocull" 0
+	"$nodecal" 0
+	"$alphatest" 1
+	"$translucent" 0
+	
+	"$phong_enable"		1
+	"$phongexponentmap"	""
+	"$phongexponent" 	10
+	"$phongboost" 		15
+	
+	"$rimlight_enable" 1
+	"$rimlight_exp" 5
+	"$rimlight_boost" 5
+	
+	"$surface" "metal"
+}
+
+
+
+
+
+
+
+
+
+
+
