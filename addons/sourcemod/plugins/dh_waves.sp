@@ -50,7 +50,7 @@ public void OnClientPutInServer(int client) {
 public Action OnFrame(Handle timer, any none) {
 	static char name[PLATFORM_MAX_PATH], monster[64];
 	
-	if( g_hCurrent.waves == null || g_hCurrent.waves.Length < g_iCurrentWave )
+	if( g_hCurrent.waves == null || g_hCurrent.waves.Length <= g_iCurrentWave )
 		return Plugin_Continue;
 	
 	ArrayList monsters = view_as<ArrayList>(g_hCurrent.waves.Get(g_iCurrentWave));
@@ -86,7 +86,7 @@ public Action OnFrame(Handle timer, any none) {
 		NPCInstance bot = NPCInstance(DH_GetClass(monster), pos);
 		bot.Target = 1;
 		
-		CreateTimer(GetRandomFloat(0.5, 1.0), NPC_CheckKilled, EntIndexToEntRef(view_as<int>(bot)));		
+		CreateTimer(GetRandomFloat(0.5, 1.0), NPC_CheckKilled, EntIndexToEntRef(view_as<int>(bot)), TIMER_REPEAT);		
 	}
 	
 	return Plugin_Continue;
@@ -106,6 +106,12 @@ public Action NPC_CheckKilled(Handle timer, any ref) {
 		if( g_iCurrentMonsterKilled >= monsters.Length ) {
 			g_iCurrentMonster = g_iCurrentMonsterKilled = 0;
 			g_iCurrentWave++;
+			
+			if( g_hCurrent.waves.Length <= g_iCurrentWave ) {
+				PrintToChatAll("Vous avez gagné!");
+				
+				g_hCurrent.waves = null;
+			}
 		}
 		
 		return Plugin_Stop;
@@ -121,8 +127,10 @@ public Action OnClientSecond(Handle timer, any userid) {
 	if( g_hCurrent.waves == null )
 		return Plugin_Continue;
 	
+	ArrayList monsters = view_as<ArrayList>(g_hCurrent.waves.Get(g_iCurrentWave));
+	
 	SetHudTextParams(0.0125, 0.05, 2.0, 213, 19, 45, 255, 2, 0.0, 0.0, 0.0);
-	ShowHudText(client, 1, "Vague: %d/%d - %s", g_iCurrentWave, g_hCurrent.waveCount, g_hCurrent.name);
+	ShowHudText(client, 1, "Vague: %d/%d - %s\nMonstres restant: %d", g_iCurrentWave+1, g_hCurrent.waveCount, g_hCurrent.name, monsters.Length - g_iCurrentMonsterKilled);
 	
 	return Plugin_Continue;
 }
