@@ -1,0 +1,5 @@
+"VertexlitGeneric"
+{
+	"$basetexture" "models/dh/npc/skeleton/DS_equipment_standard"
+	"$surfaceprop" "MetalGrate"
+}

@@ -1,0 +1,9 @@
+"VertexlitGeneric"
+{
+	"$basetexture" "models/dh/npc/zombie/ZombieTexture_Basic"
+	"$surfaceprop" "flesh"
+	
+	$selfillum 1
+	$selfillummask "models/dh/npc/ZombieTexture_Basic_L"
+	$selfillummaskscale 0.4
+}
