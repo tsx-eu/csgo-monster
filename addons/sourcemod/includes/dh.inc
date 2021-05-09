@@ -4,7 +4,7 @@
 #define _dh_included
 
 #define MAX_CLASSES		64
-#define MAX_ATTACK 		4
+#define MAX_ATTACK 		16
 #define	MAX_ANIMATION 	8
 
 #define STEP_SIZE		16.0
@@ -167,7 +167,10 @@ native void 		DH_RegisterPose(NPCClass id, NPCData_Pose data, int value);
 native void 		DH_RegisterHook(NPCClass id, NPCData_Event event, NPCData_EventCallback callback);
 
 native float 		DH_Animate(NPCInstance id, NPCData_Animation data, float scale = -1.0);
+
 native float 		DH_Gesture(NPCInstance id, NPCData_Animation data, float scale = -1.0, bool remove_similar = false);
+native float 		DH_GestureEx(NPCInstance id, int seqId, int frameCount, float fps, float scale = -1.0);
+
 native void 		DH_Pose(NPCInstance id, NPCData_Pose data, float pose);
 
 native void 		DH_Melee(NPCInstance id, int damage, float range=NPC_RANGE_MELEE, float time=0.0);
@@ -257,6 +260,9 @@ methodmap NPCInstance {
 	}
 	public float Gesture(NPCData_Animation data, float scale = -1.0, bool remove_similar = false) {
 		return DH_Gesture(this, data, scale, remove_similar);
+	}
+	public float GestureEx(int seqId, int frameCount, float fps, float scale = -1.0) {
+		return DH_GestureEx(this, seqId, frameCount, fps, scale);
 	}
 	public void Pose(NPCData_Pose data, float value) {
 		DH_Pose(this, data, value);

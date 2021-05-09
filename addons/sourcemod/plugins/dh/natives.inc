@@ -27,6 +27,7 @@ APLRes Native_REGISTER() {
 	
 	CreateNative("DH_Animate", 				Native_DH_Animate);
 	CreateNative("DH_Gesture", 				Native_DH_Gesture);
+	CreateNative("DH_GestureEx", 			Native_DH_GestureEx);
 	CreateNative("DH_Pose", 				Native_DH_Pose);
 	
 	CreateNative("DH_Melee", 				Native_DH_Melee);
@@ -300,6 +301,32 @@ public any Native_DH_Gesture(Handle plugin, int numParams) {
 		return duration;
 	}
 	return 0.0;
+}
+public any Native_DH_GestureEx(Handle plugin, int numParams) {
+	int entity = GetNativeCell(1);
+	int seq = GetNativeCell(2);
+	int frames = GetNativeCell(3);
+	float fps = GetNativeCell(4);
+	float desired_duration = GetNativeCell(5);
+	
+	float duration = frames / fps;
+	float scale = 1.0;
+	
+	if( desired_duration >= 0.0 ) {
+		scale = duration / desired_duration;
+		duration = desired_duration;
+	}
+	
+	int animator = EntRefToEntIndex(g_iInstance[entity][NPC_iAnimator]);
+	if( animator > 0 ) {
+		IAnimator refAnim = IAnimator(animator);
+		
+		int layer = refAnim.AddGesture(seq, true);
+		if( desired_duration >= 0.0 )
+			refAnim.CBaseAnimatingOverlay().SetLayerPlaybackRate(layer, scale);
+	}
+		
+	return duration;
 }
 public any Native_DH_Pose(Handle plugin, int numParams) {
 	int entity = GetNativeCell(1);
