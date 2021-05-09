@@ -1,11 +1,11 @@
-"VertexLitGeneric"
+"VertexlitGeneric"
 {
-	"$basetexture" "models\weapon\_monster\spear\spear_aessidhe"
-	"$bumpmap" "models\weapon\_monster\spear\spear_aessidhe_normal" 
+	"$basetexture" "models\dh\boss\aessidhe\spear_aessidhe"
+	"$bumpmap" "models\dh\boss\aessidhe\spear_aessidhe_normal" 
 
 		"$envmap" "env_cubemap"
 	"$envmapcontrast" 1
-	"$envmaptint" "[1 1 1]" 
+	"$envmaptint" "[0 0 0]" 
 
 	"$halflambert" 0
 	"$nocull" 0

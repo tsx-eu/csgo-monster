@@ -3,7 +3,9 @@
 	"$basetexture" "models\dh\boss\aessidhe\aessidhe_body_out"
 	"$bumpmap" "models\dh\boss\aessidhe\aessidhe_body_normal"
 
-	
+	"$envmap" "env_cubemap"
+	"$envmapcontrast" 1
+	"$envmaptint" "[0 0 0]" 
 		
 
 	"$nocull"		1

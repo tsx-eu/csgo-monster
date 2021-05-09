@@ -4,9 +4,9 @@
 	"$bumpmap" "models\dh\boss\aessidhe\aessidhe_tail_normal"
 
 	
-	 "$envmap" "env_cubemap"
+	"$envmap" "env_cubemap"
 	"$envmapcontrast" 1
-	"$envmaptint" "[1 1 1]" 	
+	"$envmaptint" "[0 0 0]" 
 
 	"$nocull"		0
 	"$nodecal" 		0
