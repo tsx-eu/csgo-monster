@@ -86,7 +86,7 @@ public Action OnFrame(Handle timer, any none) {
 		NPCInstance bot = NPCInstance(DH_GetClass(monster), pos);
 		bot.Target = 1;
 		
-		CreateTimer(GetRandomFloat(0.5, 1.0), NPC_CheckKilled, EntIndexToEntRef(view_as<int>(bot)), TIMER_REPEAT);		
+		CreateTimer(GetRandomFloat(0.5, 1.0), NPC_CheckKilled, EntIndexToEntRef(bot.Id), TIMER_REPEAT);		
 	}
 	
 	return Plugin_Continue;
