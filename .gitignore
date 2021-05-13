@@ -21,3 +21,8 @@ particles/lasersnoel2018.pcf
 particles/laserstriplesv4.pcf
 particles/particles_rsc_gang.pcf
 particles/rebelscorp.pcf
+*.id0
+bin/server.id1
+bin/server.id2
+bin/server.nam
+bin/server.til
