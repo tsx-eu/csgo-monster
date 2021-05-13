@@ -300,6 +300,9 @@ methodmap NPCInstance {
 		public get() { 	return 			DH_GetInstanceInt(this, NPC_iSkin); }
 		public set(const int value) { 	DH_SetInstanceInt(this, NPC_iSkin, value); }
 	}
+	property int Animator {
+		public get() { 	return 			DH_GetInstanceInt(this, NPC_iAnimator); }
+	}
 	// -- float
 	property float Speed {
 		public get() { 	return 			DH_GetInstanceFloat(this, NPC_flSpeed); }

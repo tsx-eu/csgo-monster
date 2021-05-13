@@ -90,14 +90,17 @@ public int Native_DH_Spawn(Handle plugin, int numParams) {
 	
 	int entity = CreateEntityByName("hostage_entity");
 	DispatchKeyValue(entity, "OnUser1", tmp);
-	DispatchSpawn(entity);
 	
 	SetEntityModel(entity, g_szClass[id][NPC_szModel]);
+	DispatchSpawn(entity);
+	
 	ActivateEntity(entity);
 	TeleportEntity(entity, pos, ang, NULL_VECTOR);
 	
+	SetEntityModel(entity, g_szClass[id][NPC_szModel]);
 	SetEntProp(entity, Prop_Send, "m_nHostageState", 3);
 	SetEntProp(entity, Prop_Send, "m_bClientSideAnimation", 0);
+	SetEntProp(entity, Prop_Send, "m_lifeState", 0);
 	Entity_SetHealth(entity, g_iClass[id][NPC_iHealth]);
 	
 	for(int i=0; i<view_as<int>(NPCData_max_Int); i++)
@@ -117,7 +120,8 @@ public int Native_DH_Spawn(Handle plugin, int numParams) {
 	SetEntProp(child, Prop_Send, "m_nBody", GetRandomInt(g_iClass[id][NPC_iMinBody], g_iClass[id][NPC_iMaxBody]));
 	SetEntProp(child, Prop_Send, "m_nSkin", GetRandomInt(g_iClass[id][NPC_iMinSkin], g_iClass[id][NPC_iMaxSkin]));
 	SetEntProp(child, Prop_Data, "m_lifeState", 2);
-	SetEntProp(entity, Prop_Send, "m_bClientSideAnimation", 0);
+	SetEntProp(child, Prop_Send, "m_bClientSideAnimation", 0);
+	Entity_SetSolidType(child, SOLID_NONE);
 	
 	TeleportEntity(child, pos, ang, NULL_VECTOR);
 	SetVariantString("!activator");

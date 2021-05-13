@@ -5,6 +5,9 @@ public Action DH_OnTrackPath(int entity, float dst[3], float delta) {
 	if( g_iInstance[entity][NPC_iHealth] <= 0 )
 		return Plugin_Handled;
 	
+	if( view_as<float>(g_flInstance[entity][NPC_flFreezeTime]) > GetGameTime() )
+		return Plugin_Handled;
+	
 	float src[3], vel[3], acc[3];
 	Entity_GetAbsOrigin(entity, src);
 	GetEntPropVector(entity, Prop_Send, "m_vel", vel);

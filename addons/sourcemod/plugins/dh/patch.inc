@@ -94,6 +94,16 @@ void Memory_Patch() {
 			StoreToAddress(ref, 0x90, NumberType_Int8);
 		}
 	}
+	
+	
+	addr = hGameConfg.GetAddress("CHostage::HostageThink");
+	for(int offset=0; offset<0x58A; offset++) {
+		// Search for a jump to https://github.com/perilouswithadollarsign/cstrike15_src/blob/master/game/server/cstrike15/hostage/cs_simple_hostage.cpp#L1148-L1154
+		if( offset >= 0x23 && offset < 0x29 ) {
+			Address ref = addr + view_as<Address>(offset);
+			StoreToAddress(ref, 0x90, NumberType_Int8);
+		}
+	}
 
 	delete hGameConfg;
 	
