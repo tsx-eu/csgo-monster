@@ -1,0 +1,15 @@
+"VertexLitGeneric"
+{
+	"$basetexture" 		"models/dh/weapons/linkgun/atrax_DFEM"
+	"$bumpmap" 		"models/dh/weapons/linkgun/atrax_NM"
+
+	"$phong" 		"1"
+	"$phongalbedotint"		"1"
+	"$phongexponenttexture"	"models/dh/weapons/linkgun/250"
+	"$phongboost" 		"6"
+	"$phongfresnelranges"	"[1 3 5]"
+
+	"$lightwarptexture"		"models/dh/weapons/linkgun/251"
+
+	"$ambientocclusion" 	".66"
+}
