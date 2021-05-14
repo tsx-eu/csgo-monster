@@ -45,8 +45,9 @@ public void OnLibraryAdded(const char[] sLibrary) {
 		CWM_AddAnimation(id, WAA_Idle, 		0,	184, 30);
 		CWM_AddAnimation(id, WAA_Draw, 		1,	20, 30);
 		CWM_AddAnimation(id, WAA_Pull, 		2,	20, 30);
-		CWM_AddAnimation(id, WAA_Attack, 	3,  39, 30);
-		CWM_AddAnimation(id, WAA_Attack2, 	4,  45, 40);
+		CWM_AddAnimation(id, WAA_Attack, 	3,  20, 30);
+		CWM_AddAnimation(id, WAA_Attack, 	4,  20, 30);
+		CWM_AddAnimation(id, WAA_Attack2, 	5,  45, 40);
 		
 		CWM_RegHook(id, WSH_Draw,			OnDraw);
 		CWM_RegHook(id, WSH_Attack,			OnAttack);
