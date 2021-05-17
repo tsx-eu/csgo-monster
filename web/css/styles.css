@@ -1,0 +1,481 @@
+* {
+  margin: 0;
+  padding: 0;
+  background: 0;
+  border-radius: 0;
+  box-sizing: border-box;
+}
+.transition {
+  transition: color 0.2s, text-shadow 0.2s, box-shadow 0.2s, border-color 0.2s, background-color 0.2s, font-size 0.2s, font-weight 0.2s;
+}
+body {
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 18px;
+  color: #877d6e;
+  text-align: center;
+}
+body > header,
+body > footer,
+body > article,
+body > section {
+  position: relative;
+  display: block;
+}
+body > section,
+body > footer {
+  padding: 3em 10% 2em 10%;
+  box-shadow: inset 0px 10px 100px black;
+}
+body > section:nth-child(2n+0),
+body > footer:nth-child(2n+0) {
+  background-image: url("../img/dark_wall.png");
+}
+body > section:nth-child(2n+1),
+body > footer:nth-child(2n+1) {
+  background-image: url("../img/dark_leather.png");
+}
+body > section::before,
+body > footer::before,
+body > section::after,
+body > footer::after {
+  position: absolute;
+  display: block;
+  content: "";
+  height: 55px;
+  width: 100%;
+  top: 0px;
+  left: 0px;
+  margin-top: -25px;
+}
+body > section::before,
+body > footer::before {
+  background: url("../img/divider-sprite.png") repeat-x 50% 0%;
+}
+body > section::after,
+body > footer::after {
+  width: 164px;
+  left: 50%;
+  margin-left: -86px;
+  background: url("../img/divider-sprite.png") no-repeat 50% 100%;
+}
+body > header {
+  background-attachment: fixed;
+  background-image: url("../img/Dragonic.jpg");
+  background-position: 75% center;
+  background-size: cover;
+  height: 75vh;
+}
+body > header > nav {
+  position: fixed;
+  display: flex;
+  z-index: 10;
+  font-size: 1.2em;
+  padding: 0.2em 3em 0.2em 3em;
+  width: 100%;
+  background-image: linear-gradient(rgba(40, 35, 30, 0.95), rgba(40, 35, 30, 0.75));
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #452c1f;
+}
+body > header > nav a {
+  display: inline-block;
+  padding-left: 1em;
+}
+body > header > nav a.logo {
+  width: 50px;
+  height: 40px;
+  background-image: url("../img/logo-compact.png");
+  background-position: 0 0;
+}
+body > header > nav a.logo:hover {
+  background-position: 0 -50px;
+}
+body > section > figure {
+  position: relative;
+  width: 800px;
+  height: 500px;
+  margin: auto;
+}
+body > section > figure .pgwSlider,
+body > section > figure .ps-current {
+  height: 100%;
+}
+body > section > figure .ps-caption {
+  position: absolute;
+  bottom: 10%;
+  left: 0px;
+  width: 100%;
+}
+body > section > figure .ps-caption b {
+  color: #fcf8f0;
+  font-family: "Cinzel Decorative", 'Palatino Light', Times, Times New Roman, Georgia, serif;
+  text-shadow: 0px 0px 5px #f4e5c5, -2px -2px 25px #f4e5c5, 2px -2px 25px #f4e5c5, -2px 2px 25px #f4e5c5, 2px 2px 25px #f4e5c5;
+  font-weight: 400;
+}
+body > section > figure .ps-caption b svg {
+  filter: drop-shadow(0px 0px 5px #f4e5c5, -2px -2px 25px #f4e5c5, -2px 2px 25px #f4e5c5, 2px -2px 25px #f4e5c5, 2px 2px 25px #f4e5c5);
+}
+body > section > figure ul {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 18px solid;
+  border-image: url('../img/modal.png') 18 repeat;
+  list-style: none;
+  overflow: hidden;
+}
+body > section > figure ul li,
+body > section > figure ul img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transition: all 200ms linear;
+}
+body > section > figure > button {
+  position: absolute;
+  cursor: pointer;
+  top: 50%;
+  margin-top: -28px;
+  width: 86px;
+  height: 56px;
+  background-image: url(../img/carousel-sprite.png);
+  background-repeat: no-repeat;
+  border: none;
+  text-shadow: 0px 0px 1.41421356px rgba(0, 0, 0, 0.5), -2px -2px 2px rgba(0, 0, 0, 0.5), 2px -2px 2px rgba(0, 0, 0, 0.5), -2px 2px 2px rgba(0, 0, 0, 0.5), 2px 2px 2px rgba(0, 0, 0, 0.5);
+}
+body > section > figure > button svg {
+  filter: drop-shadow(0px 0px 1.41421356px rgba(0, 0, 0, 0.5), -2px -2px 2px rgba(0, 0, 0, 0.5), -2px 2px 2px rgba(0, 0, 0, 0.5), 2px -2px 2px rgba(0, 0, 0, 0.5), 2px 2px 2px rgba(0, 0, 0, 0.5));
+}
+body > section > figure > button.left {
+  left: -80px;
+  background-position: 0 0;
+}
+body > section > figure > button.left:hover {
+  background-position: -86px 0;
+}
+body > section > figure > button.right {
+  right: -80px;
+  background-position: -172px 0;
+}
+body > section > figure > button.right:hover {
+  background-position: -258px 0;
+}
+body > section.custom-bg {
+  background-attachment: fixed;
+  background-image: url("../img/developers.jpg") !important;
+  background-position: center center;
+  background-size: cover;
+}
+body > section > article {
+  display: flex;
+}
+body > section > article > *:nth-last-child( 6):first-child,
+body > section > article > *:nth-last-child( 6):first-child ~ * {
+  width: 16.66666667%;
+  margin-left: 1%;
+  margin-right: 1%;
+}
+body > section > article > *:nth-last-child( 5):first-child,
+body > section > article > *:nth-last-child( 5):first-child ~ * {
+  width: 20%;
+  margin-left: 1.2%;
+  margin-right: 1.2%;
+}
+body > section > article > *:nth-last-child( 4):first-child,
+body > section > article > *:nth-last-child( 4):first-child ~ * {
+  width: 25%;
+  margin-left: 1.5%;
+  margin-right: 1.5%;
+}
+body > section > article > *:nth-last-child( 3):first-child,
+body > section > article > *:nth-last-child( 3):first-child ~ * {
+  width: 33.33333333%;
+  margin-left: 2%;
+  margin-right: 2%;
+}
+body > section > article > *:nth-last-child( 2):first-child,
+body > section > article > *:nth-last-child( 2):first-child ~ * {
+  width: 50%;
+  margin-left: 3%;
+  margin-right: 3%;
+}
+body > section > article > *:nth-last-child( 1):first-child,
+body > section > article > *:nth-last-child( 1):first-child ~ * {
+  width: 100%;
+  margin-left: 6%;
+  margin-right: 6%;
+}
+body > section > article > figure {
+  position: relative;
+  display: block;
+  transition: color 0.2s, text-shadow 0.2s, box-shadow 0.2s, border-color 0.2s, background-color 0.2s, font-size 0.2s, font-weight 0.2s;
+}
+body > section > article > figure img {
+  width: 100%;
+  border: 1px solid #a48649;
+}
+body > section > article > figure img.small {
+  width: 66%;
+}
+body > section > article > figure figcaption {
+  color: #6b6357;
+  font-size: 0.9em;
+  font-weight: 400;
+  line-height: 1.5em;
+}
+body > section > article > figure:hover img {
+  border: 1px solid #ecd19a;
+  box-shadow: 0px 0px 15px 0px #ecd19a;
+}
+body > section > article > figure:hover figcaption {
+  color: #877d6e;
+}
+body > section > article > figure.inside:hover img {
+  box-shadow: 0px 0px 30px 0px #3b2013;
+}
+body > section > article > figure.inside > figcaption {
+  position: absolute;
+  margin-left: 1px;
+  margin-right: 1px;
+  bottom: 0px;
+  width: auto;
+  background-color: rgba(21, 11, 6, 0.4);
+}
+body > section > article > figure.inside > figcaption button {
+  position: relative;
+  display: block;
+  border: 0;
+  width: 100%;
+  height: 54px;
+  margin-top: 1em;
+  color: #ecd19a;
+  font-family: "Cinzel Decorative", 'Palatino Light', Times, Times New Roman, Georgia, serif;
+  text-transform: uppercase;
+  font-weight: 600;
+  cursor: pointer;
+  text-shadow: 0px 0px 1.41421356px rgba(0, 0, 0, 0.5), -2px -2px 2px rgba(0, 0, 0, 0.5), 2px -2px 2px rgba(0, 0, 0, 0.5), -2px 2px 2px rgba(0, 0, 0, 0.5), 2px 2px 2px rgba(0, 0, 0, 0.5);
+  background: url("../img/button-sprite.png") repeat-x 0 0;
+}
+body > section > article > figure.inside > figcaption button svg {
+  filter: drop-shadow(0px 0px 1.41421356px rgba(0, 0, 0, 0.5), -2px -2px 2px rgba(0, 0, 0, 0.5), -2px 2px 2px rgba(0, 0, 0, 0.5), 2px -2px 2px rgba(0, 0, 0, 0.5), 2px 2px 2px rgba(0, 0, 0, 0.5));
+}
+body > section > article > figure.inside > figcaption button:hover {
+  background: url("../img/button-sprite.png") repeat-x 0 -54px;
+}
+body > section > article > figure.inside > figcaption button:before,
+body > section > article > figure.inside > figcaption button:after {
+  display: block;
+  content: "";
+  position: absolute;
+  height: 54px;
+  width: 51px;
+  top: 0px;
+}
+body > section > article > figure.inside > figcaption button:before {
+  left: -4px;
+  background: url("../img/button-sprite.png") repeat-x 0 -108px;
+}
+body > section > article > figure.inside > figcaption button:after {
+  right: -4px;
+  background: url("../img/button-sprite.png") repeat-x 0 -162px;
+}
+body > footer {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+body > footer > nav {
+  display: flex;
+  justify-content: space-around;
+  width: 50%;
+}
+body > footer > nav a {
+  font-size: 1.1em;
+}
+body > footer > nav.social {
+  width: 20%;
+}
+body > footer > nav.social a {
+  font-size: 1.25em;
+}
+body > footer h1,
+body > footer h2,
+body > footer h3,
+body > footer h4,
+body > footer h5,
+body > footer h6 {
+  flex: 0 0 100%;
+  color: #62351f;
+  font-size: 1.5em;
+  letter-spacing: 0.25em;
+}
+form:valid input[type="submit"] {
+  background-color: #232f1a;
+}
+form:invalid input[type="submit"] {
+  background-color: #431f1a;
+}
+form fieldset {
+  display: flex;
+  border: 0;
+  width: 80%;
+  padding-bottom: 1em;
+}
+form fieldset label {
+  display: block;
+  width: 40%;
+  color: #62351f;
+  text-align: right;
+  padding: 0.4em 0.8em 0.4em 0.8em;
+}
+form fieldset label:after {
+  content: ":";
+}
+form fieldset input,
+form fieldset button,
+form fieldset select,
+form fieldset textarea {
+  display: block;
+  width: 60%;
+  outline: none;
+  text-align: left;
+  background-color: #28231e;
+  border: 1px solid #62351f;
+  border-top-color: #753f25;
+  color: #ecd19a;
+  font-family: "Cinzel Decorative", 'Palatino Light', Times, Times New Roman, Georgia, serif;
+  padding: 0.4em 0.8em 0.4em 0.8em;
+  resize: vertical;
+}
+form fieldset input[type="checkbox"],
+form fieldset button[type="checkbox"],
+form fieldset select[type="checkbox"],
+form fieldset textarea[type="checkbox"] {
+  -webkit-appearance: none;
+  width: 2.6em;
+  height: auto;
+}
+form fieldset input[type="checkbox"]:before,
+form fieldset button[type="checkbox"]:before,
+form fieldset select[type="checkbox"]:before,
+form fieldset textarea[type="checkbox"]:before {
+  display: block;
+}
+form fieldset input[type="checkbox"]:checked:before,
+form fieldset button[type="checkbox"]:checked:before,
+form fieldset select[type="checkbox"]:checked:before,
+form fieldset textarea[type="checkbox"]:checked:before {
+  display: block;
+  content: "✔";
+}
+form fieldset input[type="submit"],
+form fieldset button[type="submit"],
+form fieldset select[type="submit"],
+form fieldset textarea[type="submit"] {
+  margin-left: 40%;
+  font-size: 1.1em;
+  font-weight: 300;
+  text-align: center;
+  text-transform: uppercase;
+  text-shadow: 0px 0px 1.41421356px rgba(0, 0, 0, 0.5), -2px -2px 2px rgba(0, 0, 0, 0.5), 2px -2px 2px rgba(0, 0, 0, 0.5), -2px 2px 2px rgba(0, 0, 0, 0.5), 2px 2px 2px rgba(0, 0, 0, 0.5);
+}
+form fieldset input[type="submit"] svg,
+form fieldset button[type="submit"] svg,
+form fieldset select[type="submit"] svg,
+form fieldset textarea[type="submit"] svg {
+  filter: drop-shadow(0px 0px 1.41421356px rgba(0, 0, 0, 0.5), -2px -2px 2px rgba(0, 0, 0, 0.5), -2px 2px 2px rgba(0, 0, 0, 0.5), 2px -2px 2px rgba(0, 0, 0, 0.5), 2px 2px 2px rgba(0, 0, 0, 0.5));
+}
+form fieldset input ~ span,
+form fieldset button ~ span,
+form fieldset select ~ span,
+form fieldset textarea ~ span {
+  padding: 0.4em 0.8em 0.4em 0.8em;
+}
+form fieldset textarea {
+  min-height: 2.6em;
+}
+form fieldset textarea.autogrow-field {
+  min-height: 2.6em;
+  overflow: hidden;
+  resize: none;
+}
+form fieldset textarea.autogrow-field ~ .autogrow-mirror {
+  position: absolute;
+  visibility: hidden;
+  white-space: normal;
+  word-break: break-word;
+  z-index: -1;
+}
+* h1,
+* h2,
+* h3,
+* h4,
+* h5,
+* h6 {
+  font-family: "Cinzel Decorative", 'Palatino Light', Times, Times New Roman, Georgia, serif;
+  font-weight: 300;
+  text-shadow: 0px 0px 1.41421356px rgba(0, 0, 0, 0.5), -2px -2px 2px rgba(0, 0, 0, 0.5), 2px -2px 2px rgba(0, 0, 0, 0.5), -2px 2px 2px rgba(0, 0, 0, 0.5), 2px 2px 2px rgba(0, 0, 0, 0.5);
+}
+* h1 svg,
+* h2 svg,
+* h3 svg,
+* h4 svg,
+* h5 svg,
+* h6 svg {
+  filter: drop-shadow(0px 0px 1.41421356px rgba(0, 0, 0, 0.5), -2px -2px 2px rgba(0, 0, 0, 0.5), -2px 2px 2px rgba(0, 0, 0, 0.5), 2px -2px 2px rgba(0, 0, 0, 0.5), 2px 2px 2px rgba(0, 0, 0, 0.5));
+}
+* h1 {
+  color: #ecd19a;
+  text-transform: uppercase;
+  padding: 1em;
+}
+* h2 {
+  color: #e8c785;
+  text-transform: uppercase;
+  padding: 0.9em;
+}
+* h3 {
+  color: #e4bd6f;
+  padding: 0.8em;
+}
+* h4 {
+  color: #e0b45a;
+  padding: 0.7em;
+}
+* h5 {
+  color: #dcaa44;
+}
+* h6 {
+  color: #d8a02f;
+}
+hr {
+  margin-top: 4rem;
+  height: 12px;
+  background: url(../img/blog-separator-2.png) 50% 100% no-repeat;
+  border: none;
+}
+p {
+  font-size: 1em;
+  font-weight: 400;
+  line-height: 1.5em;
+  padding-top: 2em;
+  padding-bottom: 1em;
+  padding-left: 20%;
+  padding-right: 20%;
+}
+p ~ p {
+  padding-top: 1em;
+}
+a {
+  color: inherit;
+  text-decoration: inherit;
+  transition: color 0.2s, text-shadow 0.2s, box-shadow 0.2s, border-color 0.2s, background-color 0.2s, font-size 0.2s, font-weight 0.2s;
+}
+a:hover {
+  color: #ecd19a;
+  text-shadow: 0px 0px 5px #62351f, -2px -2px 25px #62351f, 2px -2px 25px #62351f, -2px 2px 25px #62351f, 2px 2px 25px #62351f;
+}
+a:hover svg {
+  filter: drop-shadow(0px 0px 5px #62351f, -2px -2px 25px #62351f, -2px 2px 25px #62351f, 2px -2px 25px #62351f, 2px 2px 25px #62351f);
+}

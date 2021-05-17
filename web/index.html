@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <link href="https://fonts.googleapis.com/css?family=Cinzel|Cinzel+Decorative" rel="stylesheet">
+        <link href="css/styles.css" rel="stylesheet">
+        <link href="css/lity.css" rel="stylesheet">
+
+        <script src="js/zepto.min.js"></script>
+        <script src="js/pgwslider.min.js"></script>
+        <script src="js/pgwmodal.min.js"></script>
+        <script src="js/lity.min.js"></script>
+        <script src="js/jquery.autogrow.min.js"></script>
+        <script src="https://code.iconify.design/1/1.0.7/iconify.min.js"></script>
+
+        <script type="text/javascript">
+        $(document).ready(function() {
+
+            $('.pgwSlider').each( (i, e) => {
+                
+                const pgwSlider = $(e).pgwSlider({
+                    displayList: false
+                });
+                
+                $(e).parent().parent().find('button.left').click(() => {
+                    pgwSlider.previousSlide();
+                });
+                $(e).parent().parent().find('button.right').click(() => {
+                    pgwSlider.nextSlide()
+                });
+            });
+
+            $('textarea').autogrow();
+        });
+        </script>
+    </head>
+    <body>
+        <header>
+            <nav>
+                <a href="" class="logo"></a>
+                <nav>
+                    <a href="" >Heroes</a>
+                    <a href="" >Gallery</a>
+                    <a href="" >Store</a>
+                    <a href="" >Contact</a>
+                </nav>
+            </nav>
+            <img src="img/Dragonic-Final.png">
+        </header>
+        <section>
+            <h2>NOW WE'VE COME FULL CIRCLE</h2>
+            <p>
+                A smokescreen covered their continuous blinks towards the outskirts of the great kingdom, until the cathedral was the only thing clearly visible. Along the way, they could sense the great shadow of a Dragon, watching their every step. Then, the voices of survivors seeking revenge towards the witch echoed through the destroyed cathedral halls. Others were tending to their wounded, others were trying to collect the Enlightened's burning husk from the great funeral pyre, whilst the archbishop was chanting blessings, leading the flock of peasants as if they were warriors, preparing to battle the mighty dragon...
+            </p>
+            <hr />
+            <h2>CHOOSE YOUR HERO</h2>
+            <article>
+                <figure>
+                    <img src="img/character-1.jpg" />
+                    
+                    <figcaption>
+                        <h3>Aleister</h3>
+
+                        Aleister, the former demonlord, is always looking at others bearing a malefic grin upon his twisted visage, harnessing all the power he can muster as he directs bolts of pure chaos towards his foes.
+                    </figcaption>
+                </figure>
+                <figure>
+                    <img src="img/character-2.jpg" />
+
+                    <figcaption>
+                        <h3>Hecate</h3>
+
+                        The only place Hecate feels safe is total Darkness, where she envelopes herself and thrives, until it totally consumes her existence. Until that strange familiar odor which vanished, reappears and stabs you - in the Dark.
+                    </figcaption>
+                </figure>
+                <figure>
+                    <img src="img/character-3.jpg" />
+
+                    <figcaption>
+                        <h3>Theregar</h3>
+
+                        Theregar's smile looks intimidating as it is, yet is amplified by the fel green hue of the enchantments he is preparing: As he deflects his attackers, his foes are enlightened by his immense control of the Shadows...
+                    </figcaption>
+                </figure>
+                <figure>
+                    <img src="img/character-4.jpg" />
+
+                    <figcaption>
+                        <h3>Roth</h3>
+
+                        Void claimed all in the Halls of Reflection as Roth rised from the Stone, his voice echoing again in the sultry darkness. His enemies fallen, their eyesight blurred, their powers escaping their body as he consumed their souls...
+                    </figcaption>
+                </figure>
+            </article>
+        </section>
+        <section>
+            <h2>NOW WE'VE COME FULL CIRCLE</h2>
+            <p>
+                The ornate peace of these halls would be shattered now and then by the faint whispers of the Statue of a thousand faces, as the soul fragments collided and the Heroes met in glorious Combat. For them it would always be the first time, until someone's time to be free of this burden would come - then he'd regain consciousness of who he was and what he had to do.
+            </p>
+            <p>
+                But, this time, something was different.
+            </p>
+            <figure>
+                <ul class="pgwSlider">
+                    <li>
+                        <a href="img/video-thumbnail.jpg" data-lity>
+                            <img src="img/video-thumbnail.jpg" data-lity/>
+                        </a>
+                        <span>New York, NY, USA</span>
+                    </li>
+                    <li>
+                        <a href="img/gallery-dragonic-game-screenshot-1.jpg" data-lity>
+                            <img src="img/gallery-dragonic-game-screenshot-1.jpg" data-lity/>
+                        </a>
+                        <span>The Dragon's voice boomed throughout the kingdom...</span>
+                    </li>
+                    <li>
+                        <a href="img/gallery-dragonic-game-screenshot-2.jpg" data-lity>
+                            <img src="img/gallery-dragonic-game-screenshot-2.jpg" data-lity/>
+                        </a>
+                        <span>She would give them a piece of their own personal hell...</span>
+                    </li>
+                    <li>
+                        <a href="img/gallery-dragonic-game-screenshot-3.jpg" data-lity>
+                            <img src="img/gallery-dragonic-game-screenshot-3.jpg" data-lity/>
+                        </a>
+                        <span>The Enlightened's charred husk remained atop the castle's walls...</span>
+                    </li>
+                    <li>
+                        <a href="img/gallery-dragonic-game-screenshot-4.jpg" data-lity>
+                            <img src="img/gallery-dragonic-game-screenshot-4.jpg" data-lity/>
+                        </a>
+                        <span>Void claimed all in the Halls of Reflection...</span>
+                    </li>
+                    <li>
+                        <a href="img/gallery-dragonic-game-screenshot-5.jpg" data-lity>
+                            <img src="img/gallery-dragonic-game-screenshot-5.jpg" data-lity/>
+                        </a>
+                        <span>Theregar deflected another attack, towering atop the crambled stairs...</span>
+                    </li>
+                    <li>
+                        <a href="img/gallery-dragonic-game-screenshot-6.jpg" data-lity>
+                            <img src="img/gallery-dragonic-game-screenshot-6.jpg" data-lity/>
+                        </a>
+                        <span>The soul fragments met, imprisoning life in the midst of the Void...</span>
+                    </li>
+                    <li>
+                        <a href="img/gallery-dragonic-game-screenshot-7.jpg" data-lity>
+                            <img src="img/gallery-dragonic-game-screenshot-7.jpg" data-lity/>
+                        </a>
+                        <span>Only moments remain before the Halls of Reflection burst into light...</span>
+                    </li>
+                    <li>
+                        <a href="img/gallery-dragonic-game-screenshot-8.jpg" data-lity>
+                            <img src="img/gallery-dragonic-game-screenshot-8.jpg" data-lity/>
+                        </a>
+                        <span>In the shadows of the murky forest, they must pursue their foe...</span>
+                    </li>
+                </ul>
+
+                <button class="left"></button>
+                <button class="right"></button>
+            </figure>
+        </section>
+        <section>
+            <h2>CHOOSE YOUR WEAPON</h2>
+            <p>
+                Unleash your revenge upon mankind as you turn and look towards the human cities, only to see a great pillar of flame hit their cathedrals, the ensuing shockwave and flamewall erasing all signs of their kingdoms' existence.
+            </p>
+            <article>
+                <figure class="inside">
+                    <img src="img/dragonic-gameplay-01.jpg" />
+                    
+                    <figcaption>
+                        <h4>IOS VERSION</h4>
+
+                        Available both for Apple iPhone & Apple iPad, specially designed for Apple iPad Pro & Force Touch.
+                        <button>AppStore</button>
+                    </figcaption>
+                </figure>
+                <figure class="inside">
+                    <img src="img/dragonic-gameplay-02.jpg" />
+
+                    <figcaption>
+                        <h4>ANDROID VERSION</h4>
+
+                        Incorporating the finest tweaks for absolutely best performance and stellar graphics in all devices.
+                        <button>PlayStore</button>
+                    </figcaption>
+                </figure>
+                <figure class="inside">
+                    <img src="img/dragonic-gameplay-03.jpg" />
+
+                    <figcaption>
+                        <h4>PC&MAC VERSION</h4>
+
+                        The zenith of graphics, the PC & Mac versions offer a truly unforgetable experience.
+                        <button>Steam</button>
+                    </figcaption>
+                </figure>
+            </article>
+        </section>
+        <section class="custom-bg">
+            <h2>THE INSIGHTS OF DARKNESS</h2>
+            <article>
+                <figure>
+                    <img src="img/developer-1.jpg" class="small" />
+                    
+                    <figcaption>
+                        Available both for Apple iPhone & Apple iPad, specially designed for Apple iPad Pro & Force Touch.
+
+                        <h4>IOS VERSION</h4>
+                    </figcaption>
+                </figure>
+                <figure>
+                    <img src="img/developer-2.jpg" class="small" />
+
+                    <figcaption>
+                        Incorporating the finest tweaks for absolutely best performance and stellar graphics in all devices.
+
+                        <h4>ANDROID VERSION</h4>
+                    </figcaption>
+                </figure>
+                <figure>
+                    <img src="img/developer-3.jpg" class="small" />
+
+                    <figcaption>
+                        The zenith of graphics, the PC & Mac versions offer a truly unforgetable experience.
+                        <h4>IOS VERSION</h4>
+                    </figcaption>
+                </figure>
+            </article>
+        </section>
+        <section>
+            <h2>SUMMON US</h2>
+            <p>
+                Whether your mind echoes with questions, or your soul seeks for answers untold, stay awhile and write us down your request. If a bug is what bothers you, it shall be purged into eternity via your precious feedback. If a career in warmonging is what you long for, indulge us with a first handshake and be welcome to visit us in our den, located right in the midst of the ancient city of Athens. By all means, if you wish to present us with a review only a true Master gamer would, enlighten us so we may bask in its light.
+            </p>
+            <p>
+                By all means, contact us. We are always listening...
+            </p>
+            <form method="POST">
+
+                <fieldset>
+                    <label>Name</label>
+                    <input type="text" required minlength="3" />
+                </fieldset>
+
+                <fieldset>
+                    <label>Email</label>
+                    <input type="email" required minlength="10" />
+                </fieldset>
+
+                <fieldset>
+                    <label>You found us</label>
+                    <select required>
+                        <option disabled selected value> ⎯⎯⎯ select an option ⎯⎯⎯ </option>
+                        <option>Search Engine</option>
+                        <option>Friend</option>
+                        <option>Advertisement</option>
+                        <option>Free promotion</option>
+                        <option>Other</option>
+                    </select>
+                </fieldset>
+
+                <fieldset>
+                    <label>Newsletter</label>
+                    <input type="checkbox" required/><span>Of course!</span>
+                </fieldset>
+
+                <fieldset>
+                    <label>Message</label>
+
+                    <textarea placeholder="Your message" spellcheck="false" rows="1"></textarea>
+                </fieldset>
+
+                <fieldset>
+                    <input type="submit" value="Submit" />
+                </fieldset>
+            </fieldset>
+        </section>
+        <footer>
+            <nav>
+                <a href="" >Heroes</a>
+                <a href="" >Gallery</a>
+                <a href="" >Store</a>
+                <a href="" >Contact</a>
+            </nav>
+            <nav class="social">
+                <a href="" ><span class="iconify" data-icon="bx:bxl-facebook" data-inline="false"></span></a>
+                <a href="" ><span class="iconify" data-icon="bx:bxl-twitter" data-inline="false"></span></a>
+                <a href="" ><span class="iconify" data-icon="bx:bxl-youtube" data-inline="false"></span></a>
+                <a href="" ><span class="iconify" data-icon="bx:bxl-instagram" data-inline="false"></span></a>
+            </nav>
+            <h4>Copyright © ts-x.eu</h4>
+        </footer>
+    </body>
+</html>
