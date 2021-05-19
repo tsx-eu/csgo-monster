@@ -1,0 +1,7 @@
+"VertexLitGeneric"
+{
+	"$basetexture" 		"models/dh/weapons/heavyshotgun/fusion_shotgun_rear_ret_col"
+
+
+$translucent "1"
+}

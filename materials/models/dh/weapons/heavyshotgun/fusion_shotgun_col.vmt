@@ -1,0 +1,15 @@
+"VertexLitGeneric"
+{
+	"$basetexture" 		"models/dh/weapons/heavyshotgun/fusion_shotgun_col"
+	"$bumpmap" 		"models/dh/weapons/heavyshotgun/fusion_shotgun_nml"
+
+	"$phong" 		"1"
+	"$phongalbedotint"		"1"
+	"$phongexponenttexture"	"models/dh/weapons/heavyshotgun/250"
+	"$phongboost" 		"6"
+	"$phongfresnelranges"	"[1 3 5]"
+
+	"$lightwarptexture"		"models/dh/weapons/heavyshotgun/251"
+
+	"$ambientocclusion" 	".66"
+}
