@@ -143,10 +143,10 @@ public float OnAttack(NPCInstance entity, int attack_id) {
 	
 	int weapon = GetEntPropEnt(entity.Id, Prop_Data, "m_hActiveWeapon");
 	
-	attack_id = 1;
+	attack_id = 9;
 	
 	switch(attack_id) {
-		case 0:	{
+		case 0:	{ // dash
 			time = entity.GestureEx(22, 240, 60.0); 	// dash
 			GetAngleVectors(ang, vel, NULL_VECTOR, NULL_VECTOR);
 			ScaleVector(vel, 512.0);
@@ -154,12 +154,8 @@ public float OnAttack(NPCInstance entity, int attack_id) {
 			
 			Push(entity.Id, vel, 65/60.0, 85/60.0, MOVETYPE_FLY);
 		}
-		case 1:	{
+		case 1:	{ // cast
 			time = entity.GestureEx(30, 740, 60.0);
-			// -insecure -tools -nop4
-			// snatch
-			// 
-			
 			int p = AttachParticle(entity.Id, "cast_red", 10.0);
 			DispatchKeyValue(p, "OnUser1", "!self,StopPlayEndCap,,8.0,-1");
 			AcceptEntityInput(p, "FireUser1");
@@ -169,7 +165,112 @@ public float OnAttack(NPCInstance entity, int attack_id) {
 				CreateTimer(GetRandomFloat(250/60.0, 350/60.0), Task_DamageSpear, entity);
 				CreateTimer(GetRandomFloat(480/60.0, 500/60.0), Task_CleanSpear, entity);
 			}
+		}
+		case 2: { // 1x slash
+			time = entity.GestureEx(31, 152, 60.0);
 			
+			GetAngleVectors(ang, vel, NULL_VECTOR, NULL_VECTOR);
+			ScaleVector(vel, 128.0);
+			AddVectors(pos, vel, vel);
+			
+			Push(entity.Id, vel, 10/60.0, 40/60.0, MOVETYPE_FLY);
+		}
+		case 3: { // 2x slash
+			time = entity.GestureEx(34, 310, 60.0);
+			
+			GetAngleVectors(ang, vel, NULL_VECTOR, NULL_VECTOR);
+			ScaleVector(vel, 128.0);
+			AddVectors(pos, vel, vel);
+			
+			Push(entity.Id, vel, 110/60.0, 150/60.0, MOVETYPE_FLY);
+			
+			GetAngleVectors(ang, vel, NULL_VECTOR, NULL_VECTOR);
+			ScaleVector(vel, 256.0);
+			AddVectors(pos, vel, vel);
+			
+			Push(entity.Id, vel, 160/60.0, 190/60.0, MOVETYPE_FLY);
+		}
+		case 4: { // 3x slash
+			time = entity.GestureEx(32, 490, 60.0);
+			
+			GetAngleVectors(ang, vel, NULL_VECTOR, NULL_VECTOR);
+			ScaleVector(vel, 128.0);
+			AddVectors(pos, vel, vel);
+			
+			Push(entity.Id, vel, 110/60.0, 150/60.0, MOVETYPE_FLY);
+			
+			GetAngleVectors(ang, vel, NULL_VECTOR, NULL_VECTOR);
+			ScaleVector(vel, 256.0);
+			AddVectors(pos, vel, vel);
+			
+			Push(entity.Id, vel, 160/60.0, 190/60.0, MOVETYPE_FLY);
+			
+			GetAngleVectors(ang, vel, NULL_VECTOR, NULL_VECTOR);
+			ScaleVector(vel, 320.0);
+			AddVectors(pos, vel, vel);
+			
+			Push(entity.Id, vel, 210/60.0, 230/60.0, MOVETYPE_FLY);
+		}
+		case 5: { // 3x slash + weapon lunch
+			time = entity.GestureEx(33, 570, 60.0);
+			
+			GetAngleVectors(ang, vel, NULL_VECTOR, NULL_VECTOR);
+			ScaleVector(vel, 128.0);
+			AddVectors(pos, vel, vel);
+			
+			Push(entity.Id, vel, 110/60.0, 150/60.0, MOVETYPE_FLY);
+			
+			GetAngleVectors(ang, vel, NULL_VECTOR, NULL_VECTOR);
+			ScaleVector(vel, 256.0);
+			AddVectors(pos, vel, vel);
+			
+			Push(entity.Id, vel, 160/60.0, 190/60.0, MOVETYPE_FLY);
+			
+			GetAngleVectors(ang, vel, NULL_VECTOR, NULL_VECTOR);
+			ScaleVector(vel, 320.0);
+			AddVectors(pos, vel, vel);
+			
+			Push(entity.Id, vel, 210/60.0, 230/60.0, MOVETYPE_FLY);
+		}
+		case 6: { // stab
+			time = entity.GestureEx(35, 218, 60.0);
+			
+			GetAngleVectors(ang, vel, NULL_VECTOR, NULL_VECTOR);
+			ScaleVector(vel, 256.0);
+			AddVectors(pos, vel, vel);
+			
+			Push(entity.Id, vel, 70/60.0, 90/60.0, MOVETYPE_FLY);
+		}
+		case 7: { // swing
+			time = entity.GestureEx(36, 242, 60.0);
+			
+			GetAngleVectors(ang, vel, NULL_VECTOR, NULL_VECTOR);
+			ScaleVector(vel, 196.0);
+			AddVectors(pos, vel, vel);
+			
+			Push(entity.Id, vel, 50/60.0, 90/60.0, MOVETYPE_FLY);
+		}
+		case 8: { // back
+			time = entity.GestureEx(62, 215, 60.0);
+			
+			GetAngleVectors(ang, vel, NULL_VECTOR, NULL_VECTOR);
+			ScaleVector(vel, -192.0);
+			AddVectors(pos, vel, vel);
+			
+			Push(entity.Id, vel, 20/60.0, 50/60.0, MOVETYPE_FLY);
+		}
+		case 9: { // ultimate "vacuum"
+ 			//time = entity.GestureEx(41, 168, 60.0);
+ 			time = entity.GestureEx(37, 515, 60.0);
+ 			//time = entity.GestureEx(39, 108, 60.0);
+ 			//time = entity.GestureEx(39, 108, 60.0);
+ 			
+ 			
+ 			GetAngleVectors(ang, vel, NULL_VECTOR, NULL_VECTOR);
+			ScaleVector(vel, -192.0);
+			AddVectors(pos, vel, vel);
+			
+			Push(entity.Id, vel, 400/60.0, 490/60.0, MOVETYPE_FLY);
 		}
 		default: {
 			PrintToChatAll("[ERR] Unknown attackid: %d", attack_id);
@@ -328,6 +429,10 @@ public void OnSpawn(NPCInstance entity) {
 	Entity_SetSolidFlags(entity.Id, FSOLID_CUSTOMBOXTEST|FSOLID_CUSTOMRAYTEST);
 	Entity_SetSolidType(entity.Id, SOLID_OBB);
 	Entity_SetCollisionGroup(entity.Id, COLLISION_GROUP_NPC);
+	
+	
+	float time = entity.GestureEx(87, 90, 60.0);
+	entity.Freeze = GetGameTime() + time;
 }
 public void OnTouch(int entity, int target) {
 	float vel[3];
@@ -353,8 +458,8 @@ public void OnThink(int entity) {
 	float pos[3], vel[3];
 	Entity_GetAbsOrigin(entity, pos);
 	
-	//TE_SetupBeamRingPoint(pos, 1.0, 32.0, g_cBeam, g_cBeam, 0, 10, 0.1, 4.0, 0.0, { 255, 0, 0, 255 }, 0, 0);
-	//TE_SendToAll();
+	TE_SetupBeamRingPoint(pos, 1.0, 32.0, g_cBeam, g_cBeam, 0, 10, 0.1, 4.0, 0.0, { 255, 0, 0, 255 }, 0, 0);
+	TE_SendToAll();
 	
 	if( g_Anim[entity] != null ) {
 		
