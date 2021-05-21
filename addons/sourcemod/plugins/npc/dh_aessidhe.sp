@@ -47,7 +47,72 @@ public void OnLibraryAdded(const char[] sLibrary) {
 	}
 }
 
+int Target_Circle(float pos[3], int color[3]={255, 0, 0}, float radius=32.0, float time=1.0, bool auto_remove = true) {
+	char tmp[128], clr[128], rad[3];
+	float dst[3];
+	
+	
+	int p1 = CreateEntityByName("info_particle_system");
+	Format(clr, sizeof(clr), "target_%d_%d", p1, GetRandomInt(-99999, 99999));
+	DispatchKeyValue(p1, "targetname", clr);
+	
+	Format(tmp, sizeof(tmp), "!self,KillHierarchy,,%f,-1", time+1.1);
+	DispatchKeyValue(p1, "OnUser1", tmp);
+	DispatchSpawn(p1);
+	ActivateEntity(p1);
+	
+	dst[0] = float(color[0]);
+	dst[1] = float(color[1]);
+	dst[2] = float(color[2]);
+	TeleportEntity(p1, dst, NULL_VECTOR, NULL_VECTOR);
+	
+	
+	
+	int p2 = CreateEntityByName("info_particle_system");
+	Format(rad, sizeof(rad), "target_%d_%d", p2, GetRandomInt(-99999, 99999));
+	DispatchKeyValue(p2, "targetname", rad);
+	
+	Format(tmp, sizeof(tmp), "!self,KillHierarchy,,%f,-1", time+1.1);
+	DispatchKeyValue(p2, "OnUser1", tmp);
+	DispatchSpawn(p2);
+	ActivateEntity(p2);
+	
+	dst[0] = radius + 8.0;
+	dst[1] = 0.0;
+	dst[2] = 0.0;
+	TeleportEntity(p2, dst, NULL_VECTOR, NULL_VECTOR);
+	
+	
+	
+	int src = CreateEntityByName("info_particle_system");
+	Format(tmp, sizeof(tmp), "!self,KillHierarchy,,%f,-1", time+1.1);		DispatchKeyValue(src, "OnUser1", tmp);
+	Format(tmp, sizeof(tmp), "!self,DestroyImmediately,,%f,-1", time+1.0);	DispatchKeyValue(src, "OnUser2", tmp);
+	Format(tmp, sizeof(tmp), "!self,StopPlayEndCap,,%f,-1", time+0.0);		DispatchKeyValue(src, "OnUser3", tmp);
+	
+	DispatchKeyValue(src, "cpoint1", clr);
+	DispatchKeyValue(src, "cpoint2", rad);
+	
+	DispatchKeyValue(src, "effect_name", "target_circle");
+	DispatchSpawn(src);
+	ActivateEntity(src); 
+	
+	TeleportEntity(src, pos, NULL_VECTOR, NULL_VECTOR);
+	
+	SetVariantString("!activator");
+	AcceptEntityInput(p1, "SetParent", src);
+	
+	SetVariantString("!activator");
+	AcceptEntityInput(p2, "SetParent", src);
+	
+	AcceptEntityInput(src, "Start");
+	if( auto_remove ) {
+		AcceptEntityInput(src, "FireUser1");
+		AcceptEntityInput(src, "FireUser2");
+		AcceptEntityInput(src, "FireUser3");
+	}
 
+	return src;
+}
 enum struct s_pos {
 	float pos[3];
 	float start;
@@ -70,9 +135,7 @@ void Push(int entity, float pos[3], float start, float end, MoveType move = MOVE
 	g_Anim[entity].PushArray(data, sizeof(data));
 }
 
-public float OnAttack(NPCInstance entity, int attack_id) {
-	static char sound[PLATFORM_MAX_PATH];
-	
+public float OnAttack(NPCInstance entity, int attack_id) {	
 	float time = 0.0;
 	float pos[3], ang[3], vel[3];
 	Entity_GetAbsOrigin(entity.Id, pos);
@@ -216,19 +279,8 @@ public Action Task_CreateSpear(Handle timer, any entity) {
 				
 				Handle hull = TR_TraceHullFilterEx(tmp, tmp, view_as<float>({ -8.0, -8.0, 2.0 }), view_as<float>({ 8.0, 8.0, 16.0 }), MASK_PLAYERSOLID, FilterToOne, entity);
 				if( !TR_DidHit(hull) ) {
-					
-					int src = CreateEntityByName("info_particle_system");
-					DispatchKeyValue(src, "OnUser1", "!self,KillHierarchy,,2.1,-1");
-					DispatchKeyValue(src, "OnUser2", "!self,DestroyImmediately,,2.0,-1");
-					DispatchKeyValue(src, "OnUser3", "!self,StopPlayEndCap,,1.0,-1");
+					int src = Target_Circle(tmp, {255, 0, 0}, 48.0, 1.0, false);
 					DispatchKeyValue(src, "classname", "aessidhe_target_spear");
-					DispatchKeyValue(src, "effect_name", "target_circle");
-					
-					DispatchSpawn(src);
-					ActivateEntity(src);
-					AcceptEntityInput(src, "Start");
-					
-					TeleportEntity(src, tmp, NULL_VECTOR, NULL_VECTOR);
 					
 					count++;
 				}
@@ -253,9 +305,7 @@ public Action Task_CreateSpear(Handle timer, any entity) {
 #define EF_FOLLOWBONE               (1<<10)    
 
 
-public void OnSpawn(NPCInstance entity) {
-	static char sound[PLATFORM_MAX_PATH];
-	
+public void OnSpawn(NPCInstance entity) {	
 	int weapon = CreateEntityByName("prop_dynamic");
 	DispatchKeyValue(weapon, "model", g_szModel2);
 	DispatchSpawn(weapon);
@@ -340,11 +390,9 @@ public void OnThink(int entity) {
 	}
 }
 public void OnDead(NPCInstance entity) {
-	static char sound[PLATFORM_MAX_PATH];
 	
 }
 public void OnDamage(NPCInstance entity, int attacker, int damage) {
-	static char sound[PLATFORM_MAX_PATH];
 	static float next[2049];
 	
 	float time = GetGameTime();
