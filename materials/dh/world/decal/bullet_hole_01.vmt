@@ -1,5 +1,6 @@
-"LightmappedGeneric"
+"UnlitGeneric"
 {
 	"$basetexture" "dh/world/decal/bullet_hole_01"
-	"$translucent" 1
+	$additive 1
+	$translucent 1
 }

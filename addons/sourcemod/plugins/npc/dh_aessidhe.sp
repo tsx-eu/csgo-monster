@@ -2,11 +2,15 @@
 
 #include <sourcemod>
 #include <sdktools>
-#include <smlib>
 #include <sdkhooks>
+#include <smlib>
+#include <phun>
 
 #include <dh>
 #include <precache>
+
+
+
 
 char g_szModel1[PLATFORM_MAX_PATH] =	"models/dh/boss/aessidhe.mdl";
 char g_szModel2[PLATFORM_MAX_PATH] =	"models/dh/boss/aessidhe_spear.mdl";
@@ -34,6 +38,7 @@ public void OnLibraryAdded(const char[] sLibrary) {
 		g_Class.AddAnimation(NPC_ANIM_IDLE, 	0, 		200, 	30.0);
 		g_Class.AddAnimation(NPC_ANIM_WALK,     4, 		74, 	60.0);
 		g_Class.AddAnimation(NPC_ANIM_RUN, 		3, 		90, 	60.0);
+		g_Class.AddAnimation(NPC_ANIM_DYING,	17, 	300, 	60.0);
 		
 		g_Class.AddEvent(NPC_EVENT_SPAWN,	OnSpawn);
 		g_Class.AddEvent(NPC_EVENT_ATTACK,	OnAttack);
@@ -73,7 +78,9 @@ public float OnAttack(NPCInstance entity, int attack_id) {
 	Entity_GetAbsOrigin(entity.Id, pos);
 	Entity_GetAbsAngles(entity.Id, ang);
 	
-	attack_id = 0;
+	int weapon = GetEntPropEnt(entity.Id, Prop_Data, "m_hActiveWeapon");
+	
+	attack_id = 1;
 	
 	switch(attack_id) {
 		case 0:	{
@@ -84,20 +91,23 @@ public float OnAttack(NPCInstance entity, int attack_id) {
 			
 			Push(entity.Id, vel, 65/60.0, 85/60.0, MOVETYPE_FLY);
 		}
-		case 1:	time = entity.GestureEx(23, 556, 60.0); 	// jump than dash
-		
-		case 2:	time = entity.GestureEx(28, 616, 60.0); 	// summon
-		case 3:	time = entity.GestureEx(29, 340, 60.0); 	// tail
-		case 4:	time = entity.GestureEx(30, 740, 60.0); 	// storm
-		
-		case 5:	time = entity.GestureEx(31, 152, 60.0); 	// 1x slash
-		case 6:	time = entity.GestureEx(34, 310, 60.0); 	// 2x slash
-		case 7:	time = entity.GestureEx(33, 490, 60.0); 	// 3x slash
-		case 8:	time = entity.GestureEx(32, 570, 60.0); 	// 4x slash
-		
-		case 9:	time = entity.GestureEx(36, 242, 60.0); 	// swing
-		case 10:time = entity.GestureEx(41, 168, 60.0); 	// summon fast
-		
+		case 1:	{
+			time = entity.GestureEx(30, 740, 60.0);
+			// -insecure -tools -nop4
+			// snatch
+			// 
+			
+			int p = AttachParticle(entity.Id, "cast_red", 10.0);
+			DispatchKeyValue(p, "OnUser1", "!self,StopPlayEndCap,,8.0,-1");
+			AcceptEntityInput(p, "FireUser1");
+			
+			for(int i=0; i<128; i++) {
+				CreateTimer(GetRandomFloat( 50/60.0, 200/60.0), Task_CreateSpear, entity);
+				CreateTimer(GetRandomFloat(250/60.0, 350/60.0), Task_DamageSpear, entity);
+				CreateTimer(GetRandomFloat(480/60.0, 500/60.0), Task_CleanSpear, entity);
+			}
+			
+		}
 		default: {
 			PrintToChatAll("[ERR] Unknown attackid: %d", attack_id);
 		}
@@ -106,7 +116,134 @@ public float OnAttack(NPCInstance entity, int attack_id) {
 	entity.Freeze = GetGameTime() + time;
 	return time + 1.0;
 }
+public Action Task_CleanSpear(Handle timer, any entity) {
+	static char classname[128];
+	float pos[3];
+	
+	int ent = -1;
+	while( (ent = FindEntityByClassname(ent, "info_particle_system")) && ent > 0 ) {
+		GetEdictClassname(ent, classname, sizeof(classname));
+		
+		if( StrEqual(classname, "aessidhe_particle_spear") ) {
+			Entity_GetAbsOrigin(ent, pos);
+			
+			AcceptEntityInput(ent, "StopPlayEndCap");
+			AcceptEntityInput(ent, "FireUser1");
+			AcceptEntityInput(ent, "FireUser2");
+			
+			DispatchKeyValue(ent, "classname", "info_particle_system");
+			break;
+		}
+	}
+}
 
+public Action Task_DamageSpear(Handle timer, any entity) {
+	static char classname[128];
+	float pos[3];
+	
+	int ent = -1;
+	while( (ent = FindEntityByClassname(ent, "info_particle_system")) && ent > 0 ) {
+		GetEdictClassname(ent, classname, sizeof(classname));
+		
+		if( StrEqual(classname, "aessidhe_target_spear") ) {
+			Entity_GetAbsOrigin(ent, pos);
+			
+			int src = CreateEntityByName("info_particle_system");
+			DispatchKeyValue(src, "OnUser1", "!self,KillHierarchy,,1.0,-1");
+			DispatchKeyValue(src, "OnUser2", "!self,DestroyImmediately,,1.0,-1");
+			DispatchKeyValue(src, "classname", "aessidhe_particle_spear");
+			DispatchKeyValue(src, "effect_name", "aessidhe_spear");
+			TeleportEntity(src, pos, NULL_VECTOR, NULL_VECTOR);
+			
+			DispatchSpawn(src);
+			ActivateEntity(src);
+			AcceptEntityInput(src, "Start");
+			
+			AcceptEntityInput(ent, "FireUser1");
+			AcceptEntityInput(ent, "FireUser2");
+			AcceptEntityInput(ent, "FireUser3");
+			DispatchKeyValue(ent, "classname", "info_particle_system");
+			
+			break;
+		}
+	}
+}
+public Action Task_CreateSpear(Handle timer, any entity) {
+	float pos[3], tmp[3], min[3];
+	
+	Entity_GetAbsOrigin(entity, pos);
+	pos[2] += 128.0;
+	
+	int count = 0;
+	int max = 1;
+	
+	while( count < max ) {
+		tmp[0] = GetRandomFloat(-1.0, 1.0);
+		tmp[1] = GetRandomFloat(-1.0, 1.0);
+		tmp[2] = 0.0;
+		NormalizeVector(tmp, tmp);
+		ScaleVector(tmp, 4096.0);
+		AddVectors(pos, tmp, tmp);
+		
+		bool valid = false;
+		
+		Handle visible = TR_TraceRayFilterEx(pos, tmp, MASK_PLAYERSOLID, RayType_EndPoint, FilterToOne, entity);
+		if( TR_DidHit(visible) ) {
+			TR_GetEndPosition(tmp, visible);
+			SubtractVectors(tmp, pos, tmp);
+			float len = GetVectorLength(tmp);
+			
+			if( len > 64.0 ) {
+				valid = true;
+				NormalizeVector(tmp, tmp);
+				ScaleVector(tmp, GetRandomFloat(32.0, len));
+				AddVectors(pos, tmp, tmp);
+			}
+		}
+		else {
+			valid = true;
+		}
+		delete visible;
+		
+		if( valid ) {
+			min = tmp;
+			min[2] -= 128.0;
+			min[2] -= 16.0;
+			
+			Handle ground = TR_TraceRayFilterEx(tmp, min, MASK_PLAYERSOLID, RayType_EndPoint, FilterToOne, entity);
+			if( TR_DidHit(ground) ) {
+				TR_GetEndPosition(tmp, ground);
+				
+				Handle hull = TR_TraceHullFilterEx(tmp, tmp, view_as<float>({ -8.0, -8.0, 2.0 }), view_as<float>({ 8.0, 8.0, 16.0 }), MASK_PLAYERSOLID, FilterToOne, entity);
+				if( !TR_DidHit(hull) ) {
+					
+					int src = CreateEntityByName("info_particle_system");
+					DispatchKeyValue(src, "OnUser1", "!self,KillHierarchy,,2.1,-1");
+					DispatchKeyValue(src, "OnUser2", "!self,DestroyImmediately,,2.0,-1");
+					DispatchKeyValue(src, "OnUser3", "!self,StopPlayEndCap,,1.0,-1");
+					DispatchKeyValue(src, "classname", "aessidhe_target_spear");
+					DispatchKeyValue(src, "effect_name", "target_circle");
+					
+					DispatchSpawn(src);
+					ActivateEntity(src);
+					AcceptEntityInput(src, "Start");
+					
+					TeleportEntity(src, tmp, NULL_VECTOR, NULL_VECTOR);
+					
+					count++;
+				}
+				delete hull;
+			}
+			delete ground;
+		}
+		delete visible;
+	}
+	
+	
+	//int particle = AttachParticle(weapon, "aessidhe_spear", 10.0, weapon);
+	//SetVariantString("snatch");
+	//AcceptEntityInput(particle, "SetParentAttachment");
+}
 #define EF_BONEMERGE                (1 << 0)
 #define EF_NOSHADOW                 (1 << 4)
 #define EF_NODRAW         			(1 << 5)
@@ -131,6 +268,8 @@ public void OnSpawn(NPCInstance entity) {
 	SetVariantString("spear_head");
 	AcceptEntityInput(weapon, "SetParentAttachment");
 	
+	SetEntPropEnt(entity.Id, Prop_Data, "m_hActiveWeapon", weapon);
+	
 	SDKHook(entity.Id, SDKHook_Think, OnThink);
 	SDKHook(entity.Id, SDKHook_Touch, OnTouch);
 	
@@ -139,9 +278,6 @@ public void OnSpawn(NPCInstance entity) {
 	Entity_SetSolidFlags(entity.Id, FSOLID_CUSTOMBOXTEST|FSOLID_CUSTOMRAYTEST);
 	Entity_SetSolidType(entity.Id, SOLID_OBB);
 	Entity_SetCollisionGroup(entity.Id, COLLISION_GROUP_NPC);
-}
-public Action OnTakeDamage(int victim, int& attacker, int& inflictor, float& damage, int& damageType, int& weapon, float damageForce[3], float damagePosition[3]) {
-	PrintToChatAll("hi");
 }
 public void OnTouch(int entity, int target) {
 	float vel[3];
@@ -167,8 +303,8 @@ public void OnThink(int entity) {
 	float pos[3], vel[3];
 	Entity_GetAbsOrigin(entity, pos);
 	
-	TE_SetupBeamRingPoint(pos, 1.0, 32.0, g_cBeam, g_cBeam, 0, 10, 0.1, 4.0, 0.0, { 255, 0, 0, 255 }, 0, 0);
-	TE_SendToAll();
+	//TE_SetupBeamRingPoint(pos, 1.0, 32.0, g_cBeam, g_cBeam, 0, 10, 0.1, 4.0, 0.0, { 255, 0, 0, 255 }, 0, 0);
+	//TE_SendToAll();
 	
 	if( g_Anim[entity] != null ) {
 		

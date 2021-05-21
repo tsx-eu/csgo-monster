@@ -1,4 +1,6 @@
-"LightmappedGeneric"
+"spritecard"
 {
 	"$basetexture" "dh/effects/MagicCircle33"
+	$additive 1
+	$nocull 1
 }

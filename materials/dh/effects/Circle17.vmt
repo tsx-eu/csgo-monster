@@ -1,0 +1,7 @@
+"spritecard"
+{
+	"$basetexture" "dh/effects/Circle17"
+	$additive 1
+	$nocull 1
+	$ignorez 1
+}
