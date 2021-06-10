@@ -14,8 +14,8 @@ char g_szFullName[PLATFORM_MAX_PATH] =	"Shuriken";
 char g_szName[PLATFORM_MAX_PATH] 	 =	"shuriken";
 char g_szReplace[PLATFORM_MAX_PATH]  =	"weapon_tec9";
 
-char g_szVModel[PLATFORM_MAX_PATH] =	"models/weapons/v_pist_tec9.mdl";
-char g_szWModel[PLATFORM_MAX_PATH] =	"models/weapons/w_pist_tec9.mdl";
+char g_szVModel[PLATFORM_MAX_PATH] =	"models/dh/weapons/v_shuriken.mdl";
+char g_szWModel[PLATFORM_MAX_PATH] =	"models/dh/weapons/w_shuriken.mdl";
 char g_szTModel[PLATFORM_MAX_PATH] =    "models/dh/weapons/p_shuriken.mdl";
 
 int g_cModel;
@@ -64,11 +64,12 @@ public void OnLibraryAdded(const char[] sLibrary) {
 		CWM_SetFloat(id, WSF_AttackRange,	2048.0);
 		CWM_SetFloat(id, WSF_Spread, 		0.0);
 		
-		CWM_AddAnimation(id, WAA_Idle, 		0,	1, 30);
-		CWM_AddAnimation(id, WAA_Attack, 	1,  12, 30);
-		CWM_AddAnimation(id, WAA_Attack, 	2,  12, 30);
-		CWM_AddAnimation(id, WAA_Reload, 	3,	77, 30);
-		CWM_AddAnimation(id, WAA_Draw, 		5,	30, 30);
+		CWM_AddAnimation(id, WAA_Idle, 		0,	189, 30);
+		CWM_AddAnimation(id, WAA_Draw, 		1,	25, 30);
+		CWM_AddAnimation(id, WAA_Pull, 		2,	25, 30);
+		CWM_AddAnimation(id, WAA_Attack, 	3,  20, 30);
+		CWM_AddAnimation(id, WAA_Attack, 	4,  20, 30);
+		CWM_AddAnimation(id, WAA_Attack2, 	5,  45, 40);
 		
 		CWM_RegHook(id, WSH_Draw,			OnDraw);
 		CWM_RegHook(id, WSH_Attack,			OnAttack);

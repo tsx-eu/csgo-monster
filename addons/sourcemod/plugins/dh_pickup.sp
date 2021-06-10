@@ -42,8 +42,77 @@ char g_szSounds[][PLATFORM_MAX_PATH] = {
 	"dh/ambiant/bolt3.mp3",
 	"dh/ambiant/heal.mp3"	
 };
+
+int g_cBeam;
 public void OnPluginStart() {
 	CreateTimer(1.0, Spawn, _, TIMER_REPEAT);
+	
+	RegConsoleCmd("particle", Cmd_Test);
+}
+public Action Cmd_Test(int client, int args) {
+	float pos[3], ang[3];
+	GetClientAbsOrigin(client, pos);
+	GetClientAbsAngles(client, ang);
+	
+	ang[1] = 0.0;
+	
+	Target_Rectangle(pos, ang, 128.0, 1);
+	
+	return Plugin_Handled;
+}
+void Target_Rectangle(float center[3], float angle[3], float length, int width=1) {
+	g_cBeam = Precache_Model("materials/sprites/laserbeam.vmt");
+	
+	float vel[3];
+	
+	float sqrt = SquareRoot(length);
+	float diag = 396.0/512.0; // 0.7734 --- 1.2929 --- 1.4142
+	
+	if( width == 1 ) {
+		Target_Circle(center, angle, {255, 0, 0}, length, 10.0, 1, true);
+		
+		float src[3], dst[3];
+		float good = length * 2.0 * (396.0 / 512.0) * SquareRoot(2.0);
+		
+		src = center;
+		src[0] -= good/2;
+		
+		dst = src;
+		dst[0] += good;
+		TE_SetupBeamPoints(src, dst, g_cBeam, g_cBeam, 0, 0, 10.0, 2.0, 2.0, 0, 0.0, { 0, 255, 0, 255 }, 0);
+		TE_SendToAll();
+		
+		src = center;
+		src[0] += good/2;
+		src[1] -= good/2;
+		
+		dst = src;
+		dst[1] += good;
+		TE_SetupBeamPoints(src, dst, g_cBeam, g_cBeam, 0, 0, 10.0, 2.0, 2.0, 0, 0.0, { 0, 0, 255, 255 }, 0);
+		TE_SendToAll();
+	}
+	else if( width % 2 == 1 ) {	
+		for(int i=-width/2; i<=width/2; i++) {
+			GetAngleVectors(angle, vel, NULL_VECTOR, NULL_VECTOR);			
+			ScaleVector(vel, (length * 2.0) * float(i));
+			AddVectors(center, vel, vel);
+			
+			Target_Circle(vel, angle, {255, 0, 0}, length, 10.0, 1, true);
+		}
+	}
+	
+	/*
+	GetAngleVectors(angle, vel, NULL_VECTOR, NULL_VECTOR);
+	ScaleVector(vel, (length * 2.0) * float(width)/2.0);
+	AddVectors(center, vel, vel);
+	Target_Circle(vel, angle, {255, 0, 0}, length, 10.0, 2, true);
+	 
+	angle[1] += 180.0;
+	GetAngleVectors(angle, vel, NULL_VECTOR, NULL_VECTOR);
+	ScaleVector(vel, (length * 2.0) * float(width)/2.0);
+	AddVectors(center, vel, vel);
+	Target_Circle(vel, angle, {255, 0, 0}, length, 10.0, 2, true);
+	*/
 }
 public Action Spawn(Handle timer, any none) {
 	static char name[PLATFORM_MAX_PATH];

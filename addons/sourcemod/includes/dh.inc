@@ -42,6 +42,85 @@ forward Action DH_OnTrackPath(int hostage, float vec[3], float delta);
 forward Action DH_OnUpdateFollowingPre(int hostage, float delta);
 forward void DH_OnUpdateFollowingPost(int hostage, float delta);
 
+
+stock int Target_Circle(float pos[3], float ang[3] = NULL_VECTOR, int color[3]={255, 0, 0}, float radius=32.0, float time=1.0, int type = 0, bool auto_remove = true) {
+	char tmp[128], clr[128], rad[3];
+	float dst[3];
+	
+	
+	int p1 = CreateEntityByName("info_particle_system");
+	Format(clr, sizeof(clr), "target_%d_%d", p1, GetRandomInt(-99999, 99999));
+	DispatchKeyValue(p1, "targetname", clr);
+	
+	Format(tmp, sizeof(tmp), "!self,KillHierarchy,,%f,-1", time+1.1);
+	DispatchKeyValue(p1, "OnUser1", tmp);
+	DispatchSpawn(p1);
+	ActivateEntity(p1);
+	
+	dst[0] = float(color[0]);
+	dst[1] = float(color[1]);
+	dst[2] = float(color[2]);
+	TeleportEntity(p1, dst, NULL_VECTOR, NULL_VECTOR);
+	
+	
+	
+	int p2 = CreateEntityByName("info_particle_system");
+	Format(rad, sizeof(rad), "target_%d_%d", p2, GetRandomInt(-99999, 99999));
+	DispatchKeyValue(p2, "targetname", rad);
+	
+	Format(tmp, sizeof(tmp), "!self,KillHierarchy,,%f,-1", time+1.1);
+	DispatchKeyValue(p2, "OnUser1", tmp);
+	DispatchSpawn(p2);
+	ActivateEntity(p2);
+	
+	dst[0] = radius + 8.0;
+	dst[1] = 0.0;
+	dst[2] = 0.0;
+	TeleportEntity(p2, dst, NULL_VECTOR, NULL_VECTOR);
+	
+	
+	
+	int src = CreateEntityByName("info_particle_system");
+	Format(tmp, sizeof(tmp), "!self,KillHierarchy,,%f,-1", time+1.1);		DispatchKeyValue(src, "OnUser1", tmp);
+	Format(tmp, sizeof(tmp), "!self,DestroyImmediately,,%f,-1", time+1.0);	DispatchKeyValue(src, "OnUser2", tmp);
+	Format(tmp, sizeof(tmp), "!self,StopPlayEndCap,,%f,-1", time+0.0);		DispatchKeyValue(src, "OnUser3", tmp);
+	
+	DispatchKeyValue(src, "cpoint1", clr);
+	DispatchKeyValue(src, "cpoint2", rad);
+	
+	switch( type ) {
+		case 0: {
+			DispatchKeyValue(src, "effect_name", "target_circle");
+		}
+		case 1: {
+			DispatchKeyValue(src, "effect_name", "target_lane");
+		}
+		case 2: {
+			DispatchKeyValue(src, "effect_name", "target_half");
+		}
+	}
+	
+	DispatchSpawn(src);
+	ActivateEntity(src); 
+	
+	TeleportEntity(src, pos, ang, NULL_VECTOR);
+	
+	SetVariantString("!activator");
+	AcceptEntityInput(p1, "SetParent", src);
+	
+	SetVariantString("!activator");
+	AcceptEntityInput(p2, "SetParent", src);
+	
+	AcceptEntityInput(src, "Start");
+	if( auto_remove ) {
+		AcceptEntityInput(src, "FireUser1");
+		AcceptEntityInput(src, "FireUser2");
+		AcceptEntityInput(src, "FireUser3");
+	}
+
+	return src;
+}
+
 enum NPCData_Int {
 	NPC_iClass,
 	NPC_iHealth,
