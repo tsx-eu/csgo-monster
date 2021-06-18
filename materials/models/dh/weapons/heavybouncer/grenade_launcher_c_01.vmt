@@ -1,0 +1,15 @@
+"VertexLitGeneric"
+{
+	"$basetexture" 		"models/dh/weapons/heavybouncer/grenade_launcher_c_01"
+	"$bumpmap" 		"models/dh/weapons/heavybouncer/grenade_launcher_c_01_ddn"
+
+	"$phong" 		"1"
+	"$phongalbedotint"		"1"
+	"$phongexponenttexture"	"models/dh/weapons/heavybouncer/250"
+	"$phongboost" 		"6"
+	"$phongfresnelranges"	"[1 3 5]"
+
+	"$lightwarptexture"		"models/dh/weapons/heavybouncer/251"
+
+	"$ambientocclusion" 	".66"
+}
