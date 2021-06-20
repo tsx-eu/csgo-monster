@@ -239,6 +239,7 @@ void HUD_Update(int client) {
 	
 	ClientCommand(client, "r_screenoverlay dh/hud/HP/%d", img);
 	SendConVarValue(client, FindConVar("game_type"), "6");
+	SetEntProp(client, Prop_Send, "m_nSurvivalTeam", 0);
 	
 	int hud1 = GetEntProp(client, Prop_Send, "m_iHideHUD");
 	int hud2 = hud1;
