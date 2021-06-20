@@ -7,7 +7,7 @@
 #include <dh>
 #include <precache>
 
-char g_szModel[PLATFORM_MAX_PATH] =	"models/npc/tsx/zombie/zombie.mdl";
+char g_szModel[PLATFORM_MAX_PATH] =	"models/dh/npc/zombie.mdl";
 
 char g_szSounds[][PLATFORM_MAX_PATH] = {
 	"dh/npc/zombie/Attack_01.mp3",
