@@ -73,6 +73,7 @@ public Action OnAttack(int client, int entity) {
 	//EmitAmbientSound(sound, NULL_VECTOR, entity, SNDLEVEL_GUNFIRE, SND_NOFLAGS, 1.0, GetRandomInt(90, 110));
 	
 	int ent = CWM_ShootProjectile(client, entity, g_szTModel, "mirv", 1.0, 1024.0, OnProjectileHit);
+	SetEntPropFloat(ent, Prop_Send, "m_flModelScale", 5.0);
 	
 	TE_SetupBeamFollow(ent, g_cModel, g_cModel, 0.25, 2.0, 0.0, 0, {255, 255, 255, 64});
 	TE_SendToAll();
@@ -91,6 +92,8 @@ public Action OnProjectileHit(int client, int wpnid, int entity, int target) {
 	for(int i=0; i<8; i++) {
 		int ent = CWM_ShootProjectile(client, wpnid, g_szTModel, "mirvlet", 0.1, 0.0, OnProjectileHit2);
 		SetEntPropFloat(ent, Prop_Send, "m_flElasticity", GetRandomFloat(0.8, 1.2));
+		SetEntPropFloat(ent, Prop_Send, "m_flModelScale", 2.0);
+		
 		TE_SetupBeamFollow(ent, g_cModel, g_cModel, 0.25, 1.0, 0.0, 0, {255, 255, 255, 64});
 		TE_SendToAll();
 		
