@@ -45,6 +45,14 @@ public void OnLibraryAdded(const char[] sLibrary) {
 		g_Class.AddEvent(NPC_EVENT_DEAD,	OnDead);
 		g_Class.AddEvent(NPC_EVENT_DAMAGE,	OnDamage);
 	}
+	
+	
+	float area[3][3] = {
+		{0.0, 0.0, 0.0},
+		{128.0, 0.0, 0.0},
+		{128.0, 128.0, 0.0}
+	};
+	Area(area, sizeof(area));
 }
 
 
@@ -69,7 +77,21 @@ void Push(int entity, float pos[3], float start, float end, MoveType move = MOVE
 	
 	g_Anim[entity].PushArray(data, sizeof(data));
 }
-
+void Area(const float[][3] coords, int size) {
+	//int beam = PrecacheModel("materials/dh/effects/Gradient6.vmt");
+	int beam = PrecacheModel("materials/particle/2joints_trail/sphere_hotblue2.vmt");
+	
+	float scale = 16.0;
+	
+	
+	for(int i=1; i<size; i++) {
+		TE_SetupBeamPoints(coords[i - 1], coords[i], beam, beam, 0, 0, 10.0, scale, scale, 0, 0.0, { 255, 0, 0, 255 }, 0);
+		TE_SendToAll();
+	}
+	
+	TE_SetupBeamPoints(coords[size-2], coords[size-1], beam, beam, 0, 0, 10.0, scale, scale, 0, 0.0, { 255, 0, 0, 255 }, 0);
+	TE_SendToAll();
+}
 public float OnAttack(NPCInstance entity, int attack_id) {	
 	float time = 0.0;
 	float pos[3], ang[3], vel[3];
@@ -78,7 +100,8 @@ public float OnAttack(NPCInstance entity, int attack_id) {
 	
 	int weapon = GetEntPropEnt(entity.Id, Prop_Data, "m_hActiveWeapon");
 	
-	attack_id = 9;
+	attack_id = GetRandomInt(0, 8);
+	attack_id = 0;
 	
 	switch(attack_id) {
 		case 0:	{ // dash
@@ -194,24 +217,13 @@ public float OnAttack(NPCInstance entity, int attack_id) {
 			
 			Push(entity.Id, vel, 20/60.0, 50/60.0, MOVETYPE_FLY);
 		}
-		case 9: { // ultimate "vacuum"
- 			time = entity.GestureEx(41, 168, 60.0);
- 			//time = entity.GestureEx(37, 515, 60.0);
- 			//time = entity.GestureEx(39, 108, 60.0);
- 			
- 			GetAngleVectors(ang, vel, NULL_VECTOR, NULL_VECTOR);
-			ScaleVector(vel, -192.0);
-			AddVectors(pos, vel, vel);
-			
-			Push(entity.Id, vel, 400/60.0, 490/60.0, MOVETYPE_FLY);
-		}
 		default: {
 			PrintToChatAll("[ERR] Unknown attackid: %d", attack_id);
 		}
 	}
 	
 	entity.Freeze = GetGameTime() + time;
-	return time + 1.0;
+	return time;
 }
 public Action Task_CleanSpear(Handle timer, any entity) {
 	static char classname[128];

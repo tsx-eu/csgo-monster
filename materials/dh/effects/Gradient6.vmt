@@ -1,5 +1,7 @@
-"LightmappedGeneric"
+"spritecard"
 {
 	"$basetexture" "dh/effects/Gradient6"
-	"$translucent" 1
+	$additive 1
+	$nocull 1
+	$ignorez 1
 }

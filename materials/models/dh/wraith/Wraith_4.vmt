@@ -1,0 +1,14 @@
+"VertexlitGeneric"
+{
+	"$basetexture" "models/dh/wraith/Wraith_4"
+	"$bumpmap" "models/dh/wraith/Wraith_1_N"
+
+	"$phong" "1"
+	"$phongexponent" "85"
+	"$phongboost" "3"	
+	"$phongfresnelranges"	"[.07 .07 .07]"
+	"$halflambert" "1"
+
+}
+
+
