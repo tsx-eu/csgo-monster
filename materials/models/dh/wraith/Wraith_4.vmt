@@ -8,6 +8,9 @@
 	"$phongboost" "3"	
 	"$phongfresnelranges"	"[.07 .07 .07]"
 	"$halflambert" "1"
+	
+	$alphatest  1
+	$nocull		1
 
 }
 

@@ -1,4 +1,7 @@
-"LightmappedGeneric"
+"SpriteCard"
 {
-	"$basetexture" "dh/effects/Flare4"
+	$basetexture "dh/effects/Flare4"
+	$translucent	1
+	$addself		1
+	$overbrightfactor	2
 }

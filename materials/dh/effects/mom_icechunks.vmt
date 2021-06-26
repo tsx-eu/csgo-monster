@@ -1,0 +1,7 @@
+"SpriteCard"
+{
+	$basetexture "dh/effects/mom_icechunks"
+	$translucent	1
+	$addself		1
+	$overbrightfactor	2
+}
