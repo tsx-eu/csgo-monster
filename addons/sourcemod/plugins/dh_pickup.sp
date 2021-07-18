@@ -56,7 +56,7 @@ public Action Cmd_Test(int client, int args) {
 	
 	ang[1] = 0.0;
 	
-	Target_Rectangle(pos, ang, 128.0, 1);
+	Target_Rectangle(pos, ang, 64.0, 4);
 	
 	return Plugin_Handled;
 }
@@ -101,18 +101,16 @@ void Target_Rectangle(float center[3], float angle[3], float length, int width=1
 		}
 	}
 	
-	/*
 	GetAngleVectors(angle, vel, NULL_VECTOR, NULL_VECTOR);
 	ScaleVector(vel, (length * 2.0) * float(width)/2.0);
 	AddVectors(center, vel, vel);
 	Target_Circle(vel, angle, {255, 0, 0}, length, 10.0, 2, true);
-	 
+	
 	angle[1] += 180.0;
 	GetAngleVectors(angle, vel, NULL_VECTOR, NULL_VECTOR);
 	ScaleVector(vel, (length * 2.0) * float(width)/2.0);
 	AddVectors(center, vel, vel);
 	Target_Circle(vel, angle, {255, 0, 0}, length, 10.0, 2, true);
-	*/
 }
 public Action Spawn(Handle timer, any none) {
 	static char name[PLATFORM_MAX_PATH];

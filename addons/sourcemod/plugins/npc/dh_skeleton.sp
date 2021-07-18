@@ -7,8 +7,8 @@
 #include <dh>
 #include <precache>
 
-char g_szModel1[PLATFORM_MAX_PATH] =	"models/npc/tsx/skeleton/skeleton.mdl";
-char g_szModel2[PLATFORM_MAX_PATH] =	"models/npc/tsx/skeleton/skeleton_arrow.mdl";
+char g_szModel1[PLATFORM_MAX_PATH] =	"models/dh/npc/skeleton.mdl";
+char g_szModel2[PLATFORM_MAX_PATH] =	"models/dh/npc/skeleton_arrow.mdl";
 
 char g_szSounds[][PLATFORM_MAX_PATH] = {
 	"weapons/knife/knife_hit1.wav",

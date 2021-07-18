@@ -14,10 +14,10 @@ char g_szFullName[PLATFORM_MAX_PATH] =	"Bouncer";
 char g_szName[PLATFORM_MAX_PATH] 	 =	"bouncer";
 char g_szReplace[PLATFORM_MAX_PATH]  =	"weapon_tec9";
 
-char g_szVModel[PLATFORM_MAX_PATH] =	"models/weapons/v_pist_tec9.mdl";
-char g_szWModel[PLATFORM_MAX_PATH] =	"models/weapons/w_pist_tec9.mdl";
-char g_szTModel[PLATFORM_MAX_PATH] =	"models/grenades/mirv/mirv.mdl";
-char g_szPModel[PLATFORM_MAX_PATH] =	"models/grenades/mirv/mirvlet.mdl";
+
+char g_szVModel[PLATFORM_MAX_PATH] =	"models/dh/weapons/v_heavybouncer.mdl";
+char g_szWModel[PLATFORM_MAX_PATH] =	"models/dh/weapons/w_heavybouncer.mdl";
+char g_szTModel[PLATFORM_MAX_PATH] =    "models/dh/weapons/grenade.mdl";
 int g_cModel;
 
 char g_szSounds[][PLATFORM_MAX_PATH] = {	
@@ -43,11 +43,12 @@ public void OnLibraryAdded(const char[] sLibrary) {
 		CWM_SetFloat(id, WSF_AttackRange,	2048.0);
 		CWM_SetFloat(id, WSF_Spread, 		0.0);
 		
-		CWM_AddAnimation(id, WAA_Idle, 		0,	1, 30);
-		CWM_AddAnimation(id, WAA_Attack, 	1,  12, 30);
-		CWM_AddAnimation(id, WAA_Attack, 	2,  12, 30);
-		CWM_AddAnimation(id, WAA_Reload, 	3,	77, 30);
-		CWM_AddAnimation(id, WAA_Draw, 		5,	30, 30);
+		CWM_AddAnimation(id, WAA_Idle, 		0,	189, 30);
+		CWM_AddAnimation(id, WAA_Draw, 		1,	20, 30);
+		CWM_AddAnimation(id, WAA_Pull, 		2,	20, 30);
+		CWM_AddAnimation(id, WAA_Attack, 	5,  36, 30);
+		CWM_AddAnimation(id, WAA_Attack, 	6,  36, 30);
+		CWM_AddAnimation(id, WAA_Attack2, 	5,  45, 40);
 		
 		CWM_RegHook(id, WSH_Draw,			OnDraw);
 		CWM_RegHook(id, WSH_Attack,			OnAttack);
@@ -66,12 +67,13 @@ public void OnReload(int client, int entity) {
 }
 public Action OnAttack(int client, int entity) {
 	static char sound[PLATFORM_MAX_PATH];
-	CWM_RunAnimation(entity, WAA_Attack, 10/30.0);
+	CWM_RunAnimation(entity, WAA_Attack);
 	
 	Format(sound, sizeof(sound), "dh/weapons/combustor_attack%d.mp3", GetRandomInt(1, 2));
 	//EmitAmbientSound(sound, NULL_VECTOR, entity, SNDLEVEL_GUNFIRE, SND_NOFLAGS, 1.0, GetRandomInt(90, 110));
 	
 	int ent = CWM_ShootProjectile(client, entity, g_szTModel, "mirv", 1.0, 1024.0, OnProjectileHit);
+	SetEntPropFloat(ent, Prop_Send, "m_flModelScale", 5.0);
 	
 	TE_SetupBeamFollow(ent, g_cModel, g_cModel, 0.25, 2.0, 0.0, 0, {255, 255, 255, 64});
 	TE_SendToAll();
@@ -88,8 +90,10 @@ public Action OnProjectileHit(int client, int wpnid, int entity, int target) {
 	ShowParticle(pos, "combustor_explode", 5.0);
 	
 	for(int i=0; i<8; i++) {
-		int ent = CWM_ShootProjectile(client, wpnid, g_szPModel, "mirvlet", 0.1, 0.0, OnProjectileHit2);
+		int ent = CWM_ShootProjectile(client, wpnid, g_szTModel, "mirvlet", 0.1, 0.0, OnProjectileHit2);
 		SetEntPropFloat(ent, Prop_Send, "m_flElasticity", GetRandomFloat(0.8, 1.2));
+		SetEntPropFloat(ent, Prop_Send, "m_flModelScale", 2.0);
+		
 		TE_SetupBeamFollow(ent, g_cModel, g_cModel, 0.25, 1.0, 0.0, 0, {255, 255, 255, 64});
 		TE_SendToAll();
 		
@@ -140,7 +144,6 @@ public void OnMapStart() {
 	Precache_Model(g_szVModel);
 	Precache_Model(g_szWModel);
 	Precache_Model(g_szTModel);
-	Precache_Model(g_szPModel);
 	
 	g_cModel = Precache_Model("materials/sprites/laserbeam.vmt");
 	if( g_cModel ) { }

@@ -40,6 +40,7 @@ public void OnPluginStart() {
 public void OnMapStart() {
 	char tmp[PLATFORM_MAX_PATH];
 	Precache_Particles("particles/kosso_1.pcf");
+	Precache_Particles("particles/kosso_2.pcf");
 	
 	for(int i=0; i<20; i++) {
 		Format(tmp, sizeof(tmp), "materials/dh/hud/HP/%d.vmt", i * 5);
@@ -239,6 +240,7 @@ void HUD_Update(int client) {
 	
 	ClientCommand(client, "r_screenoverlay dh/hud/HP/%d", img);
 	SendConVarValue(client, FindConVar("game_type"), "6");
+	SetEntProp(client, Prop_Send, "m_nSurvivalTeam", 0);
 	
 	int hud1 = GetEntProp(client, Prop_Send, "m_iHideHUD");
 	int hud2 = hud1;

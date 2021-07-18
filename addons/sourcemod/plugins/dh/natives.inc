@@ -111,14 +111,16 @@ public int Native_DH_Spawn(Handle plugin, int numParams) {
 	
 	g_iInstance[entity][NPC_iClass] = id;
 	g_iInstance[entity][NPC_iHealth] = g_iClass[id][NPC_iHealth];
+	g_iInstance[entity][NPC_iBody] = GetRandomInt(g_iClass[id][NPC_iMinBody], g_iClass[id][NPC_iMaxBody]);
+	g_iInstance[entity][NPC_iSkin] = GetRandomInt(g_iClass[id][NPC_iMinSkin], g_iClass[id][NPC_iMaxSkin]);
 	
 	int child = CreateEntityByName("monster_generic");
 	DispatchKeyValue(child, "model", g_szClass[id][NPC_szModel]);
 	DispatchSpawn(child);
 	ActivateEntity(child);
 	SetEntProp(child, Prop_Send, "m_fEffects", EF_BONEMERGE|EF_NOSHADOW|EF_NORECEIVESHADOW|EF_PARENT_ANIMATES);	
-	SetEntProp(child, Prop_Send, "m_nBody", GetRandomInt(g_iClass[id][NPC_iMinBody], g_iClass[id][NPC_iMaxBody]));
-	SetEntProp(child, Prop_Send, "m_nSkin", GetRandomInt(g_iClass[id][NPC_iMinSkin], g_iClass[id][NPC_iMaxSkin]));
+	SetEntProp(child, Prop_Send, "m_nBody", g_iInstance[entity][NPC_iBody]);
+	SetEntProp(child, Prop_Send, "m_nSkin", g_iInstance[entity][NPC_iSkin]);
 	SetEntProp(child, Prop_Data, "m_lifeState", 2);
 	SetEntProp(child, Prop_Send, "m_bClientSideAnimation", 0);
 	Entity_SetSolidType(child, SOLID_NONE);
